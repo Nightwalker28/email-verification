@@ -1,0 +1,6 @@
+.env
+venv
+app.log
+client_secret.json
+flask_session
+uploads

@@ -1,0 +1,14 @@
+google:Google
+outlook:Microsoft
+hotmail:Microsoft
+live:Microsoft
+yahoo:Yahoo
+mailgun:Mailgun
+sendgrid:SendGrid
+aol:AOL
+zoho:Zoho
+gmx:GMX
+mail:Mail.com
+amazonaws:Amazon SES
+sparkpost:SparkPost
+mimecast:Minecast
