@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,17 +8,52 @@
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-     <!-- Manual Email Verification Section -->
-     <form id="manualEmailForm">
-        <div class="mb-3">
-            <label for="emailAddress" class="form-label">Enter Email Address</label>
-            <input class="form-control" type="email" id="emailAddress" name="emailAddress" required>
+    <div class="container mt-4">
+        <!-- Manual Email Verification Section -->
+        <h2>Email Verification</h2>
+        <form id="manualEmailForm">
+            <div class="mb-3">
+                <label for="emailAddress" class="form-label">Enter Email Address</label>
+                <input class="form-control" type="email" id="emailAddress" name="emailAddress" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Verify Email</button>
+        </form>
+        <div id="manualResultSection" class="mt-3">
+            <p id="manualResult"></p>
         </div>
-        <button type="submit" class="btn btn-primary">Verify Email</button>
-    </form>
-    <div id="manualResultSection" class="mt-3">
-        <p id="manualResult"></p>
+
+        <!-- Last 10 Checked Emails Section -->
+        <h3 class="mt-5">Last 10 Checked Emails</h3>
+        {% if last_checked_emails %}
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Result</th>
+                    <th>Provider</th>
+                    <th>Role Based</th>
+                    <th>Accept All</th>
+                    <th>Full Inbox</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for email_record in last_checked_emails %}
+                <tr>
+                    <td>{{ email_record.email }}</td>
+                    <td>{{ email_record.result }}</td>
+                    <td>{{ email_record.provider }}</td>
+                    <td>{{ 'Yes' if email_record.role_based else 'No' }}</td>
+                    <td>{{ 'Yes' if email_record.accept_all else 'No' }}</td>
+                    <td>{{ 'Yes' if email_record.full_inbox else 'No' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No checked emails found.</p>
+        {% endif %}
     </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/static/js/script.js"></script>
 </body>

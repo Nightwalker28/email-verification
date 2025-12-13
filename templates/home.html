@@ -12,5 +12,20 @@
         <li><a href="/verify">Manual Check</a></li>
         <li><a href="/list">CSV Check</a></li>
     </ul>
+    <div class="container mt-4"></div>
+        <!-- Manual Email Verification Section -->
+        <h2>Email Verification</h2>
+        <form id="manualEmailForm">
+            <div class="mb-3">
+                <label for="emailAddress" class="form-label">Enter Email Address</label>
+                <input class="form-control" type="email" id="emailAddress" name="emailAddress" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Verify Email</button>
+        </form>
+        <div id="manualResultSection" class="mt-3">
+            <p id="manualResult"></p>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="/static/js/script.js"></script>
 </body>
 </html>
