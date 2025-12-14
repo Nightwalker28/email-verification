@@ -4,3 +4,5 @@ app.log
 client_secret.json
 flask_session
 uploads
+migrations
+__pycache__
