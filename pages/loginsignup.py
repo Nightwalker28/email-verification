@@ -1,22 +1,45 @@
-import secrets,smtplib
+import secrets
 from werkzeug.security import check_password_hash,generate_password_hash
-from flask import session
-from pages.models import User,db,PasswordResetToken
-from config import app
+from flask import render_template, session,url_for
+from pages.models import User,db,PasswordResetToken,Organizations,TempUser
+from config import mail_server,FREE_EMAIL_PROVIDERS,disposable
 from datetime import datetime,timedelta
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 def generate_nonce(length=32):
     """Generate a secure random nonce."""
     return secrets.token_urlsafe(length)
 
+def is_work_email(email):
+    """Check if the email is from a common free email provider."""
+    domain = email.split('@')[-1]
+    return domain in FREE_EMAIL_PROVIDERS
+
+def is_disposable_email(email):
+    """Check if the email is from a known disposable email provider."""
+    domain = email.split('@')[-1]
+    return domain in disposable
+
+def can_create_user(email):
+    domain = email.split('@')[-1]  # Extract the domain from the email
+    domain_count = Organizations.query.filter_by(domain=domain).first()
+    
+    if domain_count and domain_count.user_count >= 5:
+        return False  # Limit reached
+    return True  # Can create a new user
+
+def verify_user(email):
+    if is_work_email(email):
+        return False  # Business email required
+    if is_disposable_email(email):
+        return False  # Disposable email not allowed
+    if not can_create_user(email):
+        return False  # Limit reached for free accounts
+    return True  # Email is valid
+
 # Helper function: Validate user
-def validate_user(email, password):
-    user = User.query.filter_by(email=email).first()
-    if user and check_password_hash(user.password, password):
-        return user
-    return None
+def validate_user(user, password):
+    """Checks if the provided password matches the stored password hash."""
+    return check_password_hash(user.password, password)
 
 def sign_in_user(user):
     try:
@@ -26,70 +49,11 @@ def sign_in_user(user):
     except Exception as e:
         session.clear()
 
-
 def user_exists(email):
     return User.query.filter_by(email=email).first()
 
-def create_user(first_name, last_name, email, password):
-    hashed_password = generate_password_hash(password)
-    new_user = User(
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        password=hashed_password,
-        is_google=False,
-        is_paid=False
-    )
-    db.session.add(new_user)
-    db.session.commit()
-    return new_user
-
-def get_or_create_google_user(email, first_name, last_name):
-    user = User.query.filter_by(email=email).first()
-    if user:
-        return user
-
-    new_user = User(
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        password='',  # No password for Google users
-        is_google=True,
-        is_paid=False
-    )
-    db.session.add(new_user)
-    db.session.commit()
-    return new_user
-
-def send_password_reset_email(recipient_email, reset_link):
-    sender_email = app.config['MAIL_USERNAME']
-    subject = "Password Reset Request"
-    body = (
-        "Hello,\n\n"
-        "We received a request to reset your password. "
-        "You can reset your password by clicking the link below:\n"
-        f"{reset_link}\n\n"
-        "If you did not request a password reset, please ignore this email.\n\n"
-        "Best regards,\n"
-        "Acumen Intelligence Team"
-    )
-
-    # Create a plain text email message
-    msg = MIMEText(body)
-    msg['From'] = sender_email
-    msg['To'] = recipient_email
-    msg['Subject'] = subject
-
-    try:
-        # Set up the SMTP server and send the email
-        with smtplib.SMTP(app.config['MAIL_SERVER'], app.config['MAIL_PORT']) as server:
-            server.starttls()  # Enable TLS
-            server.login(sender_email, app.config['MAIL_PASSWORD'])  # Log in to the server
-            server.send_message(msg)  # Send the email
-        return True
-    except Exception as e:
-        print(f"Failed to send password reset email: {e}")
-        return False
+def temp_exists(email):
+    return TempUser.query.filter_by(email=email).first()
     
 def generate_reset_token(user):
     token = secrets.token_urlsafe()
@@ -104,6 +68,24 @@ def validate_reset_token(token):
     if reset_token and reset_token.expires_at > datetime.utcnow():
         return reset_token.user
     return None
+
+def send_email(first_name, email, verification_token):
+    """
+    Sends a verification email with a link.
+    """
+    verification_link = url_for('verify_email', token=verification_token, _external=True)
+    subject, html_body = create_welcome_email(first_name, verification_link)
+    mail_server(email, subject, html_body)
+
+def create_password_reset_email(reset_link):
+    subject = "Password Reset Request"
+    html_body = render_template("emails/password_reset.html", reset_link=reset_link)
+    return subject, html_body
+
+def create_welcome_email(first_name, verification_link):
+    subject = "Welcome to Acumen Intelligence - Verify Your Email"
+    html_body = render_template("emails/welcome.html", first_name=first_name, verification_link=verification_link)
+    return subject, html_body
 
 def reset_password(user, new_password):
     user.password = generate_password_hash(new_password)
