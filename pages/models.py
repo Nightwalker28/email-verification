@@ -21,8 +21,7 @@ class User(db.Model):
 searched_email_user = db.Table('searched_email_user',
     db.Column('user_id', db.Integer, db.ForeignKey('users.user_id'), primary_key=True),
     db.Column('email_id', db.Integer, db.ForeignKey('searched_emails.email_id'), primary_key=True),
-    db.Column('timestamp', db.DateTime, default=datetime.utcnow),
-    db.Column('search_count', db.Integer, default=1),
+    db.Column('timestamp', db.DateTime, default=datetime.utcnow)
 )
    
 class SearchedEMail(db.Model):
@@ -46,49 +45,6 @@ class PasswordResetToken(db.Model):
     user = db.relationship('User', backref=db.backref('reset_tokens', lazy=True))
     def __repr__(self):
         return f'<PasswordResetToken {self.token} for User {self.user_id}>'
-
-class UserUpload(db.Model):
-    __tablename__ = 'user_uploads'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    original_filename = db.Column(db.String(255), nullable=False)  # Store original filename
-    unique_filename = db.Column(db.String(255), nullable=False)  # Unique filename
-    filepath = db.Column(db.String(255), nullable=False)  # Path to the file
-    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Summary(db.Model):
-    __tablename__ = 'summary'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, nullable=False)
-    list_name = db.Column(db.String(120), nullable=False)
-    total_emails = db.Column(db.Integer, nullable=False)
-    valid_emails = db.Column(db.Integer, default=0)
-    risky_emails = db.Column(db.Integer, default=0)
-    invalid_emails = db.Column(db.Integer, default=0)
-    unknown_emails = db.Column(db.Integer, default=0)
-
-class TempUser(db.Model):
-    __tablename__ = 'temp_users'
-    
-    user_id = db.Column(db.Integer, primary_key=True)
-    first_name = db.Column(db.String(50), nullable=False)
-    last_name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)  # Store hashed passwords
-    verification_token = db.Column(db.String(64), unique=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    is_google = db.Column(db.Boolean, default=False)
-
-class Organizations(db.Model):
-    __tablename__ = 'orgs'
-    
-    id = db.Column(db.Integer, primary_key=True)
-    domain = db.Column(db.String(255), nullable=False, unique=True)
-    user_count = db.Column(db.Integer, default=0)
-
-    def increment_count(self):
-        self.user_count += 1
 
 __table_args__ = (
         UniqueConstraint('email', name='uq_searched_emails_email'),
@@ -133,58 +89,3 @@ def add_verified_email_for_user(user_id, email_id):
         new_entry = searched_email_user.insert().values(user_id=user_id, email_id=email_id, timestamp=datetime.utcnow())
         db.session.execute(new_entry)
         db.session.commit()
-
-def create_temp_user(first_name, last_name, email, hashed_password, verification_token, is_google=False):
-    """
-    Creates and saves a TempUser with a verification token.
-    """
-    temp_user = TempUser(
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        password=hashed_password,
-        verification_token=verification_token,
-        is_google=is_google
-    )
-    db.session.add(temp_user)
-    db.session.commit()
-    return temp_user
-
-def create_user(first_name, last_name, email,password,is_google):
-    domain = email.split('@')[-1]
-    # Check if the domain already exists
-    domain_count = Organizations.query.filter_by(domain=domain).first()
-    if domain_count:
-        # Increment the counter if the domain exists
-        if domain_count.user_count >= 5:
-            return None  # Limit reached, cannot create user
-        domain_count.increment_count()  # Increment the count
-    else:
-        # Create a new entry for the domain with count set to 1
-        new_domain_count = Organizations(domain=domain, user_count=1)
-        db.session.add(new_domain_count)
-    new_user = User(
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        password=password,
-        is_google=is_google,
-        is_paid=False)
-    db.session.add(new_user)
-    db.session.commit()
-    return new_user
-
-def get_or_create_google_user(email, first_name, last_name):
-    user = User.query.filter_by(email=email).first()
-    if user:
-        return user
-    new_user = User(
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        password='',  # No password for Google users
-        is_google=True,
-        is_paid=False)
-    db.session.add(new_user)
-    db.session.commit()
-    return new_user

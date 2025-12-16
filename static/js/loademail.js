@@ -1,45 +1,35 @@
-function displayMessage(message, isError = false) {
-    const messageContainer = $('#message-container');
-    messageContainer.removeClass('d-none alert-success alert-danger');
-    messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
-    messageContainer.text(message);
-    messageContainer.show();
-    setTimeout(() => messageContainer.hide(), 5000);  // Hide message after 5 seconds
-}
+document.getElementById("passwrdForm").addEventListener("submit", function(event) {
+    event.preventDefault();  // Prevent form submission
+    const emailAddress = document.getElementById("emailAddress").value;
 
-function displayMessage(message, isError = false) {
-    const messageContainer = $('#message-container');
-    messageContainer.removeClass('d-none alert-success alert-danger');
-    if (isError) {
-        messageContainer.addClass('alert-danger').removeClass('alert-success');
-    } else {
-        messageContainer.addClass('alert-success').removeClass('alert-danger');
-    }
-    messageContainer.text(message);
-    messageContainer.show();
-    setTimeout(() => messageContainer.hide(), 5000);  // Hide message after 5 seconds
-}
+    // Send the email to the backend
+    fetch('/request_password_reset', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ emailAddress: emailAddress })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();  // Parse JSON response
+    })
+    .then(data => {
+        // Display the returned JSON data in the UI
+        const resultDiv = document.getElementById("result"); // Div to show the result
 
-$(document).ready(function() {
-    $('#passwrdForm').on('submit', function(event) {
-        event.preventDefault();  // Prevent form submission
-        const emailAddress = $('#emailAddress').val(); // Get the email from the input
-
-        // Send the email to the backend
-        $.ajax({
-            url: '/request_password_reset',
-            type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({ emailAddress: emailAddress }), // Send email as JSON
-                    success: function(response) {
-                        // Access the 'success' key instead of 'message'
-                        displayMessage(response.success, false);
-                    },
-                    error: function(xhr) {
-                        const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "An error occurred";
-                        displayMessage(errorMessage, true);
-                    }
-        });
+        // Check for the type of response sent back from the server
+        if (data.error) {
+            resultDiv.innerHTML = data.error;  // Show error message if present
+        } else {
+            resultDiv.innerHTML = data.message; // Show success message
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "An error occurred. Please try again.";
     });
 });
-
