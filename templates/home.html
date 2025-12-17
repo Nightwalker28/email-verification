@@ -58,7 +58,36 @@
         </table>
         {% endif %}
     </div>
+    <div class="container mt-4">
+        <!-- Summary Section -->
+        <h2>Your Summary</h2>
+        <div class="card mb-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <h2>Summary of Uploaded Lists</h2>
+                    <p>Total Lists: {{ list_summary.total_lists }}</p>
+                    <p>Total Emails Checked: {{ list_summary.total_emails_checked }}</p>
+                    <p>Total Verified: {{ list_summary.total_verified }}</p>
+                    <p>Total Risky: {{ list_summary.total_risky }}</p>
+                    <p>Total Invalid: {{ list_summary.total_invalid }}</p>
+                    <p>Total Unknown: {{ list_summary.total_unknown }}</p>
+                </div>
+                <div class="col-md-6">
+                    <h2>Summary of Recent Verifications (Last 30 Days)</h2>
+                    {% if recent_summary %}
+                        <p>Total Emails Checked: {{ recent_summary.total_recent_emails_checked }}</p>
+                        <p>Recent Verified: {{ recent_summary.recent_verified }}</p>
+                        <p>Recent Invalid: {{ recent_summary.recent_invalid }}</p>
+                        <p>Recent Risky: {{ recent_summary.recent_risky }}</p>
+                        <p>Recent Unknown: {{ recent_summary.recent_unknown }}</p>
+                    {% else %}
+                        <p>No recent email verifications in the last 30 days.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/static/js/verify.js"></script>
+    <script src="/static/js/singleverify.js"></script>
 </body>
 </html>

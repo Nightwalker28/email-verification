@@ -11,6 +11,7 @@ load_dotenv()
 
 # Configure session
 app = Flask(__name__)
+session_folder = 'flask_session'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'

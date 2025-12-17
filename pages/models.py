@@ -21,7 +21,8 @@ class User(db.Model):
 searched_email_user = db.Table('searched_email_user',
     db.Column('user_id', db.Integer, db.ForeignKey('users.user_id'), primary_key=True),
     db.Column('email_id', db.Integer, db.ForeignKey('searched_emails.email_id'), primary_key=True),
-    db.Column('timestamp', db.DateTime, default=datetime.utcnow)
+    db.Column('timestamp', db.DateTime, default=datetime.utcnow),
+    db.Column('search_count', db.Integer, default=1)
 )
    
 class SearchedEMail(db.Model):
@@ -45,6 +46,27 @@ class PasswordResetToken(db.Model):
     user = db.relationship('User', backref=db.backref('reset_tokens', lazy=True))
     def __repr__(self):
         return f'<PasswordResetToken {self.token} for User {self.user_id}>'
+
+class UserUpload(db.Model):
+    __tablename__ = 'user_uploads'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    original_filename = db.Column(db.String(255), nullable=False)  # Store original filename
+    unique_filename = db.Column(db.String(255), nullable=False)  # Unique filename
+    filepath = db.Column(db.String(255), nullable=False)  # Path to the file
+    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+class Summary(db.Model):
+    __tablename__ = 'summary'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    list_name = db.Column(db.String(120), nullable=False)
+    total_emails = db.Column(db.Integer, nullable=False)
+    valid_emails = db.Column(db.Integer, default=0)
+    risky_emails = db.Column(db.Integer, default=0)
+    invalid_emails = db.Column(db.Integer, default=0)
+    unknown_emails = db.Column(db.Integer, default=0)
 
 __table_args__ = (
         UniqueConstraint('email', name='uq_searched_emails_email'),

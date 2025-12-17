@@ -29,4 +29,30 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Handle Force Email Verification
+    $('#forceVerifyBtn').on('click', function() {
+        let emailAddress = $('#emailAddress').val(); // Get the email address from the input
+
+        // Show the loading overlay
+        $('#loadingOverlay').show();
+
+        // Make the AJAX request to force verify the email
+        $.ajax({
+            url: '/force-verify',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ email: emailAddress }), // Send the email as JSON data
+            success: function(response) {
+                // Reload the page to update the last checked emails
+                location.reload();
+            },
+            error: function(xhr, status, error) {
+                // Hide the loading overlay in case of error
+                $('#loadingOverlay').hide();
+                // Display an error message if the request fails
+                alert(`Error: ${xhr.responseText}`);
+            }
+        });
+    });
 });

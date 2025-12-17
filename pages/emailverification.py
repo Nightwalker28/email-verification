@@ -67,7 +67,7 @@ def extract_provider_from_mx(mx_record, providers):
             return provider
     return 'Unknown Provider'
 
-def perform_email_verification(email, providers, roles):
+def perform_email_verification(email, providers, roles, force_live_check=False):
     """Perform email verification and return detailed verification information."""
     logger.info(f'Starting verification for email: {email}')
     if not is_valid_email(email):
@@ -78,24 +78,53 @@ def perform_email_verification(email, providers, roles):
             'role_based': 'No',
             'accept_all': 'No',
             'full_inbox': 'No',
-            'temporary_mail': 'No'}  # Update here
-    # Step 1: Check the database for existing verification results
-    existing_email = SearchedEMail.query.filter_by(email=email).first()
-    if existing_email:
-        logger.info(f'Found existing email verification result for {email}')
-        return {
-            'result': existing_email.result,
-            'provider': existing_email.provider,
-            'role_based': 'Yes' if existing_email.role_based else 'No',
-            'accept_all': 'Yes' if existing_email.accept_all else 'No',
-            'full_inbox': 'Yes' if existing_email.full_inbox else 'No',
-            'temporary_mail': 'Yes' if existing_email.disposable else 'No'}  # Update here
+            'temporary_mail': 'No'
+        }
+    if not force_live_check:  # Step 1: Check the database for existing verification results
+        existing_email = SearchedEMail.query.filter_by(email=email).first()
+        if existing_email:
+            logger.info(f'Found existing email verification result for {email}')
+            # Step 4: Check if the user has already verified this email and update the search counter
+            user_id = session['user']
+            existing_entry = db.session.query(searched_email_user).filter_by(user_id=user_id, email_id=existing_email.email_id).first()
+            if existing_entry:
+                # Update the timestamp and increment the search_count
+                logger.info(f"Existing entry found for user {user_id} and email {email}. Incrementing search_count.")
+                db.session.execute(
+                    searched_email_user.update()
+                    .where(searched_email_user.c.user_id == user_id)
+                    .where(searched_email_user.c.email_id == existing_email.email_id)
+                    .values(
+                        timestamp=datetime.utcnow(),
+                        search_count=existing_entry.search_count + 1  # Increment search_count
+                    )
+                )
+            else:
+                # Create a new entry if it does not exist, with search_count set to 1
+                new_entry = searched_email_user.insert().values(
+                    user_id=user_id,
+                    email_id=existing_email.email_id,
+                    timestamp=datetime.utcnow(),
+                    search_count=1
+                )
+                db.session.execute(new_entry)
+            db.session.commit()  # Commit changes before returning the result
+            logger.info("Search count update committed to the database.")
+            # Return the existing verification result
+            return {
+                'result': existing_email.result,
+                'provider': existing_email.provider,
+                'role_based': 'Yes' if existing_email.role_based else 'No',
+                'accept_all': 'Yes' if existing_email.accept_all else 'No',
+                'full_inbox': 'Yes' if existing_email.full_inbox else 'No',
+                'temporary_mail': 'Yes' if existing_email.disposable else 'No'
+            }
+    # Step 2: Perform live email verification if no existing result
     domain = email.split('@')[-1]
     username = email.split('@')[0]
-    # Step 2: Check if the email domain is in the disposable list
-    is_disposable = domain in disposable  # Assuming `disposable` is a set of domains
+    is_disposable = domain in disposable  # Check if the email domain is disposable
     temporary_mail = 'Yes' if is_disposable else 'No'
-    # Fetch MX records
+    # Fetch MX records for email domain
     try:
         mx_records = get_mx_records(domain)
     except Exception as e:
@@ -106,7 +135,8 @@ def perform_email_verification(email, providers, roles):
             'role_based': 'No',
             'accept_all': 'No',
             'full_inbox': 'No',
-            'temporary_mail': temporary_mail}
+            'temporary_mail': temporary_mail
+        }
     if not mx_records:
         logger.info(f'No MX records found for domain {domain}')
         return {
@@ -115,8 +145,9 @@ def perform_email_verification(email, providers, roles):
             'role_based': 'Yes' if username in roles else 'No',
             'accept_all': 'No',
             'full_inbox': 'No',
-            'temporary_mail': temporary_mail}
-    # Find provider
+            'temporary_mail': temporary_mail
+        }
+    # Identify email provider based on MX records
     provider = 'Unknown Provider'
     for mx in mx_records:
         for keyword, temp_provider in providers.items():
@@ -124,7 +155,7 @@ def perform_email_verification(email, providers, roles):
                 provider = temp_provider
                 break
         if provider != 'Unknown Provider':
-            break 
+            break
     # Verify email existence and full inbox status
     try:
         email_exists, full_inbox = verify_email(mx_records, email)
@@ -132,43 +163,52 @@ def perform_email_verification(email, providers, roles):
         logger.error(f'Error verifying email {email}: {e}')
         email_exists = False
         full_inbox = False
-    # Check for catch-all/accept-all domain
+    # Check for catch-all/accept-all domain status
     fake_email = f"blablabla@{domain}"
     try:
         accept_all, _ = verify_email(mx_records, fake_email)
     except Exception as e:
         logger.error(f'Error checking catch-all status for domain {domain}: {e}')
         accept_all = False
-    # Determine result based on verification status
+    # Determine final result based on verification
     result = "Email exists" if email_exists else "Email does not exist"
     if email_exists and accept_all:
         result = "Risky"
     logger.info(f'Verification result for email {email}: {result}, Provider: {provider}, Role-Based: {username in roles}, Accept-All: {accept_all}, Full Inbox: {full_inbox}, Temporary Mail: {temporary_mail}')
     # Step 3: Add or update the email verification record in SearchedEMail table
-    new_email_record = SearchedEMail( 
+    new_email_record = SearchedEMail(
         email=email,
         result=result,
         provider=provider,
         role_based=1 if username in roles else 0,
         accept_all=1 if accept_all else 0,
         full_inbox=1 if full_inbox else 0,
-        disposable=1 if is_disposable else 0)  # Update here
+        disposable=1 if is_disposable else 0
+    )
     db.session.add(new_email_record)
     db.session.commit()
-    # Get or create the SearchedEMail entry
+    # Also create/update searched_email_user entry for this verification
     searched_email_entry = SearchedEMail.query.filter_by(email=email).first()
-    # Step 4: Check if the user has already verified this email, if so update the timestamp
     user_id = session['user']
     existing_entry = db.session.query(searched_email_user).filter_by(user_id=user_id, email_id=searched_email_entry.email_id).first()
     if existing_entry:
-        # Update the timestamp to the current time
+        logger.info(f"Incrementing search_count for user {user_id} and email {email}.")
         db.session.execute(
-            searched_email_user.update().where(searched_email_user.c.user_id == user_id)
+            searched_email_user.update()
+            .where(searched_email_user.c.user_id == user_id)
             .where(searched_email_user.c.email_id == searched_email_entry.email_id)
-            .values(timestamp=datetime.utcnow()))
+            .values(
+                timestamp=datetime.utcnow(),
+                search_count=existing_entry.search_count + 1
+            )
+        )
     else:
-        # Create a new entry if it does not exist
-        new_entry = searched_email_user.insert().values(user_id=user_id, email_id=searched_email_entry.email_id, timestamp=datetime.utcnow())
+        new_entry = searched_email_user.insert().values(
+            user_id=user_id,
+            email_id=searched_email_entry.email_id,
+            timestamp=datetime.utcnow(),
+            search_count=1
+        )
         db.session.execute(new_entry)
     db.session.commit()
     return {
@@ -177,4 +217,5 @@ def perform_email_verification(email, providers, roles):
         'role_based': 'Yes' if username in roles else 'No',
         'accept_all': 'Yes' if accept_all else 'No',
         'full_inbox': 'Yes' if full_inbox else 'No',
-        'temporary_mail': temporary_mail}  # Return the temporary_mail status
+        'temporary_mail': temporary_mail
+    }
