@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,9 +8,22 @@
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
         .details { display: none; } /* Hidden by default */
+        #message-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 10px;
+            border-radius: 5px;
+            min-width: 200px;
+            display: none; /* Hide by default */
+        }
     </style>
 </head>
 <body>
+    <!-- Alert Message Container -->
+    <div id="message-container" class="alert d-none"></div>
+
     <!-- CSV Upload Section -->
     <form id="uploadForm" enctype="multipart/form-data">
         <div class="mb-3">
@@ -36,15 +49,15 @@
             <tbody>
                 {% for upload in uploads %}
                     <tr>
-                        <td><a href="#" class="toggle-details" data-filename="{{ upload.unique_filename }}">{{ upload.original_filename }}</a></td>
+                        <td><a href="#" class="toggle-details" data-id="{{ upload.id }}">{{ upload.original_filename }}</a></td>
                         <td>{{ upload.upload_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>
                             <a class="btn btn-info" href="{{ url_for('view_csv', unique_filename=upload.unique_filename) }}">View CSV</a>
-                            <a class="btn btn-info" href="{{ url_for('download_file', unique_filename=upload.unique_filename) }}">Download</a>
+                            <button class="btn btn-info download-btn" data-filename="{{ upload.unique_filename }}" data-download_name="{{upload.original_filename}}">Download</button>
                             <a class="btn btn-danger" href="{{ url_for('delete_file', unique_filename=upload.unique_filename) }}">Delete</a>
                         </td>
                     </tr>
-                    <tr class="details" id="details-{{ upload.unique_filename }}">
+                    <tr class="details" id="details-{{ upload.id }}">
                         <td colspan="3">
                             <div>
                                 <strong>Total Emails:</strong> {{ upload.total_emails }}<br>
@@ -57,7 +70,7 @@
                     </tr>
                 {% endfor %}
             </tbody>
-        </table>        
+        </table>
         {% else %}
             <p>No uploaded files found.</p>
         {% endif %}
@@ -65,26 +78,22 @@
 
     <!-- jQuery must be loaded before your custom script -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleLinks = document.querySelectorAll('.toggle-details');
-            
-            toggleLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const filename = this.getAttribute('data-filename');
-                    const detailsRow = document.getElementById('details-' + filename);
-                    
-                    // Check if the details row is currently hidden
-                    if (detailsRow.style.display === 'none' || detailsRow.style.display === '') {
-                        detailsRow.style.display = 'table-row'; // Show the details
-                    } else {
-                        detailsRow.style.display = 'none'; // Hide the details
-                    }
-                });
-            });
-        });
-    </script>
     <script src="/static/js/uploadverify.js"></script>
+    <script>
+    $(document).ready(function() {
+    // Toggle details view for each file
+        $('.toggle-details').on('click', function(e) {
+            e.preventDefault();
+            const id = $(this).data('id'); // Get the unique ID
+            const detailsRow = $('#details-' + id); // Use unique ID here
+            
+            if (detailsRow.length) {
+                detailsRow.toggle();  // Toggle visibility of the specific details row
+            } else {
+                console.log('Details row not found for ID:', id);
+            }
+        });
+    });
+    </script>    
 </body>
 </html>

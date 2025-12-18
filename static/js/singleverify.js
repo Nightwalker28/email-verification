@@ -1,35 +1,44 @@
+function displayMessage(message, isError = false) {
+    const messageContainer = $('#message-container');
+    messageContainer.removeClass('d-none alert-success alert-danger');
+    messageContainer.addClass('alert-danger');
+    messageContainer.text(message);
+    messageContainer.show();
+    setTimeout(() => messageContainer.hide(), 5000);  // Hide message after 5 seconds
+}
+
 $(document).ready(function() {
     // Ensure the loading overlay is hidden initially
     $('#loadingOverlay').hide();
 
     // Handle Manual Email Verification
     $('#manualEmailForm').on('submit', function(event) {
-        event.preventDefault(); // Prevent the form from submitting normally
+        event.preventDefault();  // Prevent the form from submitting traditionally
+        const emailAddress = $('#emailAddress').val();  // Get the email address from the input
 
-        let emailAddress = $('#emailAddress').val(); // Get the email address from the input
-
-        // Show the loading overlay only when the form is submitted
+        // Show the loading overlay
         $('#loadingOverlay').show();
 
-        // Make the AJAX request to verify the email
         $.ajax({
             url: '/verify',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ email: emailAddress }), // Send the email as JSON data
+            data: JSON.stringify({ email: emailAddress }),  // Send the email as JSON data
             success: function(response) {
-                // Reload the page to update the last checked emails and reset verification attempts
-                location.reload();
+                // Hide the loading overlay upon success
+                $('#loadingOverlay').hide();
+                // Display success message
+                window.location.reload();
             },
-            error: function(xhr, status, error) {
+            error: function(xhr) {
                 // Hide the loading overlay in case of error
                 $('#loadingOverlay').hide();
                 // Display an error message if the request fails
-                alert(`Error: ${xhr.responseText}`);
+                const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "An error occurred";
+                displayMessage(errorMessage, true);
             }
         });
     });
-
     // Handle Force Email Verification
     $('#forceVerifyBtn').on('click', function() {
         let emailAddress = $('#emailAddress').val(); // Get the email address from the input
@@ -44,14 +53,17 @@ $(document).ready(function() {
             contentType: 'application/json',
             data: JSON.stringify({ email: emailAddress }), // Send the email as JSON data
             success: function(response) {
-                // Reload the page to update the last checked emails
-                location.reload();
+                // Hide the loading overlay upon success
+                $('#loadingOverlay').hide();
+                // Display success message
+                window.location.reload();
             },
-            error: function(xhr, status, error) {
+            error: function(xhr) {
                 // Hide the loading overlay in case of error
                 $('#loadingOverlay').hide();
                 // Display an error message if the request fails
-                alert(`Error: ${xhr.responseText}`);
+                const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "An error occurred";
+                displayMessage(errorMessage, true);
             }
         });
     });

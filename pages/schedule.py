@@ -1,6 +1,6 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 from config import logger,os,db,app,session_folder,UPLOAD_FOLDER
-from pages.models import UserUpload,Summary
+from pages.models import UserUpload,Summary,TempUser
 from datetime import datetime,timedelta,timezone
 import time
 
@@ -75,3 +75,16 @@ def cleanup_expired_sessions():
                 if now - last_modified > app.permanent_session_lifetime.total_seconds():
                     os.remove(file_path)
                     logger.info(f"Deleted expired session file: {filename}")
+
+def cleanup_expired_temp_users():
+    """
+    Deletes temporary user records older than 24 hours from the TempUser table.
+    """
+    with app.app_context():  # Ensure the Flask app context is available
+        expiration_time = datetime.utcnow() - timedelta(hours=24)  # Calculate expiration time
+        expired_users = TempUser.query.filter(TempUser.created_at < expiration_time).all()  # Query for expired users
+        logger.info(f"Starting cleanup process for expired temp users. Found {len(expired_users)} expired records.")
+        for user in expired_users:
+            db.session.delete(user)  # Delete expired user records
+            logger.info(f"Deleted expired temp user: {user.email}")
+        db.session.commit()  # Commit the changes to the database
