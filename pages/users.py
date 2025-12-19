@@ -3,16 +3,17 @@ from pages.models import db,User,Summary,searched_email_user,SearchedEMail
 from pages.loginsignup import reset_password
 from config import error_response,success_response
 from sqlalchemy import func
+from flask import redirect
 
 def check_user_access(user, route):
     if not user.is_paid:
         if route == 'verify_email_address':
             if user.verification_attempts >= 50:
-                return error_response('Free plan users can only perform 50 verifications per month.', 403)
+                return redirect('/pricing')
         elif route == 'listview':
-            return error_response('Free plan users cannot access this feature.', 403)
+            return redirect('/pricing')
         elif route == 'force_verify_email_address':
-            return error_response( 'Free plan users cannot access this feature.', 403)
+            return redirect('/pricing')
 
 def reset_verification_attempts(user):
     current_date = datetime.utcnow()    

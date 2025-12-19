@@ -1,11 +1,3 @@
-function displayMessage(message, isError = false) {
-    const messageContainer = $('#message-container');
-    messageContainer.removeClass('d-none alert-success alert-danger');
-    messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
-    messageContainer.text(message);
-    messageContainer.show();
-    setTimeout(() => messageContainer.hide(), 5000);  // Hide message after 5 seconds
-}
 
 function displayMessage(message, isError = false) {
     const messageContainer = $('#message-container');

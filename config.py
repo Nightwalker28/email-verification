@@ -58,7 +58,7 @@ app.logger.handlers = []
 app.logger.addHandler(handler)
 app.logger.setLevel(logging.INFO)
 
-def success_response(message='', status_code=400):
+def success_response(message='', status_code=200):
     response = jsonify({'success': message})  # Use a dictionary to structure the message
     response.status_code = status_code
     return response

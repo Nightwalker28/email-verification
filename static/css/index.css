@@ -1,0 +1,191 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    max-width: 1500px;
+    width: 450px;
+    padding: 30px 30px;
+    background-color: #1c1c1c;
+    border-radius: 15px;
+    border: 1px solid #66B933;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+h1 {
+    color: #ffffff;
+    font-size: 32px;
+    margin-bottom: 15px;
+}
+
+h2 {
+    color: #ffffff;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+a {
+    color: #66B933;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+    font-size: 15px;
+}
+
+a:hover {
+    color: #3E701F;
+    text-decoration: underline;
+}
+
+label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 6px;
+    color: #ffffff;
+    text-align: left;
+    width: 100%;
+}
+
+.input-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+    width: 100%;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #4a4a4a;
+    border-radius: 8px;
+    font-size: 16px;
+    background-color: #2b2b2b;
+    color: #ffffff;
+    box-sizing: border-box;
+    transition: border 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+input:focus {
+    outline: none;
+    border-color: #66B933;
+    background-color: #3a3a3a;
+}
+
+.Sbutton {
+    width: 100%;
+    padding: 12px;
+    background-color: #66B933;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    margin-top: 20px;
+}
+
+.Sbutton:disabled {
+    background-color: #5a5a5a;
+    cursor: not-allowed;
+}
+
+.Sbutton:hover:enabled {
+    background-color: #3E701F;
+}
+
+#error-message {
+    color: #B93333;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Styles for "or else" section */
+.or-else-container {
+    display: flex;
+    align-items: center;
+    margin: 0px 0 20px;
+    color: #ffffff;
+    font-size: 14px;
+}
+
+.or-else-container .line {
+    flex-grow: 1;
+    height: 0px;
+    background-color: #ffffff;
+    margin: 0 15px 0;
+}
+
+/* New styles for Google button */
+.google-button {
+    width: 100%;
+    padding: 12px;
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #4a4a4a;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: background-color 0.3s ease-in-out;
+    margin-top: 10px;
+}
+
+.google-button:hover {
+    background-color: #d5d5d5;
+}
+
+.google-logo {
+    width: 20px;
+    height: 20px;
+}
+
+/* Styles for "Don't have an account? Sign Up!" text */
+.signup-text {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #ffffff;
+}
+
+.signup-text a {
+    color: #66B933;
+    text-decoration: none;
+}
+
+.signup-text a:hover {
+    color: #3E701F;
+    text-decoration: underline;
+}
+
+/* Styles for "Forgot Password" text */
+.forgot-password {
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.forgot-password a {
+    color: #66B933;
+    text-decoration: none;
+}
+
+.forgot-password a:hover {
+    color: #3E701F;
+    text-decoration: underline;
+}
+
+#message-container {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 14px;
+}

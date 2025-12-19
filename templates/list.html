@@ -21,9 +21,6 @@
     </style>
 </head>
 <body>
-    <!-- Alert Message Container -->
-    <div id="message-container" class="alert d-none"></div>
-
     <!-- CSV Upload Section -->
     <form id="uploadForm" enctype="multipart/form-data">
         <div class="mb-3">
@@ -75,25 +72,10 @@
             <p>No uploaded files found.</p>
         {% endif %}
     </div>
-
+    <!-- Alert Message Container -->
+    <div id="message-container" class="alert d-none"></div>
     <!-- jQuery must be loaded before your custom script -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="/static/js/uploadverify.js"></script>
-    <script>
-    $(document).ready(function() {
-    // Toggle details view for each file
-        $('.toggle-details').on('click', function(e) {
-            e.preventDefault();
-            const id = $(this).data('id'); // Get the unique ID
-            const detailsRow = $('#details-' + id); // Use unique ID here
-            
-            if (detailsRow.length) {
-                detailsRow.toggle();  // Toggle visibility of the specific details row
-            } else {
-                console.log('Details row not found for ID:', id);
-            }
-        });
-    });
-    </script>    
+    <script src="/static/js/uploadverify.js"></script>   
 </body>
 </html>

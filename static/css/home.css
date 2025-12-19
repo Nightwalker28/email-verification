@@ -1,0 +1,95 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+body, html {
+    height: 100%;
+    background-color: #1c1c1c;
+    color: white; /* Set text color to white */
+}
+
+.container {
+    display: flex;
+    justify-content: space-around; /* Spread out the sections evenly */
+    align-items: center; /* Center items vertically */
+    height: 100vh;
+    padding: 20px; /* Add padding to the container */
+}
+
+.verification-section, .summary-section {
+    margin-bottom: 20px;
+    flex: 1; /* Allow sections to grow and shrink */
+    padding: 20px; /* Add padding to sections */
+    background-color: #2a2a2a; /* Dark background for sections */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow for 3D effect */
+}
+
+.verification-section h2, .summary-section h2 {
+    margin-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: #EBEBEB; /* Ensure labels are white */
+}
+
+.form-group input[type="email"] {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid white; /* Border color */
+    border-radius: 4px;
+    background-color: #EBEBEB; /* Dark background for input */
+    color: #444; /* Text color for input */
+}
+
+.btn {
+    padding: 8px 16px;
+    background-color: #66B933; /* Button color */
+    color: white; /* Button text color */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s; /* Add transition for hover effect */
+}
+
+.btn:hover {
+    transform: translateY(-2px); /* Move button up slightly on hover */
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+.table th, .table td {
+    padding: 10px;
+    border: 1px solid white; /* Border color */
+    text-align: left;
+    color: white; /* Table text color */
+}
+
+.summary-card {
+    display: flex;
+    gap: 20px;
+}
+
+.list-summary, .recent-summary {
+    flex: 1;
+    background-color: #444444; /* Dark background for summary cards */
+    border: 1px solid #323232; /* Border color */
+    padding: 15px;
+    border-radius: 4px;
+    color: white; /* Summary text color */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow for 3D effect */
+}

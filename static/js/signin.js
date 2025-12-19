@@ -11,7 +11,6 @@ $(document).ready(function() {
     $('#manual-signin-form').on('submit', function(event) {
         event.preventDefault();  // Prevent traditional form submission
         const formData = new FormData(this);
-
         $.ajax({
             url: '/manual_signin',
             type: 'POST',
@@ -19,11 +18,16 @@ $(document).ready(function() {
             contentType: false,
             processData: false,
             success: function(response) {
-                window.location.reload();  // Display success message
+                // Check if the redirect_url exists in the response
+                if (response.redirect_url) {
+                    window.location.href = response.redirect_url;
+                } else {
+                    displayMessage('Unexpected response, no redirect URL found.', true);
+                }
             },
-            error: function(xhr) {
+            error: function(xhr, status, error) {
                 const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "An error occurred";
-                displayMessage(errorMessage, true);  // Display error message
+                displayMessage(errorMessage, true);
             }
         });
     });

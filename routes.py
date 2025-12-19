@@ -5,7 +5,7 @@ from pages.schedule import delete_old_files,schedule_task,cleanup_expired_sessio
 from pages.emailverification import perform_email_verification
 from pages.fileupload import validate_uploaded_file,detect_file_properties,save_uploaded_file,read_csv_file,detect_email_column,sanitize_email,process_emails,update_csv_with_verification,delete_file_by_unique_filename,read_csv_as_html,generate_summary
 from pages.loginsignup import create_password_reset_email, send_email, validate_user,sign_in_user,user_exists,generate_nonce,validate_reset_token,reset_password,generate_reset_token,verify_user,temp_exists
-from flask import session,redirect,url_for,render_template,request,send_from_directory
+from flask import session,redirect,url_for,render_template,request,send_from_directory,jsonify
 from werkzeug.security import generate_password_hash
 from werkzeug.datastructures import FileStorage
 
@@ -183,7 +183,6 @@ def download_file(unique_filename):
 def manual_signin():
     email = request.form.get('email')
     password = request.form.get('password')
-    # Check if user exists with the given email
     user = User.query.filter_by(email=email).first()
     if user:
         # Check if the user registered with Google
@@ -192,10 +191,16 @@ def manual_signin():
         # Validate user password
         if validate_user(user, password):
             sign_in_user(user)
-            return redirect('/home')
+            # Check the session flag for redirect
+            if session.pop('is_redirect_needed', False):  # Remove the flag after checking
+                redirect_url = url_for('edit_profile')  # Set the URL for the profile page
+            else:
+                redirect_url = url_for('homeview')  # Default URL (homeview)
+            # Return the redirect URL directly
+            return jsonify({'redirect_url': redirect_url}), 200
     # If no user is found or password is incorrect
     return error_response('The Username or Password is Invalid.', 400)
-    
+
 @app.route('/signup', methods=['GET', 'POST'])
 def manual_signup():
     if request.method == 'POST':
@@ -246,37 +251,29 @@ def google_login():
     redirect_uri = url_for('google_auth', _external=True)
     return oauth.google.authorize_redirect(redirect_uri, nonce=nonce)
 
-# Google Auth Route
 @app.route('/google/auth/')
 def google_auth():
     try:
-        # Get user info from Google
+        # Process Google auth
         token = oauth.google.authorize_access_token()
         nonce = session.pop('nonce', None)
         user_info = oauth.google.parse_id_token(token, nonce=nonce)
         email = user_info.get('email')
-        first_name = user_info.get('given_name')
-        last_name = user_info.get('family_name')
-        # Check if the user already exists in User or TempUser tables
         user = user_exists(email)
-        temp_user = TempUser.query.filter_by(email=email).first()
         if user:
             if user.is_google:
                 sign_in_user(user)
-                return redirect('/home')
+                # Check the session for 'is_redirect_needed' flag
+                if session.pop('is_redirect_needed', False):
+                    # Redirect to the intended page (e.g., edit profile)
+                    return redirect(url_for('edit_profile'))
+                # Default redirect if no special page was requested
+                return redirect(url_for('homeview'))
             else:
                 return error_response('This email is already registered with a manual signup.', 400)
-        if temp_user:
-            return success_response('Please verify your email address to complete registration.',200)
-        # Validate email with three-layer protection
-        if not verify_user(email):
-            return error_response('Email cannot be used to create an account.', 400)
-        # Create a TempUser with Google flag and send verification email
-        verification_token = generate_nonce()
-        create_temp_user(first_name, last_name, email, '', verification_token, is_google=True)
-        send_email(first_name, email, verification_token)
-        return success_response('A verification email has been sent to your email address. Please verify to complete registration.',200)
+        # Handle new user creation if needed here
     except Exception as e:
+        logger.error(f"Authentication error: {e}")
         return error_response('An authentication error occurred.', 500)
 
 @app.route('/logout')
@@ -330,6 +327,8 @@ def reset_with_token(token):
 
 @app.route('/profile', methods=['GET', 'POST'])
 def edit_profile():
+    if 'user' not in session:
+        return redirect('/')
     user = User.query.get(session['user'])
     is_google_login = user.is_google
     if not user:
@@ -369,6 +368,22 @@ def view_csv(unique_filename):
         return "Error reading the CSV file.", 500
     return render_template('view_csv.html', csv_data=csv_data_html, upload=upload_entry)
 
+@app.route('/pricing')
+def pricing():
+    return render_template('pricing.html')
+
+@app.route('/get-pro')
+def get_pro():
+    # Check if the user is logged in by checking for a session key (e.g., 'user')
+    if 'user' in session:
+        # User is logged in, redirect to profile page
+        return redirect(url_for('edit_profile'))
+    else:
+        # User is not logged in, set a flag in the session
+        session['is_redirect_needed'] = True
+        # Redirect to the registration or login page
+        return redirect(url_for('manual_signup'))
+    
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()  # Create tables if they don't exist
