@@ -2,58 +2,50 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- For responsiveness -->
+    <title>Sign In</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="/static/css/index.css">
     <script src="/static/js/signin.js"></script>
-    <style>
-        #message-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            padding: 10px;
-            border-radius: 5px;
-            min-width: 200px;
-            display: none; /* Hide by default */
-        }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Login</h1>
-        <h2>Manual Sign-In</h2>
+<body class="d-flex justify-content-center align-items-center vh-100">
+    <div class="background-image"></div>
+    <div class="container bg-dark text-white p-4 rounded-lg shadow-lg" style="max-width: 400px;">
+        <div class="text-center">
+            <img src="/static/images/logo.png" alt="Logo" class="logo img-fluid mb-4">
+        </div>
         <form id="manual-signin-form">
-            <input type="hidden" name="next" value="{{ request.args.get('next') }}">
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required><br><br>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required><br><br>
-            <button class="Sbutton" type="submit">Sign In</button>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+            <button class="Sbutton btn btn-success btn-block mt-3" type="submit">Sign In</button>
         </form>
-        <div id="error-message"></div><br>
+        <div id="message-container" class="alert d-none"></div>
 
-        <!-- Horizontal line and text "or else" -->
-        <div class="or-else-container">
-            <hr class="line">
-            <span>or else</span>
-            <hr class="line">
+        <div class="or-else-container d-flex align-items-center my-3">
+            <hr class="flex-grow-1">
+            <span class="px-2">or else</span>
+            <hr class="flex-grow-1">
         </div>
 
-        <!-- Sign in with Google button -->
-        <button class="google-button" onclick="window.location.href='/google';">
-            <img src="/static/images/google-icon.svg" alt="Google Logo" class="google-logo">
-            Sign In with Google
-        </button>        
+        <button class="google-button btn btn-outline-secondary btn-block mb-2" onclick="window.location.href='/google';">
+            <img src="/static/images/google-icon.svg" alt="Google Logo" class="google-logo"> Sign In with Google
+        </button>
 
-        <!-- Sign up and forgot password links -->
-        <p class="signup-text">
-            Don't have an account? <a href="/signup">Sign Up!</a>
+        <p class="signup-text text-center mt-3">
+            Don't have an account? <a href="/signup" class="text-success">Sign Up!</a>
         </p>
-        <p class="forgot-password">
-            <a href="/password">Forgot Password</a>
+        <p class="forgot-password text-center">
+            <a href="/password" class="text-success">Forgot Password</a>
         </p>
     </div>
-    <div id="message-container" class="alert d-none"></div>
+    
 </body>
 </html>
