@@ -10,26 +10,30 @@
     <script src="/static/js/passwordValidation.js"></script> <!-- Link JS file -->
 </head>
 <body>
+    <div class="background-image"></div>
     <div class="container">
+        <div class="text-center">
+            <img src="/static/images/logo.png" alt="Logo" class="logo img-fluid mb-4">
+        </div>
         <h1>Register</h1>
         <form id="form" method="POST" onsubmit="validateForm(event)">
             <!-- Row for First and Last Name -->
             <div class="input-row">
                 <div>
                     <label for="first_name">First Name:</label>
-                    <input type="text" id="first_name" name="first_name" required>
+                    <input type="text" id="first_name" name="first_name" placeholder="John" required>
                 </div>
                 <div>
                     <label for="last_name">Last Name:</label>
-                    <input type="text" id="last_name" name="last_name" required>
+                    <input type="text" id="last_name" name="last_name" placeholder="Smith" required>
                 </div>
             </div>
 
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+            <input type="email" id="email" name="email" placeholder="exampl@gmail.com" required>
 
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
+            <input type="password" id="password" name="password" placeholder="*********" required>
 
             <!-- Password Requirements Section -->
             <!-- Password strength checklist -->
@@ -57,15 +61,15 @@
             </div>
 
             <label for="confirm_password">Confirm Password:</label>
-            <input type="password" id="confirm_password" name="confirm_password" required>
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="*********" required>
 
             <button type="submit" disabled>Sign Up</button>
         </form>
         <div id="message-container" class="alert d-none"></div>
+        <p class="signup-text">
+            Have an account? <a href="/">Log In!</a>
+        </p>
     </div>
-    <p class="signup-text">
-        Have an account? <a href="/">Log In!</a>
-    </p>
     
 </body>
 </html>

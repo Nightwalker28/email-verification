@@ -8,19 +8,40 @@ body {
     margin: 0;
 }
 
+.background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/static/images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    z-index: -1; /* Positioned behind the container */
+}
+
 .container {
-    max-width: 550px; /* Increased width */
-    padding: 50px; /* Increased padding */
-    background-color: #1c1c1c;
-    border-radius: 15px;
+    max-width: 375px !important; /* Increased width */
+    width: 100%;
+    padding: 30px;
+    background-color: #1c1c1c !important; /* Original background color */
+    border-radius: 15px !important;
     border: 1px solid #66B933;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.logo {
+    width: 23%;
+    height: auto;
+    margin-bottom: 5px;
 }
 
 h2 {
     color: #ffffff;
-    margin-bottom: 25px; /* Increased spacing */
+    margin-bottom: 24px; /* Increased spacing */
     font-size: 26px; /* Slightly larger font */
 }
 
@@ -30,19 +51,20 @@ label {
     margin-bottom: 8px; /* Increased spacing */
     text-align: left;
     color: #ffffff;
+    margin-top: 15px;
 }
 
 input {
     width: 100%;
-    padding: 14px; /* Increased padding */
+    padding: 8px;
     border: 1px solid #4a4a4a;
     border-radius: 5px;
-    margin-bottom: 18px; /* Increased spacing */
-    font-size: 18px; /* Slightly larger font */
+    font-size: 16px;
     background-color: #2b2b2b;
     color: #ffffff;
     box-sizing: border-box;
     transition: border 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    margin-bottom: 15px;
 }
 
 input:focus {
@@ -53,12 +75,12 @@ input:focus {
 
 button {
     width: 100%;
-    padding: 14px; /* Increased padding */
+    padding: 10px; /* Increased padding */
     background-color: #66B933;
     color: white;
     border: none;
     border-radius: 5px;
-    font-size: 18px; /* Slightly larger font */
+    font-size: 1rem; /* Slightly larger font */
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
     margin-bottom: 25px; /* Increased spacing */
@@ -77,21 +99,22 @@ button:hover:enabled {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-bottom: 25px; /* Increased spacing */
+    margin-top: 5px; /* Increased spacing */
+    margin-bottom: 5px; /* Increased spacing */
     padding-left: 25px; /* Increased padding */
 }
 
 .checklist-item {
     display: flex;
     align-items: center;
-    font-size: 16px; /* Slightly larger font */
-    margin: 6px 0;
+    font-size: 12px; /* Slightly larger font */
+    margin: 2px 0;
     color: #ffffff;
 }
 
 .checklist-item .check-icon {
-    width: 20px; /* Slightly larger icon */
-    height: 20px;
+    width: 15px; /* Slightly larger icon */
+    height: 15px;
     margin-right: 12px;
 }
 
@@ -136,4 +159,32 @@ a:hover {
     border-radius: 5px;
     min-width: 200px;
     display: none; /* Hide by default */
+}
+
+.back-to-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 0; /* Space between the icon and text */
+    font-size: 1rem;
+}
+
+.back-to-login img {
+    width: 30px; /* Adjust icon size */
+    height: 30px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out; /* Smooth hover effect */
+}
+
+.back-to-login a {
+    color: #ffffff; /* Match the button color */
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease-in-out;
+}
+
+.back-to-login a:hover {
+    color: #dfdfdf; /* Darker green on hover */
+    text-decoration: underline;
 }
