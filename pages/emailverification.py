@@ -68,7 +68,6 @@ def extract_provider_from_mx(mx_record, providers):
     return 'Unknown Provider'
 
 def update_searched_email_user_count(user_id, email_id, increment_count):
-    """Update the search count for the searched_email_user entry based on the increment_count parameter."""
     existing_entry = db.session.query(searched_email_user).filter_by(user_id=user_id, email_id=email_id).first()
     if existing_entry:
         if not increment_count:
@@ -91,7 +90,7 @@ def update_searched_email_user_count(user_id, email_id, increment_count):
                 timestamp=datetime.utcnow(),
                 search_count=1,          
             )
-        db.session.execute(new_entry)    
+            db.session.execute(new_entry)  # Move this line inside the else block
     db.session.commit()
 
 def perform_email_verification(email, providers, roles, force_live_check=False, increment_count=False):

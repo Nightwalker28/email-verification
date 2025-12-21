@@ -1,0 +1,125 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+}
+
+.background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('/static/images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    z-index: -1; /* Positioned behind the container */
+}
+
+.container {
+    max-width: 450px !important; /* Increased width */
+    width: 100%;
+    padding: 30px;
+    background-color: #1c1c1c !important; /* Original background color */
+    border-radius: 15px !important;
+    border: 1px solid #66B933;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.logo {
+    width: 25%;
+    height: auto;
+    margin-bottom: 1.5rem;
+}
+
+h1 {
+    color: #ffffff;
+    font-size: 24px;
+}
+
+p {
+    color: #ffffff;
+    font-size: 15px;
+    padding: 10px 0 10px;
+}
+
+.Sbutton {
+    padding: 10px;
+    background-color: #66B933;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    margin: 10px 0 15px;
+    width: 100%;
+}
+
+.Sbutton:disabled {
+    background-color: #5a5a5a;
+    cursor: not-allowed;
+}
+
+.Sbutton:hover:enabled {
+    background-color: #3E701F;
+}
+
+.back-to-login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 0; /* Space between the icon and text */
+    font-size: 1rem;
+}
+
+.back-to-login img {
+    width: 30px; /* Adjust icon size */
+    height: 30px;
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out; /* Smooth hover effect */
+}
+
+.back-to-login a {
+    color: #ffffff; /* Match the button color */
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease-in-out;
+}
+
+.back-to-login a:hover {
+    color: #dfdfdf; /* Darker green on hover */
+    text-decoration: underline;
+}
+
+.input-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 18px;
+}
+
+.input-row div {
+    flex: 1;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #4a4a4a;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #2b2b2b;
+    color: #ffffff;
+    box-sizing: border-box;
+    transition: border 0.3s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+input:focus {
+    outline: none;
+    border-color: #66B933;
+    background-color: #3a3a3a;
+}

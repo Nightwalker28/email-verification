@@ -65,8 +65,13 @@ def save_uploaded_file(file, user_id):
     file.save(filepath)
     # Insert file information into the database using SQLAlchemy
     new_upload = UserUpload(user_id=user_id, original_filename=original_filename, unique_filename=unique_filename, filepath=filepath)
-    db.session.add(new_upload)
-    db.session.commit() 
+    try:
+        db.session.add(new_upload)
+        db.session.commit() 
+    except Exception as e:
+        db.session.rollback()  # Rollback the session if there is an error
+        logger.error(f'Failed to save uploaded file: {str(e)}')
+        raise  # Optionally re-raise the exception
     return unique_filename, filepath
 
 def read_csv_file(filepath, encoding, delimiter):
@@ -84,9 +89,13 @@ def process_emails(emails, force=False):
     results = []
     for email in emails:
         logger.info(f'Processing email: {email}')
-        verification_details = perform_email_verification(email, providers, roles, force_live_check=force,increment_count=True)
-        logger.info(f'Email: {email}, Verification Details: {verification_details}')
-        results.append(verification_details)
+        try:
+            verification_details = perform_email_verification(email, providers, roles, force_live_check=force, increment_count=True)
+            logger.info(f'Email: {email}, Verification Details: {verification_details}')
+            results.append(verification_details)
+        except Exception as e:
+            logger.error(f'Error processing email {email}: {str(e)}')
+            results.append({'email': email, 'error': str(e)})  # Append error details if needed
     return pd.DataFrame(results)
 
 def update_csv_with_verification(df, result_df, filepath, filename):

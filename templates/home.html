@@ -7,19 +7,21 @@
     <title>Email Verification Tool</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="/static/css/home.css">
-    <link rel="stylesheet" href="/static/css/navbar.css">
 </head>
 
 <body>
     <div class="container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar" id="sidebar">
-            <button class="toggle-btn" id="toggleBtn">☰</button>
             <nav>
                 <ul>
                     <li>
+                        <a href="/home" data-title="logo">
+                            <img src="/static/images/logo.png" alt="Logo">
+                        </a>
+                    </li>
                         <a href="/profile" data-title="Profile">
-                            <img src="/static/images/profile-icon.svg" alt="Profile Icon" />
+                            <img src="/static/images/profile-icon.png" alt="Profile Icon" />
                         </a>
                     </li>
                     <li>
@@ -40,7 +42,7 @@
                     </li>                    
                 </ul>
             </nav>
-        </aside>        
+        </aside>    
 
         <!-- Main Content -->
         <main class="content">
@@ -53,7 +55,7 @@
                 <h2>Email Verification</h2>
                 <form id="manualEmailForm">
                     <div class="form-group">
-                        <label for="emailAddress">Enter Email Address</label>
+                        <label for="emailAddress">Enter Email Address</label><br>
                         <input type="email" id="emailAddress" name="emailAddress" required>
                     </div>
                     <button type="submit" class="btn">Verify Email</button>

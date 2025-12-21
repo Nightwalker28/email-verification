@@ -1,10 +1,17 @@
 function displayMessage(message, isError = false) {
     const messageContainer = $('#message-container');
-    messageContainer.removeClass('alert-success alert-danger');  // Reset classes
-    messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');  // Set correct class
+    // Reset classes and visibility
+    messageContainer.removeClass('alert-success alert-danger d-none');  // Reset classes and remove hidden class
+    // Set the appropriate class based on error status
+    messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
+    // Set the message text
     messageContainer.text(message);
+    // Show the message container
     messageContainer.show();
-    setTimeout(() => messageContainer.hide(), 5000);  // Hide message after 5 seconds
+    // Hide the message after 5 seconds
+    setTimeout(() => {
+        messageContainer.addClass('d-none');  // Hide the message container after 5 seconds
+    }, 5000);
 }
 
 $(document).ready(function() {
