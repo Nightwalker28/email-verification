@@ -91,6 +91,7 @@ def update_user_profile(user_id: int, first_name: str, last_name: str,
     try:
         db.session.commit()
         return success_response({'success': True, 'message': 'Profile updated successfully.'}), 200
+        return success_response({'success': True, 'message': 'Profile updated successfully.'}), 200
     except Exception as e:
         db.session.rollback()
         return error_response({'success': False, 'message': 'Error updating profile.'}), 500

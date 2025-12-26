@@ -25,6 +25,11 @@ def detect_file_properties(filepath: str, delimiters: list = [',', ';', '\t', '|
             if delim in header:
                 delimiter = delim
                 break
+        header = file.readline()
+        for delim in delimiters:
+            if delim in header:
+                delimiter = delim
+                break
     return encoding, delimiter
 
 def detect_email_column(df: pd.DataFrame) -> Union[str, None]:
