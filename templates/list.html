@@ -49,9 +49,9 @@
                         <td><a href="#" class="toggle-details" data-id="{{ upload.id }}">{{ upload.original_filename }}</a></td>
                         <td>{{ upload.upload_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
                         <td>
-                            <a class="btn btn-info" href="{{ url_for('view_csv', unique_filename=upload.unique_filename) }}">View CSV</a>
+                            <a class="btn btn-info" href="{{ url_for('files.view_csv', unique_filename=upload.unique_filename) }}">View CSV</a>
                             <button class="btn btn-info download-btn" data-filename="{{ upload.unique_filename }}" data-download_name="{{upload.original_filename}}">Download</button>
-                            <a class="btn btn-danger" href="{{ url_for('delete_file', unique_filename=upload.unique_filename) }}">Delete</a>
+                            <a class="btn btn-danger" href="{{ url_for('files.delete_file', unique_filename=upload.unique_filename) }}">Delete</a>
                         </td>
                     </tr>
                     <tr class="details" id="details-{{ upload.id }}">

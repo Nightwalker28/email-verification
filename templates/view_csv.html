@@ -12,7 +12,7 @@
         <div class="table-responsive">
             {{ csv_data|safe }}
         </div>
-        <a class="btn btn-info" href="{{ url_for('download_file', unique_filename=upload.unique_filename) }}">Download</a>
+        <a class="btn btn-info" href="{{ url_for('files.download_file', unique_filename=upload.unique_filename) }}">Download</a>
     </div>
 </body>
 </html>
