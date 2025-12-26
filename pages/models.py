@@ -32,6 +32,8 @@ searched_email_user = db.Table(
     db.Column('email_id', db.Integer, db.ForeignKey('searched_emails.email_id'), primary_key=True),
     db.Column('timestamp', db.DateTime, default=datetime.utcnow),
     db.Column('search_count', db.Integer, default=1),
+    db.Column('timestamp', db.DateTime, default=datetime.utcnow),
+    db.Column('search_count', db.Integer, default=1),
 )
 
 
