@@ -1,0 +1,65 @@
+/* global.css */
+
+:root {
+    --primary-color: #4CAF50;
+    --primary-dark: #388E3C;
+    --secondary-color: #333;
+    --light-bg: #f4f4f4;
+    --white: #ffffff;
+    --font-family: 'Poppins', sans-serif;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.3s;
+  }
+  
+    body, html {
+      height: 100%;
+      color: #333;
+      font-family: 'Nunito', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+  }
+  
+  .container {
+      display: flex;
+      height: 100vh;
+  }
+
+  /* Main Content */
+  .content {
+    flex: 1;
+    padding: 30px;
+    background-color: #ffffff;
+    overflow-y: auto;
+  }
+  
+  h1, h2, h3, h4, h5 {
+    color: var(--secondary-color);
+    font-weight: 600;
+  }
+  
+  p {
+    line-height: 1.6;
+  }
+  
+  /* Buttons */
+  .btn {
+    background-color: #66b933;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .btn:hover {
+      background-color: #57a82a;
+      transform: translateY(-2px);
+  } 
+
+  .btn:disabled {
+    opacity: 0.6;
+  }
+  

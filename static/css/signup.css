@@ -17,14 +17,14 @@ body {
     background-image: url('/static/images/background.jpg');
     background-size: cover;
     background-position: center;
-    z-index: -1; /* Positioned behind the container */
+    z-index: -1; 
 }
 
 .container {
-    max-width: 450px !important; /* Increased width */
+    max-width: 450px !important;
     width: 100%;
     padding: 2rem;
-    background-color: #1c1c1c !important; /* Original background color */
+    background-color: #1c1c1c !important;
     border-radius: 15px !important;
     border: 1px solid #66B933;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
@@ -54,7 +54,7 @@ a:hover {
 label {
     display: block;
     font-size: 14px;
-    margin-bottom: auto;
+    margin-bottom: 7px;
     text-align: left;
     color: #ffffff;
 }
@@ -79,7 +79,7 @@ input {
     color: #ffffff;
     box-sizing: border-box;
     transition: border 0.3s ease-in-out, background-color 0.3s ease-in-out;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 input:focus {
@@ -114,9 +114,6 @@ button:hover:enabled {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-top: 5px; /* Increased spacing */
-    margin-bottom: 5px; /* Increased spacing */
-    padding-left: 25px; /* Increased padding */
 }
 
 .checklist-item {

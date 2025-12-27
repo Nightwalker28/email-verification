@@ -1,41 +1,45 @@
 function displayMessage(message, isError = false) {
-    const messageContainer = $('#message-container');
-    // Reset classes and visibility
-    messageContainer.removeClass('alert-success alert-danger d-none');  // Reset classes and remove hidden class
-    // Set the appropriate class based on error status
-    messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
-    // Set the message text
-    messageContainer.text(message);
-    // Show the message container
-    messageContainer.show();
-    // Hide the message after 5 seconds
-    setTimeout(() => {
-        messageContainer.addClass('d-none');  // Hide the message container after 5 seconds
-    }, 5000);
+  const messageContainer = $('#message-container');
+  messageContainer.removeClass('alert-success alert-danger d-none').show(); 
+  messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
+  messageContainer.text(message);
+  setTimeout(() => {
+    messageContainer.fadeOut(500, function() {
+      $(this).addClass('d-none');
+    });
+  }, 5000);
 }
 
-$(document).ready(function() {
-    $('#manual-signin-form').on('submit', function(event) {
-        event.preventDefault();  // Prevent traditional form submission
-        const formData = new FormData(this);
-        $.ajax({
-            url: '/manual_signin',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                // Check if the redirect_url exists in the response
-                if (response.redirect_url) {
-                    window.location.href = response.redirect_url;
-                } else {
-                    displayMessage('Unexpected response, no redirect URL found.', true);
-                }
-            },
-            error: function(xhr, status, error) {
-                const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "An error occurred";
-                displayMessage(errorMessage, true);
-            }
-        });
+$(document).ready(() => {
+  $('#manual-signin-form').on('submit', function (event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+    // Optional: Add a loading indicator here
+    const $submitButton = $(this).find('button[type="submit"]');
+    $submitButton.prop('disabled', true).text('Signing In...'); 
+    $.ajax({
+      url: '/manual_signin',
+      type: 'POST',
+      data: formData,
+      contentType: false,
+      processData: false,
+      success: function (response) {
+        if (response && response.status === 'success' && response.data && response.data.redirect_url) {
+             window.location.href = response.data.redirect_url;
+        } else {
+          const msg = response.message || 'Unexpected response format from server.';
+          displayMessage(msg, true);
+        }
+      },
+      error: function (xhr) {
+        const errorMessage = (xhr.responseJSON && xhr.responseJSON.error)
+                             ? xhr.responseJSON.error 
+                             : "An unknown error occurred during sign in.";
+        displayMessage(errorMessage, true);
+      },
+      complete: function() {
+        $submitButton.prop('disabled', false).text('Sign In'); 
+      }
     });
+  });
 });

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Consider using the upload filename in the title -->
+    <title>View File: {{ upload.original_filename if upload else 'File Data' }}</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Link your own CSS if needed -->
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> -->
+</head>
+<body>
+    <div class="container mt-5">
+        <!-- Use the original filename in the heading -->
+        <h2>Data for: {{ upload.original_filename if upload else 'File' }}</h2>
+        <div class="table-responsive">
+            <!-- **** CHANGE csv_data TO content **** -->
+            {{ content|safe }}
+            <!-- **** END CHANGE **** -->
+        </div>
+        <!-- Add some margin to the button -->
+        <a class="btn btn-info mt-3" href="{{ url_for('files.download_file', unique_filename=upload.unique_filename) }}">Download</a>
+        <!-- Optional: Add a link back to the list -->
+        <a class="btn btn-secondary mt-3" href="{{ url_for('files.list_view') }}">Back to List</a>
+    </div>
+    <!-- Add Bootstrap JS if needed for other components -->
+    <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script> -->
+    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+</body>
+</html>

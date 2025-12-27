@@ -1,130 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification Tool</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="/static/css/home.css">
-</head>
+{% block title %}Home{% endblock %}
 
-<body>
-    <div class="container">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar" id="sidebar">
-            <nav>
-                <ul>
-                    <li>
-                        <a href="/home" data-title="logo">
-                            <img src="/static/images/logo.png" alt="Logo">
-                        </a>
-                    </li>
-                        <a href="/profile" data-title="Profile">
-                            <img src="/static/images/profile-icon.png" alt="Profile Icon" />
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/verify" data-title="Manual Check">
-                            <img src="/static/images/manual-icon.svg" alt="Manual Check Icon" />
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/list" data-title="CSV Check">
-                            <img src="/static/images/csv-icon.svg" alt="CSV Check Icon" />
-                        </a>
-                    </li>
-                    <li>
-                        <a class="logout" href="/logout" data-title="Logout">
-                            <img src="/static/images/logout-icon.svg" alt="Logout Icon" />
-                            Logout
-                        </a>
-                    </li>                    
-                </ul>
-            </nav>
-        </aside>    
+{% block content %}
+<div class="verification-section">
+    <!-- Display attempts remaining if any -->
+    {% if attempts is not none %}
+    <p>You have {{ attempts }} verification attempts left.</p>
+    {% endif %}
 
-        <!-- Main Content -->
-        <main class="content">
-            <div class="verification-section">
-                <!-- Display attempts remaining if any -->
-                {% if attempts is not none %}
-                <p>You have {{ attempts }} verification attempts left.</p>
-                {% endif %}
+    <h2>Email Verification</h2>
+    <form id="manualEmailForm">
+        <div class="form-group">
+            <label for="emailAddress">Enter Email Address</label><br>
+            <input type="email" id="emailAddress" name="emailAddress" required>
+        </div>
+        <button type="submit" class="btn">Verify Email</button>
+    </form>
 
-                <h2>Email Verification</h2>
-                <form id="manualEmailForm">
-                    <div class="form-group">
-                        <label for="emailAddress">Enter Email Address</label><br>
-                        <input type="email" id="emailAddress" name="emailAddress" required>
-                    </div>
-                    <button type="submit" class="btn">Verify Email</button>
-                </form>
+    <!-- Last Checked Email Section -->
+    {% if show_recent_result and last_checked_emails %}
+    <h3>Most Recent Email Verification Result:</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Result</th>
+                <th>Provider</th>
+                <th>Role Based</th>
+                <th>Accept All</th>
+                <th>Full Inbox</th>
+                <th>Temporary Mail</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for email_record in last_checked_emails %}
+            <tr>
+                <td>{{ email_record.email }}</td>
+                <td>{{ email_record.result }}</td>
+                <td>{{ email_record.provider }}</td>
+                <td>{{ 'Yes' if email_record.role_based else 'No' }}</td>
+                <td>{{ 'Yes' if email_record.accept_all else 'No' }}</td>
+                <td>{{ 'Yes' if email_record.full_inbox else 'No' }}</td>
+                <td>{{ 'Yes' if email_record.disposable else 'No' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+</div>
 
-                <!-- Last Checked Email Section -->
-                {% if show_recent_result and last_checked_emails %}
-                <h3>Most Recent Email Verification Result:</h3>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Email</th>
-                            <th>Result</th>
-                            <th>Provider</th>
-                            <th>Role Based</th>
-                            <th>Accept All</th>
-                            <th>Full Inbox</th>
-                            <th>Temporary Mail</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for email_record in last_checked_emails %}
-                        <tr>
-                            <td>{{ email_record.email }}</td>
-                            <td>{{ email_record.result }}</td>
-                            <td>{{ email_record.provider }}</td>
-                            <td>{{ 'Yes' if email_record.role_based else 'No' }}</td>
-                            <td>{{ 'Yes' if email_record.accept_all else 'No' }}</td>
-                            <td>{{ 'Yes' if email_record.full_inbox else 'No' }}</td>
-                            <td>{{ 'Yes' if email_record.disposable else 'No' }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% endif %}
-            </div>
-
-            <div class="summary-section">
-                <h2>Your Summary</h2>
-                <div class="summary-card">
-                    <div class="list-summary">
-                        <h3>Summary of Uploaded Lists</h3>
-                        <p>Total Lists: {{ list_summary.total_lists }}</p>
-                        <p>Total Emails Checked: {{ list_summary.total_emails_checked }}</p>
-                        <p>Total Verified: {{ list_summary.total_verified }}</p>
-                        <p>Total Risky: {{ list_summary.total_risky }}</p>
-                        <p>Total Invalid: {{ list_summary.total_invalid }}</p>
-                        <p>Total Unknown: {{ list_summary.total_unknown }}</p>
-                    </div>
-                    <div class="recent-summary">
-                        <h3>Summary of Recent Verifications (Last 30 Days)</h3>
-                        {% if recent_summary %}
-                        <p>Total Emails Checked: {{ recent_summary.total_recent_emails_checked }}</p>
-                        <p>Recent Verified: {{ recent_summary.recent_verified }}</p>
-                        <p>Recent Invalid: {{ recent_summary.recent_invalid }}</p>
-                        <p>Recent Risky: {{ recent_summary.recent_risky }}</p>
-                        <p>Recent Unknown: {{ recent_summary.recent_unknown }}</p>
-                        {% else %}
-                        <p>No recent email verifications in the last 30 days.</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </main>
+<div class="summary-section">
+    <h2>Your Summary</h2>
+    <div class="summary-card">
+        <div class="list-summary">
+            <h3>Summary of Uploaded Lists</h3>
+            <p>Total Lists: {{ list_summary.total_lists }}</p>
+            <p>Total Emails Checked: {{ list_summary.total_emails_checked }}</p>
+            <p>Total Verified: {{ list_summary.total_verified }}</p>
+            <p>Total Risky: {{ list_summary.total_risky }}</p>
+            <p>Total Invalid: {{ list_summary.total_invalid }}</p>
+            <p>Total Unknown: {{ list_summary.total_unknown }}</p>
+        </div>
+        <div class="recent-summary">
+            <h3>Summary of Recent Verifications (Last 30 Days)</h3>
+            {% if recent_summary %}
+            <p>Total Emails Checked: {{ recent_summary.total_recent_emails_checked }}</p>
+            <p>Recent Verified: {{ recent_summary.recent_verified }}</p>
+            <p>Recent Invalid: {{ recent_summary.recent_invalid }}</p>
+            <p>Recent Risky: {{ recent_summary.recent_risky }}</p>
+            <p>Recent Unknown: {{ recent_summary.recent_unknown }}</p>
+            {% else %}
+            <p>No recent email verifications in the last 30 days.</p>
+            {% endif %}
+        </div>
     </div>
-    <div id="message-container" class="alert d-none" role="alert"></div>
-    <script src="/static/js/singleverify.js"></script>
-    <script src="/static/js/navbar.js"></script>
-    <script src="/static/js/home.js"></script>
-</body>
-
-</html>
+</div>
+{% endblock %}
