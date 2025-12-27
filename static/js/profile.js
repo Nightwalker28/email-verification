@@ -13,7 +13,24 @@ function displayMessage(message, isError = false) {
       const password = $('#password').val();
       const confirmPassword = $('#confirm_password').val();
       if (password || confirmPassword) {
+function displayMessage(message, isError = false) {
+    const messageContainer = $('#message-container');
+    messageContainer.removeClass('d-none alert-success alert-danger');
+    messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
+    messageContainer.text(message);
+    messageContainer.show();
+    setTimeout(() => messageContainer.hide(), 5000);
+  }
+  
+  $(document).ready(() => {
+    $('form').on('submit', function(event) {
+      event.preventDefault();
+      const password = $('#password').val();
+      const confirmPassword = $('#confirm_password').val();
+      if (password || confirmPassword) {
         if (password !== confirmPassword) {
+          alert('Passwords do not match. Please try again.');
+          return;
           alert('Passwords do not match. Please try again.');
           return;
         }

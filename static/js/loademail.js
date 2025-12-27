@@ -2,6 +2,7 @@ function displayMessage(message, isError = false) {
     const messageContainer = $('#message-container');
     messageContainer.removeClass('d-none alert-success alert-danger');
     messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
+    messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
     messageContainer.text(message);
     messageContainer.show();
     setTimeout(() => messageContainer.hide(), 5000);
@@ -23,5 +24,7 @@ function displayMessage(message, isError = false) {
         }
       });
     });
+  });
+  
   });
   
