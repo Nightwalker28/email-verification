@@ -2,10 +2,6 @@ import os
 import logging
 import datetime
 import smtplib
-import os
-import logging
-import datetime
-import smtplib
 from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 from email.mime.text import MIMEText
@@ -61,11 +57,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 session_folder = os.path.join(BASE_DIR, 'flask_session')
 os.makedirs(session_folder, exist_ok=True)
 
-# Create session folder
-session_folder = os.path.join(BASE_DIR, 'flask_session')
-os.makedirs(session_folder, exist_ok=True)
-
-# Setup logging with rotation (app.log will log INFO level messages)
 # Setup logging with rotation (app.log will log INFO level messages)
 handler = RotatingFileHandler('app.log', maxBytes=10000000, backupCount=1)
 handler.setLevel(logging.INFO)
@@ -103,29 +94,8 @@ def load_file(filename, separator=None):
                     logger.warning(f"Skipping invalid line (missing separator): {line}")
             else:
                 data[line] = None
-                data[line] = None
     return data
 
-def mail_server_func(recipient_email, subject, html_body):
-    sender_email = Config.MAIL_USERNAME
-    msg = MIMEText(html_body, "html")
-    msg['From'] = sender_email
-    msg['To'] = recipient_email
-    msg['Subject'] = subject
-    try:
-        with smtplib.SMTP(Config.MAIL_SERVER, Config.MAIL_PORT) as server:
-            server.starttls()
-            server.login(sender_email, Config.MAIL_PASSWORD)
-            server.send_message(msg)
-        return True
-    except Exception as e:
-        print(f"Failed to send email: {e}")
-        return False
-
-# Expose the mail_server function
-mail_server = mail_server_func
-
-# Load providers, roles, and disposable emails from text files.
 def mail_server_func(recipient_email, subject, html_body):
     sender_email = Config.MAIL_USERNAME
     msg = MIMEText(html_body, "html")
@@ -149,6 +119,4 @@ mail_server = mail_server_func
 providers = load_file('providers.txt', separator=':')
 roles = load_file('roles.txt')
 disposable = load_file('index.txt')
-FREE_EMAIL_PROVIDERS = {'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com'}
-
 FREE_EMAIL_PROVIDERS = {'gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com'}

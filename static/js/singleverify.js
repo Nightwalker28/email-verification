@@ -1,10 +1,7 @@
 // Utility to display messages; uses alert-success for normal and alert-danger for errors.
 const displayMessage = (message, isError = false) => {
-// Utility to display messages; uses alert-success for normal and alert-danger for errors.
-const displayMessage = (message, isError = false) => {
     const messageContainer = $('#message-container');
     messageContainer.removeClass('d-none alert-success alert-danger');
-    messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
     messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
     messageContainer.text(message);
     messageContainer.show();
@@ -66,7 +63,5 @@ const displayMessage = (message, isError = false) => {
       const emailAddress = $('#emailAddress').val();
       performVerification('/force-verify', emailAddress);
     });
-  });
-  
   });
   
