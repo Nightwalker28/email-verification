@@ -2,10 +2,8 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    image: ghcr.io/techmee-digital/email-verification:front-end-reset
     container_name: email-verification-web
-    volumes:
-      - .:/app
     ports:
       - "5000:5000"
     depends_on:
@@ -19,11 +17,9 @@ services:
     restart: unless-stopped
 
   celery:
-    build: .
+    image: ghcr.io/techmee-digital/email-verification:front-end-reset
     container_name: email-verification-celery
     command: celery -A pages.schedule:celery worker --pool=solo --loglevel=info
-    volumes:
-      - .:/app
     depends_on:
       db:
         condition: service_healthy

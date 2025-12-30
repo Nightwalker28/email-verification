@@ -7,13 +7,14 @@
     <title>{% block title %}Email Verification Tool{% endblock %}</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/home.css">
+    <link rel="stylesheet" href="/static/css/sidebar.css">
+    <link rel="stylesheet" href="/static/css/global.css">
+
     {% block extra_head %}{% endblock %}
 </head>
 
 <body>
     <div class="container">
-        <!-- Sidebar Navigation -->
         <aside class="sidebar" id="sidebar">
             <nav>
                 <ul>
@@ -74,7 +75,6 @@
             {% block content %}
             {% endblock %}
         </main>
-
     </div>
     
     <div id="message-container" class="alert d-none" role="alert"></div>
@@ -83,5 +83,4 @@
     <script src="/static/js/home.js"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
-
 </html>
