@@ -1,65 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pricing</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f4f4f4;
-        }
-        .pricing-container {
-            display: flex;
-            gap: 20px;
-        }
-        .tier-block {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            width: 300px;
-            text-align: center;
-            background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        .tier-block h2 {
-            margin-top: 0;
-        }
-        .price {
-            font-size: 24px;
-            font-weight: bold;
-            color: #333;
-            margin: 15px 0;
-        }
-        .features {
-            list-style: none;
-            padding: 0;
-        }
-        .features li {
-            margin: 10px 0;
-            color: #555;
-        }
-        .signup-btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #fff;
-            background-color: #007bff;
-            border: none;
-            border-radius: 5px;
-            text-decoration: none;
-            cursor: pointer;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Pricing{% endblock %}
+
+{% block content %}
     <div class="pricing-container">
         <!-- Free Tier -->
         <div class="tier-block">
@@ -84,5 +27,4 @@
             <a href="/get-pro" class="signup-btn">Get Pro</a>
         </div>
     </div>
-</body>
-</html>
+{% endblock %}

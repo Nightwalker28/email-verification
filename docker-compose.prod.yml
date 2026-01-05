@@ -2,10 +2,8 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    image: ghcr.io/techmee-digital/email-verification:front-end-reset
     container_name: email-verification-web
-    volumes:
-      - .:/app
     ports:
       - "5000:5000"
     depends_on:
@@ -19,11 +17,9 @@ services:
     restart: unless-stopped
 
   celery:
-    build: .
+    image: ghcr.io/techmee-digital/email-verification:front-end-reset
     container_name: email-verification-celery
     command: celery -A pages.schedule:celery worker --pool=solo --loglevel=info
-    volumes:
-      - .:/app
     depends_on:
       db:
         condition: service_healthy
@@ -56,19 +52,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: email-verification-phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "8080:80"
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    depends_on:
-      - db
 
 volumes:
   db_data:

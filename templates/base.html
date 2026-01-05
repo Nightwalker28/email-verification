@@ -12,70 +12,69 @@
 
     {% block extra_head %}{% endblock %}
 </head>
-
 <body>
-    <div class="container">
-        <aside class="sidebar" id="sidebar">
-            <nav>
-                <ul>
-                    <li>
-                        <a href="/home" data-title="logo">
-                            <img src="/static/images/logo.png" alt="Logo">
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/home" data-title="home">
-                            <img src="/static/images/profile-icon.png" alt="Profile Icon" />
-                            Home
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/verify" data-title="Manual Check">
-                            <img src="/static/images/manual-icon.svg" alt="Manual Check Icon" />
-                            Manual Check
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/list" data-title="CSV Check">
-                            <img src="/static/images/csv-icon.svg" alt="CSV Check Icon" />
-                            CSV Check
-                        </a>
-                    </li>
-                    <!-- <li>
-                        <a href="/apis" data-title="APIs">
-                            <img src="/static/images/profile-icon.png" alt="Profile Icon" />
-                            APIs
-                        </a>
-                    </li>
-                    <li>
-                        <a href="/profile" data-title="Profile">
-                            <img src="/static/images/profile-icon.png" alt="Profile Icon" />
-                            Dummy Guide
-                        </a>
-                    </li> -->
-                    <li>
-                        <a href="/profile" data-title="Profile">
-                            <img src="/static/images/profile-icon.png" alt="Profile Icon" />
-                            Settings
-                        </a>
-                    </li>
-                    <li>
-                        <a class="logout" href="/logout" data-title="Logout">
-                            <img src="/static/images/logout-icon.svg" alt="Logout Icon" />
-                            Logout
-                        </a>
-                    </li>                    
-                </ul>
-            </nav>
-        </aside>    
+    <aside class="sidebar" id="sidebar">
+        <nav>
+            <ul>
+                <li>
+                    <a href="/home" data-title="logo">
+                        <img src="/static/images/logo.png" alt="Logo">
+                    </a>
+                </li>
+                <li>
+                    <a href="/home" data-title="home">
+                        <img src="/static/images/profile-icon.png" alt="Profile Icon" />
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <a href="/verify" data-title="Manual Check">
+                        <img src="/static/images/manual-icon.svg" alt="Manual Check Icon" />
+                        Manual Check
+                    </a>
+                </li>
+                <li>
+                    <a href="/list" data-title="CSV Check">
+                        <img src="/static/images/csv-icon.svg" alt="CSV Check Icon" />
+                        CSV Check
+                    </a>
+                </li>
+                <!-- <li>
+                    <a href="/apis" data-title="APIs">
+                        <img src="/static/images/profile-icon.png" alt="Profile Icon" />
+                        APIs
+                    </a>
+                </li>
+                <li>
+                    <a href="/profile" data-title="Profile">
+                        <img src="/static/images/profile-icon.png" alt="Profile Icon" />
+                        Dummy Guide
+                    </a>
+                </li> -->
+                <li>
+                    <a href="/profile" data-title="Profile">
+                        <img src="/static/images/profile-icon.png" alt="Profile Icon" />
+                        Settings
+                    </a>
+                </li>
+                <li>
+                    <a class="logout" href="/logout" data-title="Logout">
+                        <img src="/static/images/logout-icon.svg" alt="Logout Icon" />
+                        Logout
+                    </a>
+                </li>               
+            </ul>
+        </nav>
+    </aside>
 
 
-        <!-- Main Content -->
+    <!-- Main Content -->
+     <div class="main-container">
         <main class="content">
             {% block content %}
             {% endblock %}
         </main>
-    </div>
+     </div>
     
     <div id="message-container" class="alert d-none" role="alert"></div>
     <script src="/static/js/singleverify.js"></script>

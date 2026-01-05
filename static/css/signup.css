@@ -1,15 +1,23 @@
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
+    min-height: 100vh;
+    position: relative;
 }
 
+/* Background image */
 .background-image {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -17,137 +25,189 @@ body {
     background-image: url('/static/images/background.jpg');
     background-size: cover;
     background-position: center;
-    z-index: -1; 
+    z-index: -1;
+    filter: brightness(0.9);
 }
 
+/* Main container */
 .container {
-    max-width: 450px !important;
-    width: 100%;
-    padding: 2rem;
-    background-color: #1c1c1c !important;
-    border-radius: 15px !important;
+    max-width: 550px;
+    width: 90%;
+    padding: 2.5rem;
+    background-color: #1c1c1c;
+    color: white;
+    border-radius: 15px;
     border: 1px solid #66B933;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    text-align: center;
-    position: relative;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     z-index: 1;
 }
 
-h1 {
-    color: #ffffff;
-    font-size: 24px;
-    margin-bottom: 20px;
+/* Logo styles */
+.logo-container {
+    text-align: center;
+    margin-bottom: 1.5rem;
 }
 
-a {
-    color: #66B933;
-    text-decoration: none;
-    transition: color 0.2s ease-in-out;
-    font-size: 15px;
+.logo {
+    width: 50%;
+    height: auto;
 }
 
-a:hover {
-    color: #3E701F;
-    text-decoration: underline;
+/* Form elements */
+form {
+    width: 100%;
 }
 
-label {
-    display: block;
-    font-size: 14px;
-    margin-bottom: 7px;
-    text-align: left;
-    color: #ffffff;
+.form-group {
+    margin-bottom: 1.2rem;
+    width: 100%;
 }
 
 .input-row {
     display: flex;
     gap: 15px;
-    margin-bottom: 5px;
+    margin-bottom: 0.5rem;
 }
 
-.input-row div {
+.input-row .form-group {
     flex: 1;
+}
+
+label {
+    display: block;
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
 }
 
 input {
     width: 100%;
-    padding: 8px;
+    padding: 10px 12px;
     border: 1px solid #4a4a4a;
-    border-radius: 5px;
-    font-size: 16px;
+    border-radius: 6px;
+    font-size: 1rem;
     background-color: #2b2b2b;
     color: #ffffff;
-    box-sizing: border-box;
     transition: border 0.3s ease-in-out, background-color 0.3s ease-in-out;
-    margin-bottom: 10px;
 }
 
 input:focus {
     outline: none;
     border-color: #66B933;
     background-color: #3a3a3a;
+    box-shadow: 0 0 0 2px rgba(102, 185, 51, 0.2);
 }
 
-button {
-    padding: 10px;
+/* Button styles */
+.signup-button {
+    width: 100%;
+    padding: 12px;
     background-color: #66B933;
     color: white;
     border: none;
-    border-radius: 0.5rem;
+    border-radius: 6px;
     font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
-    margin: 10px 0 15px;
-    width: 100%;
+    transition: background-color 0.3s ease-in-out, transform 0.1s;
+    margin: 1rem 0;
 }
 
-button:disabled {
-    background-color: #5a5a5a;
-    cursor: not-allowed;
-}
-
-button:hover:enabled {
+.signup-button:hover:not(:disabled) {
     background-color: #3E701F;
 }
 
+.signup-button:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.signup-button:disabled {
+    background-color: #5a5a5a;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Password checklist styles */
 .checklist {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    background-color: #252525;
+    border-radius: 6px;
+    padding: 1rem;
+    margin: 0.5rem 0 1.2rem;
+    font-size: 0.85rem;
 }
 
 .checklist-item {
     display: flex;
     align-items: center;
-    font-size: 12px; /* Slightly larger font */
-    margin: 2px 0;
-    color: #ffffff;
+    margin-bottom: 0.5rem;
+    color: rgba(255, 255, 255, 0.7);
 }
 
-.checklist-item .check-icon {
-    width: 15px; /* Slightly larger icon */
-    height: 15px;
-    margin-right: 12px;
+.checklist-item:last-child {
+    margin-bottom: 0;
 }
 
-/* Icon styling for validity */
-.checklist-item.invalid .check-icon {
-    background-color: #B93333;
-    mask: url('/static/images/cross-icon.svg') no-repeat center;
-    mask-size: contain;
+.check-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    margin-right: 8px;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.checklist-item.valid {
+    color: #66B933;
 }
 
 .checklist-item.valid .check-icon {
     background-color: #66B933;
-    mask: url('/static/images/check-icon.svg') no-repeat center;
-    mask-size: contain;
+    border-color: #66B933;
+}
+
+.checklist-item.valid .check-icon::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 5px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checklist-item.invalid {
+    color: #aaaaaa;
+}
+
+/* Alert message */
+.alert {
+    color: #B93333;
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    text-align: center;
+    background-color: rgba(185, 51, 51, 0.1);
+    border-radius: 4px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Text links styles */
+.login-text {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #dddddd;
+    margin-top: 1.5rem;
 }
 
 a {
     color: #66B933;
     text-decoration: none;
     transition: color 0.2s ease-in-out;
-    font-size: 16px; /* Slightly larger font */
 }
 
 a:hover {
@@ -155,27 +215,23 @@ a:hover {
     text-decoration: underline;
 }
 
-.requirements-message {
-    color: #dc3545;
-    font-size: 15px; /* Slightly larger font */
-    margin-top: 12px;
-    display: none;
-}
-
-#message-container {
-    display: none;
-    margin-top: 10px;
-    padding: 10px;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-.logo {
-    width: 55%;
-    height: auto;
-    margin-bottom: 1.5rem;
-}
-
-p {
-    color: #ffffff;
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .container {
+        padding: 1.8rem;
+        width: 95%;
+    }
+    
+    .logo {
+        width: 60%;
+    }
+    
+    .input-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+    }
 }

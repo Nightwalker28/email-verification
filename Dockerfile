@@ -1,11 +1,30 @@
-FROM python:3.11-slim
+# Build stage
+FROM python:3.11.6-slim AS builder
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
+# Install dependencies with cache mount for pip
+COPY requirements.txt .
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --upgrade pip && \
+    pip install --prefix=/install --no-cache-dir -r requirements.txt
+
+# Final stage
+FROM python:3.11.6-slim
+
+WORKDIR /app
+
+# Copy only what’s needed
+COPY --from=builder /install /usr/local
 COPY . .
 
-ENV PYTHONUNBUFFERED=1
+# Add non-root user
+RUN adduser --disabled-password --gecos '' flaskuser
+USER flaskuser
+
 CMD ["python", "run.py"]

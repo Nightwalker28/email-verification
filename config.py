@@ -30,9 +30,9 @@ class Config:
     SESSION_TYPE = 'filesystem'
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(hours=1)
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB
-    broker_url = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
-    result_backend = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
-    REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/1')
+    broker_url = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
+    result_backend = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
+    REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/1')
     # SQLAlchemy engine options for connection pooling.
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_size': int(os.environ.get('DB_POOL_SIZE', 10)),

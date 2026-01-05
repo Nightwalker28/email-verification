@@ -1,5 +1,15 @@
-__pycache__
+__pycache__/
 *.pyc
+*.pyo
+*.pyd
 *.log
 .env
 venv/
+.venv/
+flask_session/
+*.sqlite3
+node_modules/
+*.egg-info/
+build/
+dist/
+.DS_Store
