@@ -1,5 +1,5 @@
 # Build stage
-FROM python:3.11.6-slim AS builder
+FROM python:3.13.3-alpine AS builder
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -15,7 +15,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --prefix=/install --no-cache-dir -r requirements.txt
 
 # Final stage
-FROM python:3.11.6-slim
+FROM python:3.13.3-alpine
 
 WORKDIR /app
 

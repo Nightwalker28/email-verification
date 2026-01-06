@@ -1,13 +1,13 @@
 version: '3.8'
 
 services:
-  web:
+  app:
     build: .
+    image: ghcr.io/techmee-digital/email-verification:latest
     container_name: email-verification-web
-    volumes:
-      - .:/app
     ports:
       - "5000:5000"
+    command: python run.py
     depends_on:
       db:
         condition: service_healthy
@@ -15,15 +15,12 @@ services:
         condition: service_started
     env_file:
       - .env
-    command: python run.py
     restart: unless-stopped
 
   celery:
-    build: .
+    image: ghcr.io/techmee-digital/email-verification:latest
     container_name: email-verification-celery
     command: celery -A pages.schedule:celery worker --pool=solo --loglevel=info
-    volumes:
-      - .:/app
     depends_on:
       db:
         condition: service_healthy
@@ -58,7 +55,7 @@ services:
       retries: 5
 
   phpmyadmin:
-    image: phpmyadmin/phpmyadmin
+    image: phpmyadmin
     container_name: email-verification-phpmyadmin
     restart: unless-stopped
     ports:

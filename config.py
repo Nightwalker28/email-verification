@@ -2,13 +2,15 @@ import os
 import logging
 import datetime
 import smtplib
-from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 from email.mime.text import MIMEText
 from flask_sqlalchemy import SQLAlchemy
 from authlib.integrations.flask_client import OAuth
 from flask_migrate import Migrate
 from flask import jsonify
+from redis import Redis
+from urllib.parse import urlparse
+import sys
 
 load_dotenv()
 
@@ -27,13 +29,24 @@ class Config:
     SMTP_USE_TLS = os.environ.get('SMTP_USE_TLS', 'False').lower() in ['true', '1', 'yes']
     SQLALCHEMY_DATABASE_URI = os.environ.get('DB_URI')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SESSION_TYPE = 'filesystem'
+    SESSION_TYPE = os.environ.get("SESSION_TYPE", "redis")
+
+    if SESSION_TYPE == "redis":
+        redis_url = os.environ.get("SESSION_REDIS", "redis://redis:6379/0")
+        parsed_url = urlparse(redis_url)
+        SESSION_REDIS = Redis(
+            host=parsed_url.hostname,
+            port=parsed_url.port,
+            db=int(parsed_url.path.replace("/", "") or 0)
+        )
+    else:
+        SESSION_FILE_DIR = os.environ.get("SESSION_FILE_DIR", os.path.join(os.path.abspath(os.path.dirname(__file__)), 'flask_session'))
+
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(hours=1)
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB
     broker_url = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
     result_backend = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/1')
-    # SQLAlchemy engine options for connection pooling.
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_size': int(os.environ.get('DB_POOL_SIZE', 10)),
         'max_overflow': int(os.environ.get('DB_MAX_OVERFLOW', 20)),
@@ -53,12 +66,8 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Create session folder
-session_folder = os.path.join(BASE_DIR, 'flask_session')
-os.makedirs(session_folder, exist_ok=True)
-
 # Setup logging with rotation (app.log will log INFO level messages)
-handler = RotatingFileHandler('app.log', maxBytes=10000000, backupCount=1)
+handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)

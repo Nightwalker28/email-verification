@@ -10,7 +10,7 @@ from celery.schedules import crontab
 import logging
 from flask import Flask # Import Flask for type hinting
 
-from config import Config, logger, db, UPLOAD_FOLDER, session_folder
+from config import Config, logger, db, UPLOAD_FOLDER
 from pages.models import UserUpload, Summary, TempUser, User # Import User model
 
 # --- Import the CORRECT functions from fileupload ---
@@ -123,37 +123,6 @@ def delete_old_files_task(self: ContextTask) -> None: # Type hint should work no
             logger.error(f"Error deleting file {upload.unique_filename}: {e}", exc_info=True)
             error_count += 1
     logger.info(f"Finished deleting old files. Deleted: {deleted_count}, Errors: {error_count}")
-
-
-@celery.task(bind=True)
-def cleanup_expired_sessions_task(self: ContextTask) -> None: # Type hint should work now
-    """Deletes expired session files from the filesystem session storage."""
-    now = time.time()
-    logger.info("Starting session cleanup process.")
-    # Access app config via the flask_app instance (available in module scope)
-    session_lifetime_seconds = flask_app.permanent_session_lifetime.total_seconds()
-    deleted_count = 0
-    error_count = 0
-    if not os.path.isdir(session_folder):
-        logger.warning(f"Session folder '{session_folder}' not found. Skipping cleanup.")
-        return
-    try:
-        for filename in os.listdir(session_folder):
-            file_path = os.path.join(session_folder, filename)
-            if os.path.isfile(file_path):
-                try:
-                    last_modified = os.path.getmtime(file_path)
-                    if now - last_modified > session_lifetime_seconds:
-                        os.remove(file_path)
-                        logger.info(f"Deleted expired session file: {filename}")
-                        deleted_count += 1
-                except Exception as e:
-                    logger.error(f"Error processing session file {filename}: {e}", exc_info=True)
-                    error_count += 1
-        logger.info(f"Finished session cleanup. Deleted: {deleted_count}, Errors: {error_count}")
-    except Exception as e:
-         logger.error(f"Error listing session directory '{session_folder}': {e}", exc_info=True)
-
 
 @celery.task(bind=True)
 def cleanup_expired_temp_users_task(self: ContextTask) -> None: # Type hint should work now
@@ -327,11 +296,6 @@ celery.conf.beat_schedule = {
     "delete-old-files-every-day": {
         "task": "pages.schedule.delete_old_files_task",
         "schedule": crontab(hour=0, minute=0), # Run daily at midnight
-    },
-    "cleanup-expired-sessions-every-hour": { # Changed to hourly, adjust as needed
-        "task": "pages.schedule.cleanup_expired_sessions_task",
-        "schedule": crontab(minute=0), # Run at the start of every hour
-        # "schedule": 3600.0, # Alternative: run every 3600 seconds
     },
     "cleanup-expired-temp-users-every-day": {
         "task": "pages.schedule.cleanup_expired_temp_users_task",
