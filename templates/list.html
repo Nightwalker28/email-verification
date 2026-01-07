@@ -3,65 +3,65 @@
 {% block title %}CSV Check{% endblock %}
 
 {% block content %}
-    <form id="uploadForm" enctype="multipart/form-data">
-        <div class="mb-3">
-            <label for="csvFile" class="form-label">Upload CSV/Excel File</label>
-            <!-- **** CHANGE THE NAME ATTRIBUTE HERE **** -->
-            <input class="uploadForm" type="file" id="csvFile" name="file" accept=".csv,.xlsx,.xls">
-            <!-- **** END CHANGE **** -->
-        </div>
-        <button type="submit" class="btn btn-primary">Verify List</button>
-        <button type="button" id="forceVerifyBtn" class="btn btn-danger">Force Verify List</button>
-    </form>
-
-    <!-- Uploaded Files Section -->
-    <div class="mt-5">
-        <h2>Your Uploaded Files</h2>
-        {% if uploads %}
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Filename</th>
-                    <th>Upload Date</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for upload in uploads %}
+        <!-- CSV Upload Section -->
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="csvFile" class="form-label">Upload CSV/Excel File</label>
+                <!-- **** CHANGE THE NAME ATTRIBUTE HERE **** -->
+                <input class="form-control" type="file" id="csvFile" name="file" accept=".csv,.xlsx,.xls">
+                <!-- **** END CHANGE **** -->
+            </div>
+            <button type="submit" class="btn btn-primary">Verify List</button>
+            <button type="button" id="forceVerifyBtn" class="btn btn-danger">Force Verify List</button>
+        </form>
+    
+        <!-- Uploaded Files Section -->
+        <div class="mt-5">
+            <h2>Your Uploaded Files</h2>
+            {% if uploads %}
+            <table class="table table-bordered">
+                <thead>
                     <tr>
-                        <td><a href="#" class="toggle-details" data-id="{{ upload.id }}">{{ upload.original_filename }}</a></td>
-                        <td>{{ upload.upload_date }}</td>
-                        <td>
-                            <a class="btn btn-info btn-sm" href="{{ url_for('files.view_file', unique_filename=upload.unique_filename) }}">View</a>
-                            <button class="btn btn-success btn-sm download-btn" data-filename="{{ upload.unique_filename }}" data-download_name="{{upload.original_filename}}">Download</button>
-                            <!-- Use a form for delete for better semantics and security -->
-                            <form action="{{ url_for('files.delete_file', unique_filename=upload.unique_filename) }}" method="POST" style="display: inline;">
-                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file?');">Delete</button>
-                            </form>
-                        </td>
+                        <th>Filename</th>
+                        <th>Upload Date</th>
+                        <th>Actions</th>
                     </tr>
-                    <tr class="details" id="details-{{ upload.id }}">
-                        <td colspan="3">
-                            <div>
-                                <strong>Total Emails:</strong> {{ upload.total_emails }}<br>
-                                <strong>Valid Emails:</strong> {{ upload.valid_emails }}<br>
-                                <strong>Risky Emails:</strong> {{ upload.risky_emails }}<br>
-                                <strong>Invalid Emails:</strong> {{ upload.invalid_emails }}<br>
-                                <strong>Unknown Emails:</strong> {{ upload.unknown_emails }}
-                            </div>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-            <p>No uploaded files found.</p>
-        {% endif %}
-    </div>
-    <!-- Alert Message Container -->
-    <div id="message-container" class="alert d-none"></div>
+                </thead>
+                <tbody>
+                    {% for upload in uploads %}
+                        <tr>
+                            <td><a href="#" class="toggle-details" data-id="{{ upload.id }}">{{ upload.original_filename }}</a></td>
+                            <td>{{ upload.upload_date }}</td>
+                            <td>
+                                <a class="btn btn-info btn-sm" href="{{ url_for('files.view_file', unique_filename=upload.unique_filename) }}">View</a>
+                                <button class="btn btn-success btn-sm download-btn" data-filename="{{ upload.unique_filename }}" data-download_name="{{upload.original_filename}}">Download</button>
+                                <!-- Use a form for delete for better semantics and security -->
+                                <form action="{{ url_for('files.delete_file', unique_filename=upload.unique_filename) }}" method="POST" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this file?');">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr class="details" id="details-{{ upload.id }}">
+                            <td colspan="3">
+                                <div>
+                                    <strong>Total Emails:</strong> {{ upload.total_emails }}<br>
+                                    <strong>Valid Emails:</strong> {{ upload.valid_emails }}<br>
+                                    <strong>Risky Emails:</strong> {{ upload.risky_emails }}<br>
+                                    <strong>Invalid Emails:</strong> {{ upload.invalid_emails }}<br>
+                                    <strong>Unknown Emails:</strong> {{ upload.unknown_emails }}
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+                <p>No uploaded files found.</p>
+            {% endif %}
+        </div>
 {% endblock %}
 
+    {% block scripts %}
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="/static/js/uploadverify.js"></script>
-    {% block extra_scripts %}{% endblock %}
+    {% endblock %}

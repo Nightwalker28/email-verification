@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/css/sidebar.css">
     <link rel="stylesheet" href="/static/css/global.css">
-
     {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -76,10 +75,11 @@
         </main>
      </div>
     
-    <div id="message-container" class="alert d-none" role="alert"></div>
+    {% block scripts %}
+     <div id="message-container" class="alert d-none" role="alert"></div>
     <script src="/static/js/singleverify.js"></script>
     <script src="/static/js/navbar.js"></script>
     <script src="/static/js/home.js"></script>
-    {% block extra_scripts %}{% endblock %}
+    {% endblock %}
 </body>
 </html>

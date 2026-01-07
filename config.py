@@ -19,8 +19,8 @@ class Config:
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
-    MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_PORT = 587
+    MAIL_SERVER = os.environ.get('Mail_Server')
+    MAIL_PORT = os.environ.get('Mail_Port')
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get('Mail_Username')
     MAIL_PASSWORD = os.environ.get('Mail_PW')

@@ -28,6 +28,7 @@
     </div>
     {% endblock %}
 
+    {% block scripts %}
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         const isGoogleLogin = JSON.parse("{{ is_google_login | tojson }}");
@@ -61,4 +62,4 @@
                 }
             }
     </script>
-    {% block extra_scripts %}{% endblock %}
+    {% endblock %}

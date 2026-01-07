@@ -3,14 +3,11 @@ version: '3.8'
 services:
   app:
     build: .
-    image: email-verification-dev
+    image: ghcr.io/techmee-digital/email-verification:latest
     container_name: email-verification-web
     ports:
       - "5000:5000"
-    command: python run.py  
-    volumes:
-      - .:/app 
-    working_dir: /app
+    command: python run.py
     depends_on:
       db:
         condition: service_healthy
@@ -21,12 +18,9 @@ services:
     restart: unless-stopped
 
   celery:
-    image: email-verification-dev
+    image: ghcr.io/techmee-digital/email-verification:latest
     container_name: email-verification-celery
     command: celery -A pages.schedule:celery worker --pool=solo --loglevel=info
-    volumes:
-      - .:/app
-    working_dir: /app
     depends_on:
       db:
         condition: service_healthy
