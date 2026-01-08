@@ -12,71 +12,65 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-    <aside class="sidebar" id="sidebar">
-        <nav>
-            <ul>
-                <li>
-                    <a href="/home" data-title="logo">
-                        <img src="/static/images/logo.png" alt="Logo">
-                    </a>
-                </li>
-                <li>
-                    <a href="/home" data-title="home">
-                        <img src="/static/images/profile-icon.png" alt="Profile Icon" />
-                        Home
-                    </a>
-                </li>
-                <li>
-                    <a href="/verify" data-title="Manual Check">
-                        <img src="/static/images/manual-icon.svg" alt="Manual Check Icon" />
-                        Manual Check
-                    </a>
-                </li>
-                <li>
-                    <a href="/list" data-title="CSV Check">
-                        <img src="/static/images/csv-icon.svg" alt="CSV Check Icon" />
-                        CSV Check
-                    </a>
-                </li>
-                <!-- <li>
-                    <a href="/apis" data-title="APIs">
-                        <img src="/static/images/profile-icon.png" alt="Profile Icon" />
-                        APIs
-                    </a>
-                </li>
-                <li>
-                    <a href="/profile" data-title="Profile">
-                        <img src="/static/images/profile-icon.png" alt="Profile Icon" />
-                        Dummy Guide
-                    </a>
-                </li> -->
-                <li>
-                    <a href="/profile" data-title="Profile">
-                        <img src="/static/images/profile-icon.png" alt="Profile Icon" />
-                        Settings
-                    </a>
-                </li>
-                <li>
-                    <a class="logout" href="/logout" data-title="Logout">
-                        <img src="/static/images/logout-icon.svg" alt="Logout Icon" />
-                        Logout
-                    </a>
-                </li>               
-            </ul>
-        </nav>
-    </aside>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <nav>
+                <ul>
+                    <li>
+                        <a href="/home" data-title="logo">
+                            <img src="/static/images/logo.png" alt="Logo">
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/home" data-title="home">
+                            <img src="/static/images/profile-icon.png" alt="Profile Icon" />
+                            <span class="menu-text">Home</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/verify" data-title="Manual Check">
+                            <img src="/static/images/manual-icon.svg" alt="Manual Check Icon" />
+                            <span class="menu-text">Manual Check</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/list" data-title="CSV Check">
+                            <img src="/static/images/csv-icon.svg" alt="CSV Check Icon" />
+                            <span class="menu-text">CSV Check</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/profile" data-title="Profile">
+                            <img src="/static/images/profile-icon.png" alt="Profile Icon" />
+                            <span class="menu-text">Settings</span>
+                        </a>
+                    </li>
+                        <li class="sidebar-footer">
+                            <a class="logout" href="/logout" data-title="Logout">
+                                <img src="/static/images/logout-icon.svg" alt="Logout Icon" />
+                                <span class="menu-text">Logout</span>
+                            </a>
+                        </li>
+                    </li>          
+                </ul>
+            </nav>
+        </aside>
 
-
-    <!-- Main Content -->
-     <div class="main-container">
-        <main class="content">
-            {% block content %}
-            {% endblock %}
-        </main>
-     </div>
+        <!-- Main Content Area -->
+        <div class="main-container">
+            
+            
+            <main class="content">
+                {% block content %}
+                {% endblock %}
+            </main>
+        </div>
+    </div>
+    
+    <div id="message-container" class="alert d-none" role="alert"></div>
     
     {% block scripts %}
-     <div id="message-container" class="alert d-none" role="alert"></div>
     <script src="/static/js/singleverify.js"></script>
     <script src="/static/js/navbar.js"></script>
     <script src="/static/js/home.js"></script>
