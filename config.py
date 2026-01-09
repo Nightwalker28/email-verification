@@ -11,6 +11,7 @@ from flask import jsonify
 from redis import Redis
 from urllib.parse import urlparse
 import sys
+import ssl
 
 load_dotenv()
 
@@ -19,8 +20,8 @@ class Config:
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
-    MAIL_SERVER = os.environ.get('Mail_Server')
-    MAIL_PORT = os.environ.get('Mail_Port')
+    MAIL_SERVER = os.environ.get('MAIL_SERVER')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', 465))
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get('Mail_Username')
     MAIL_PASSWORD = os.environ.get('Mail_PW')
@@ -106,19 +107,37 @@ def load_file(filename, separator=None):
     return data
 
 def mail_server_func(recipient_email, subject, html_body):
-    sender_email = Config.MAIL_USERNAME
+    sender = Config.MAIL_USERNAME
     msg = MIMEText(html_body, "html")
-    msg['From'] = sender_email
-    msg['To'] = recipient_email
+    msg['From'] = sender
+    msg['To']   = recipient_email
     msg['Subject'] = subject
+
+    context = ssl.create_default_context()
     try:
-        with smtplib.SMTP(Config.MAIL_SERVER, Config.MAIL_PORT) as server:
-            server.starttls()
-            server.login(sender_email, Config.MAIL_PASSWORD)
-            server.send_message(msg)
+        # if you're on port 465, use SMTP_SSL
+        if Config.MAIL_PORT == 465:
+            server = smtplib.SMTP_SSL(
+                Config.MAIL_SERVER,
+                Config.MAIL_PORT,
+                context=context,
+                timeout=10
+            )
+        else:
+            server = smtplib.SMTP(
+                Config.MAIL_SERVER,
+                Config.MAIL_PORT,
+                timeout=10
+            )
+            server.ehlo()
+            server.starttls(context=context)
+        server.login(sender, Config.MAIL_PASSWORD)
+        server.send_message(msg)
+        server.quit()
         return True
+
     except Exception as e:
-        print(f"Failed to send email: {e}")
+        print("Email send failed:", e)
         return False
 
 # Expose the mail_server function

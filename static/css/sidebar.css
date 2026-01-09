@@ -9,7 +9,7 @@
     box-shadow: 2px 0 10px rgba(0,0,0,0.5);
     border-right: 1px solid #444;
     height: 100vh;
-    position: fixed;
+    position: sticky;
     top: 0;
     left: 0;
     overflow-y: auto;

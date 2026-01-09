@@ -47,8 +47,8 @@ function displayMessage(message, isError = false) {
         url: '/signup',  // Your backend signup route
         data: formData,
         success: function(response) {
-          if (response.success) {
-            displayMessage(response.success, false);
+          if (response.success === 'success') {
+            displayMessage(response.message, false);
             // Optionally, redirect after a short delay:
           } else {
             displayMessage("Unexpected response from server.", true);
