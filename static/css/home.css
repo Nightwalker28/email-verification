@@ -152,9 +152,10 @@
   margin: 0 0 15px 0;
 }
 
+/* CHANGED: Replaced grid with flexbox */
 .summary-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
 }
 
@@ -162,6 +163,8 @@
   background-color: #f9f9f9;
   border-radius: 6px;
   padding: 15px;
+  flex: 1 1 calc(50% - 20px);
+  min-width: 250px;
 }
 
 .summary-card h3 {
@@ -180,11 +183,10 @@
   position: relative;
 }
 
-/* Stats Display */
+/* CHANGED: Replaced grid with flexbox */
 .stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 .stat-item {
@@ -192,6 +194,9 @@
   justify-content: space-between;
   padding: 8px 0;
   border-bottom: 1px dashed #eee;
+  flex: 1 1 calc(50% - 10px);
+  min-width: 120px;
+  margin-right: 10px;
 }
 
 .stat-item:last-child {
@@ -252,9 +257,10 @@
   margin: 0 0 15px 0;
 }
 
+/* CHANGED: Replaced grid with flexbox */
 .action-cards {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 15px;
 }
 
@@ -268,6 +274,8 @@
   padding: 20px;
   text-decoration: none;
   transition: all 0.3s ease;
+  flex: 1 1 calc(50% - 15px);
+  min-width: 200px;
 }
 
 .action-card:hover {
@@ -339,13 +347,14 @@
 
 /* Media Queries */
 @media (max-width: 768px) {
-  .summary-grid,
-  .action-cards {
-    grid-template-columns: 1fr;
+  .summary-grid .summary-card,
+  .action-cards .action-card {
+    flex: 1 1 100%;
   }
   
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .stats-grid .stat-item {
+    flex: 1 1 100%;
+    margin-right: 0;
   }
   
   .dashboard-header {

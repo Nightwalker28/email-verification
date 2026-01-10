@@ -1,6 +1,7 @@
 /* Sidebar Styling */
 .sidebar {
-    width: var(--sidebar-width);
+    max-width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
     background: linear-gradient(180deg, var(--secondary-color), #000);
     padding: 20px;
     display: flex;
@@ -88,7 +89,8 @@
 /* Responsive styles for smaller screens */
 @media (max-width: 1000px) {
     .sidebar {
-        width: var(--sidebar-width-collapsed);
+        min-width: var(--sidebar-width-collapsed);
+        max-width: var(--sidebar-width-collapsed);
         padding: 15px 5px;
     }
 
