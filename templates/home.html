@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 
 {% block title %}Home | Email Verification Tool{% endblock %}
@@ -7,175 +8,165 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="dashboard-header">
     <div>
-        <div>
-            <h1>Email Verification Dashboard</h1>
-            <p>Verify emails individually or upload lists for batch processing.</p>
+        <h1>Email Verification Dashboard</h1>
+        <p>Verify emails individually or upload lists for batch processing.</p>
+    </div>
+    
+    {% if attempts is not none %}
+    <div class="attempts-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span>{{ attempts }} verification attempts remaining</span>
+    </div>
+    {% endif %}
+</div>
+    
+<div class="quick-verify">
+    <h2>Quick Email Verification</h2>
+    <p>Verify a single email address instantly</p>
+    <form id="manualEmailForm">
+        <div class="form-group">
+            <label for="emailAddress">Email Address</label>
+            <div class="input-group">
+                <input type="email" id="emailAddress" name="emailAddress" placeholder="example@domain.com" required>
+                <button type="submit">Verify Now</button>
+            </div>
         </div>
-        
+    </form>
+
+    {% if show_recent_result and last_checked_emails %}
+    <div class="recent-results">
+        <h3>Recent Verification Results</h3>
         <div>
-            {% if attempts is not none %}
-            <div>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <span>You have {{ attempts }} verification attempts remaining</span>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Result</th>
+                        <th>Provider</th>
+                        <th>Role Based</th>
+                        <th>Accept All</th>
+                        <th>Full Inbox</th>
+                        <th>Temporary</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for email_record in last_checked_emails %}
+                    <tr>
+                        <td>{{ email_record.email }}</td>
+                        <td class="status-{{ email_record.result|lower }}">{{ email_record.result|title }}</td>
+                        <td>{{ email_record.provider }}</td>
+                        <td>{{ 'Yes' if email_record.role_based else 'No' }}</td>
+                        <td>{{ 'Yes' if email_record.accept_all else 'No' }}</td>
+                        <td>{{ 'Yes' if email_record.full_inbox else 'No' }}</td>
+                        <td>{{ 'Yes' if email_record.disposable else 'No' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="summary-section">
+    <h2>Verification Summary</h2>
+    <div class="summary-grid">
+        <div class="summary-card">
+            <h3>Last 30 Days Activity</h3>
+            {% if recent_summary %}
+            <div id="recent-summary-data" data-summary='{"recent_verified":{{ recent_summary.recent_verified }},"recent_invalid":{{ recent_summary.recent_invalid }},"recent_risky":{{ recent_summary.recent_risky }},"recent_unknown":{{ recent_summary.recent_unknown }},"total_recent_emails_checked":{{ recent_summary.total_recent_emails_checked }}}'>
+                <div class="chart-container">
+                    <canvas id="recent-chart"></canvas>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span>Emails Checked</span>
+                        <span>{{ recent_summary.total_recent_emails_checked }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Verified</span>
+                        <span class="status-verified">{{ recent_summary.recent_verified }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Invalid</span>
+                        <span class="status-invalid">{{ recent_summary.recent_invalid }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Risky</span>
+                        <span class="status-risky">{{ recent_summary.recent_risky }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Unknown</span>
+                        <span class="status-unknown">{{ recent_summary.recent_unknown }}</span>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <p>No email verifications in the last 30 days</p>
+                <a href="/verify">Start Verifying</a>
             </div>
             {% endif %}
-        
-            <h2>Quick Email Verification</h2>
-            <p>Verify a single email address instantly</p>
-            <form id="manualEmailForm">
-                <div>
-                    <label for="emailAddress">Email Address</label>
-                    <div>
-                        <input type="email" id="emailAddress" name="emailAddress" placeholder="example@domain.com" required>
-                        <button type="submit">Verify Now</button>
-                    </div>
-                </div>
-            </form>
-        
-            {% if show_recent_result and last_checked_emails %}
-            <div>
-                <h3>Recent Verification Results</h3>
-                <div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Email</th>
-                                <th>Result</th>
-                                <th>Provider</th>
-                                <th>Role Based</th>
-                                <th>Accept All</th>
-                                <th>Full Inbox</th>
-                                <th>Temporary</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for email_record in last_checked_emails %}
-                            <tr>
-                                <td>{{ email_record.email }}</td>
-                                <td>{{ email_record.result|title }}</td>
-                                <td>{{ email_record.provider }}</td>
-                                <td>{{ 'Yes' if email_record.role_based else 'No' }}</td>
-                                <td>{{ 'Yes' if email_record.accept_all else 'No' }}</td>
-                                <td>{{ 'Yes' if email_record.full_inbox else 'No' }}</td>
-                                <td>{{ 'Yes' if email_record.disposable else 'No' }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            {% endif %}
         </div>
-        
-        <div>
-            <h2>Verification Summary</h2>
-            <div>
-                <div>
-                    <h3>Last 30 Days Activity</h3>
-                    {% if recent_summary %}
-                    <div>
-                        <div>
-                            <span>Emails Checked</span>
-                            <span>{{ recent_summary.total_recent_emails_checked }}</span>
-                        </div>
-                        <div>
-                            <span>Verified</span>
-                            <span>{{ recent_summary.recent_verified }}</span>
-                        </div>
-                        <div>
-                            <span>Invalid</span>
-                            <span>{{ recent_summary.recent_invalid }}</span>
-                        </div>
-                        <div>
-                            <span>Risky</span>
-                            <span>{{ recent_summary.recent_risky }}</span>
-                        </div>
-                        <div>
-                            <span>Unknown</span>
-                            <span>{{ recent_summary.recent_unknown }}</span>
-                        </div>
-                    </div>
-                    {% else %}
-                    <div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                        <p>No email verifications in the last 30 days</p>
-                        <a href="/verify">Start Verifying</a>
-                    </div>
-                    {% endif %}
+        <div class="summary-card">
+            <h3>Uploaded Lists Summary</h3>
+            <div id="list-summary-data" data-summary='{"total_lists":{{ list_summary.total_lists }},"total_emails_checked":{{ list_summary.total_emails_checked }},"total_verified":{{ list_summary.total_verified }},"total_risky":{{ list_summary.total_risky }},"total_invalid":{{ list_summary.total_invalid }},"total_unknown":{{ list_summary.total_unknown }}}'>
+                <div class="chart-container">
+                    <canvas id="list-chart"></canvas>
                 </div>
-                <div>
-                    <h3>Uploaded Lists Summary</h3>
-                    <div>
-                        <div>
-                            <span>Total Lists</span>
-                            <span>{{ list_summary.total_lists }}</span>
-                        </div>
-                        <div>
-                            <span>Total Emails Checked</span>
-                            <span>{{ list_summary.total_emails_checked }}</span>
-                        </div>
-                        <div>
-                            <span>Verified</span>
-                            <span>{{ list_summary.total_verified }}</span>
-                        </div>
-                        <div>
-                            <span>Risky</span>
-                            <span>{{ list_summary.total_risky }}</span>
-                        </div>
-                        <div>
-                            <span>Invalid</span>
-                            <span>{{ list_summary.total_invalid }}</span>
-                        </div>
-                        <div>
-                            <span>Unknown</span>
-                            <span>{{ list_summary.total_unknown }}</span>
-                        </div>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span>Total Lists</span>
+                        <span>{{ list_summary.total_lists }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Total Emails</span>
+                        <span>{{ list_summary.total_emails_checked }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Verified</span>
+                        <span class="status-verified">{{ list_summary.total_verified }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Risky</span>
+                        <span class="status-risky">{{ list_summary.total_risky }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Invalid</span>
+                        <span class="status-invalid">{{ list_summary.total_invalid }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>Unknown</span>
+                        <span class="status-unknown">{{ list_summary.total_unknown }}</span>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <div>
-            <h2>Quick Actions</h2>
-            <div>
-                <a href="/verify">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-7 10 7-10 7z"/><path d="M6 12v5c0 2 1 3 3 3h6c2 0 3-1 3-3v-5"/></svg>
-                    <h3>Manual Verification</h3>
-                    <p>Verify individual email addresses</p>
-                </a>
-                <a href="/list">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    <h3>CSV Upload</h3>
-                    <p>Verify multiple emails at once</p>
-                </a>
-            </div>
-            <div>
-                <a href="/verify">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-7 10 7-10 7z"/><path d="M6 12v5c0 2 1 3 3 3h6c2 0 3-1 3-3v-5"/></svg>
-                    <h3>Manual Verification</h3>
-                    <p>Verify individual email addresses</p>
-                </a>
-                <a href="/list">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    <h3>CSV Upload</h3>
-                    <p>Verify multiple emails at once</p>
-                </a>
-            </div>
-            <div>
-                <a href="/verify">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-7 10 7-10 7z"/><path d="M6 12v5c0 2 1 3 3 3h6c2 0 3-1 3-3v-5"/></svg>
-                    <h3>Manual Verification</h3>
-                    <p>Verify individual email addresses</p>
-                </a>
-                <a href="/list">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    <h3>CSV Upload</h3>
-                    <p>Verify multiple emails at once</p>
-                </a>
             </div>
         </div>
     </div>
 </div>
+
+<div class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="action-cards">
+        <a href="/verify" class="action-card">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-7 10 7-10 7z"/><path d="M6 12v5c0 2 1 3 3 3h6c2 0 3-1 3-3v-5"/></svg>
+            <h3>Manual Verification</h3>
+            <p>Verify individual email addresses</p>
+        </a>
+        <a href="/list" class="action-card">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <h3>CSV Upload</h3>
+            <p>Verify multiple emails at once</p>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="/static/js/home.js"></script>
 {% endblock %}

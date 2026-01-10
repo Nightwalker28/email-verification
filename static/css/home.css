@@ -1,0 +1,359 @@
+/* Home Page Specific Styling */
+
+/* Header Section */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.dashboard-header h1 {
+  color: var(--secondary-color);
+  font-size: 28px;
+  margin: 0;
+}
+
+.dashboard-header p {
+  color: #666;
+  margin: 5px 0 0 0;
+}
+
+/* Attempts Remaining Badge */
+.attempts-badge {
+  display: flex;
+  align-items: center;
+  background-color: rgba(76, 175, 80, 0.1);
+  border-radius: 20px;
+  padding: 8px 15px;
+  color: var(--primary-dark);
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.attempts-badge svg {
+  margin-right: 8px;
+  color: var(--primary-color);
+}
+
+/* Quick Email Verification Section */
+.quick-verify {
+  background-color: var(--white);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--box-shadow);
+}
+
+.quick-verify h2 {
+  color: var(--secondary-color);
+  font-size: 20px;
+  margin: 0 0 5px 0;
+}
+
+.quick-verify p {
+  color: #666;
+  margin: 0 0 15px 0;
+  font-size: 14px;
+}
+
+/* Form Styling */
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: var(--secondary-color);
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.input-group input {
+  flex-grow: 1;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 12px;
+  font-family: var(--font-family);
+}
+
+.input-group button {
+  min-width: 120px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.input-group button:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Recent Results Table */
+.recent-results {
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+.recent-results h3 {
+  font-size: 16px;
+  color: var(--secondary-color);
+  margin-bottom: 10px;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.results-table th, 
+.results-table td {
+  text-align: left;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.results-table th {
+  background-color: #f7f7f7;
+  font-weight: 600;
+  color: var(--secondary-color);
+}
+
+.results-table tr:last-child td {
+  border-bottom: none;
+}
+
+.results-table tr:hover {
+  background-color: rgba(76, 175, 80, 0.05);
+}
+
+/* Verification Summary Section */
+.summary-section {
+  background-color: var(--white);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--box-shadow);
+}
+
+.summary-section h2 {
+  color: var(--secondary-color);
+  font-size: 20px;
+  margin: 0 0 15px 0;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.summary-card {
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 15px;
+}
+
+.summary-card h3 {
+  font-size: 16px;
+  color: var(--secondary-color);
+  margin: 0 0 15px 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+/* Chart Containers */
+.chart-container {
+  height: 200px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+/* Stats Display */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed #eee;
+}
+
+.stat-item:last-child {
+  border-bottom: none;
+}
+
+.stat-item span:first-child {
+  color: #666;
+}
+
+.stat-item span:last-child {
+  font-weight: 600;
+  color: var(--secondary-color);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 25px 15px;
+}
+
+.empty-state svg {
+  color: #ccc;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #888;
+  margin-bottom: 15px;
+}
+
+.empty-state a {
+  display: inline-block;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.empty-state a:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Quick Actions */
+.quick-actions {
+  background-color: var(--white);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: var(--box-shadow);
+}
+
+.quick-actions h2 {
+  color: var(--secondary-color);
+  font-size: 20px;
+  margin: 0 0 15px 0;
+}
+
+.action-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 20px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.action-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.action-card svg {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.action-card h3 {
+  color: var(--secondary-color);
+  margin: 0 0 5px 0;
+  font-size: 16px;
+}
+
+.action-card p {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Result Status Colors */
+.status-verified {
+  color: var(--primary-color);
+  font-weight: bold;
+}
+
+.status-invalid {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.status-risky {
+  color: #f39c12;
+  font-weight: bold;
+}
+
+.status-unknown {
+  color: #95a5a6;
+  font-weight: bold;
+}
+
+/* Chart Legends */
+.chart-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  margin-right: 10px;
+}
+
+.legend-color {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 5px;
+  border-radius: 2px;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .summary-grid,
+  .action-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .attempts-badge {
+    margin-top: 10px;
+  }
+}

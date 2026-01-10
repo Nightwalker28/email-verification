@@ -1,0 +1,289 @@
+/* Verify Page Styling - Matching Home Theme */
+
+/* Dashboard Header */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.dashboard-header h1 {
+    color: var(--secondary-color);
+    font-size: 28px;
+    margin: 0;
+}
+
+.dashboard-header p {
+    color: #666;
+    margin: 5px 0 0 0;
+}
+
+/* Attempts Remaining Badge */
+.attempts-badge {
+    display: flex;
+    align-items: center;
+    background-color: rgba(76, 175, 80, 0.1);
+    border-radius: 20px;
+    padding: 8px 15px;
+    color: var(--primary-dark);
+    font-weight: 600;
+}
+
+.attempts-badge svg {
+    margin-right: 8px;
+    color: var(--primary-color);
+}
+
+/* Main Containers */
+.verification-container,
+.results-container {
+    background-color: var(--white);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--box-shadow);
+}
+
+/* Section Headers */
+h2 {
+    color: var(--secondary-color);
+    font-size: 20px;
+    margin: 0 0 5px 0;
+}
+
+.verification-container p,
+.results-container p {
+    color: #666;
+    margin: 0 0 15px 0;
+    font-size: 14px;
+}
+
+/* Form Styling */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.input-group input {
+    flex-grow: 1;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 12px;
+    font-family: var(--font-family);
+}
+
+/* Button Styling */
+.btn-primary,
+.btn-danger {
+    min-width: 120px;
+    border: none;
+    border-radius: 5px;
+    padding: 12px 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c0392b;
+}
+
+/* Table Styling */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.results-table th,
+.results-table td {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.results-table th {
+    background-color: #f7f7f7;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.results-table tr:last-child td {
+    border-bottom: none;
+}
+
+.results-table tr:hover {
+    background-color: rgba(76, 175, 80, 0.05);
+}
+
+/* Result Status Colors */
+.status-email-exists{ 
+    color:#21f356; 
+    font-weight:bold; 
+}
+
+.status-email-does-not-exist { 
+    color:#e74c3c; 
+    font-weight:bold; 
+}
+
+.status-invalid {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+.status-risky {
+    color: #f39c12;
+    font-weight: bold;
+}
+
+.status-unknown {
+    color: #95a5a6;
+    font-weight: bold;
+}
+
+/* Alert Message Container */
+.alert-message {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 5px;
+    font-weight: 500;
+}
+
+.alert-message.success {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--primary-dark);
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.alert-message.error {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #c0392b;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+.alert-message.warning {
+    background-color: rgba(243, 156, 18, 0.1);
+    color: #d35400;
+    border: 1px solid rgba(243, 156, 18, 0.3);
+}
+
+.hidden {
+    display: none;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 25px 15px;
+}
+
+.empty-state svg {
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #888;
+    margin-bottom: 15px;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Spinner Animation */
+.spinner {
+    width: 40px;
+    height: 40px;
+    position: relative;
+}
+
+.double-bounce1,
+.double-bounce2 {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: white;
+    opacity: 0.6;
+    position: absolute;
+    top: 0;
+    left: 0;
+    animation: sk-bounce 2.0s infinite ease-in-out;
+}
+
+.double-bounce2 {
+    animation-delay: -1.0s;
+}
+
+@keyframes sk-bounce {
+    0%, 100% {
+        transform: scale(0.0);
+    }
+
+    50% {
+        transform: scale(1.0);
+    }
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .attempts-badge {
+        margin-top: 10px;
+    }
+
+    .input-group {
+        flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-danger {
+        width: 100%;
+        margin-top: 10px;
+    }
+}

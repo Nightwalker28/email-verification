@@ -7,13 +7,12 @@
     <title>{% block title %}Email Verification Tool{% endblock %}</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/sidebar.css">
     <link rel="stylesheet" href="/static/css/global.css">
+    <link rel="stylesheet" href="/static/css/sidebar.css">
     {% block extra_head %}{% endblock %}
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <nav>
                 <ul>
@@ -46,13 +45,12 @@
                             <span class="menu-text">Settings</span>
                         </a>
                     </li>
-                        <li class="sidebar-footer">
-                            <a class="logout" href="/logout" data-title="Logout">
-                                <img src="/static/images/logout-icon.svg" alt="Logout Icon" />
-                                <span class="menu-text">Logout</span>
-                            </a>
-                        </li>
-                    </li>          
+                    <li class="sidebar-footer">
+                        <a class="logout" href="/logout" data-title="Logout">
+                            <img src="/static/images/logout-icon.svg" alt="Logout Icon" />
+                            <span class="menu-text">Logout</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
         </aside>
@@ -63,14 +61,13 @@
                 {% block content %}
                 {% endblock %}
             </main>
-        </div>
+        </div>    
     </div>
-    
-    <div id="message-container" class="alert d-none" role="alert"></div>
+
     
     {% block scripts %}
     <script src="/static/js/singleverify.js"></script>
-    <script src="/static/js/navbar.js"></script>
+    <script src="/static/js/sidebar.js"></script>
     <script src="/static/js/home.js"></script>
     {% endblock %}
 </body>

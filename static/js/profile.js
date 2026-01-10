@@ -37,4 +37,3 @@ function displayMessage(message, isError = false) {
       });
     });
   });
-  

@@ -42,19 +42,14 @@
                 // Get the password and confirm password values
                 const password = document.getElementById('password').value;
                 const confirmPassword = document.getElementById('confirm_password').value;
-    
-                // Regular expression for a strong password: 
-                // At least 8 characters, at least one uppercase letter, one lowercase letter, one number, and one special character
                 const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
     
-                // Check if passwords match
                 if (password !== confirmPassword) {
                     event.preventDefault();
                     alert('Passwords do not match. Please try again.');
                     return;
                 }
     
-                // Check if password is strong
                 if (!passwordPattern.test(password)) {
                     event.preventDefault();
                     alert('Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.');
@@ -62,4 +57,5 @@
                 }
             }
     </script>
+    <script src="/static/js/profile.js"></script>
     {% endblock %}

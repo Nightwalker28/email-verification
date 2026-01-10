@@ -1,68 +1,105 @@
 {% extends "base.html" %}
 
-{% block title %}Manual Check{% endblock %}
+{% block title %}
+    Manual Verification | Email Verification Tool
+{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="/static/css/verify.css">
+{% endblock %}
 
 {% block content %}
-    {% if attempts is not none %}
-    <p>You have {{ attempts }} verification attempts left.</p>
-    {% endif %}
-    <div class="container mt-4">
-        <!-- Manual Email Verification Section -->
-        <h2>Email Verification</h2>
-        <form id="manualEmailForm">
-            <div class="mb-3">
-                <label for="emailAddress" class="form-label">Enter Email Address</label>
-                <input class="form-control" type="email" id="emailAddress" name="emailAddress" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Verify Email</button>
-            <button type="button" id="forceVerifyBtn" class="btn btn-danger">Force Verify Email</button> <!-- New Force Verify Button -->
-        </form>
+    <div class="dashboard-header">
+        <div>
+            <h1>Manual Email Verification</h1>
+            <p>Check individual email addresses for validity and deliverability</p>
+        </div>
 
-        <!-- Last 10 Checked Emails Section -->
-        <h3 class="mt-5">Last 10 Checked Emails</h3>
-        {% if last_checked_emails %}
-        <table id="lastCheckedEmailsTable" class="table table-bordered mt-3">
-            <thead>
-                <tr>
-                    <th>Email</th>
-                    <th>Result</th>
-                    <th>Provider</th>
-                    <th>Role Based</th>
-                    <th>Accept All</th>
-                    <th>Full Inbox</th>
-                    <th>Temporary Mail</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for email_record in last_checked_emails %}
-                <tr>
-                    <td>{{ email_record.email }}</td>
-                    <td>{{ email_record.result }}</td>
-                    <td>{{ email_record.provider }}</td>
-                    <td>{{ 'Yes' if email_record.role_based else 'No' }}</td>
-                    <td>{{ 'Yes' if email_record.accept_all else 'No' }}</td>
-                    <td>{{ 'Yes' if email_record.full_inbox else 'No' }}</td>
-                    <td>{{ 'Yes' if email_record.disposable else 'No' }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p>No checked emails found.</p>
+        {% if attempts is not none %}
+            <div class="attempts-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>{{ attempts }} verification attempts remaining</span>
+            </div>
         {% endif %}
     </div>
-    <div id="message-container" class="alert d-none" role="alert"></div>
-    <!-- Full-Screen Loading Overlay (hidden initially) -->
-    <div id="loadingOverlay" style="display:none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: rgba(0, 0, 0, 0.5); z-index: 9999; display: flex; justify-content: center; align-items: center;">
-        <div class="spinner-border text-light" role="status">
-            <span class="visually-hidden">Loading...</span>
+
+    <div class="verification-container">
+        <h2>Email Verification</h2>
+        <p>Enter an email address to verify its deliverability and status</p>
+
+        <form id="manualEmailForm">
+            <div class="form-group">
+                <label for="emailAddress">Email Address</label>
+                <div class="input-group">
+                    <input type="email" id="emailAddress" name="emailAddress" placeholder="example@domain.com" required>
+                    <button type="submit" class="btn-primary">Verify Email</button>
+                    <button type="button" id="forceVerifyBtn" class="btn-danger">Force Verify</button>
+                </div>
+            </div>
+        </form>
+
+        <div id="message-container" class="alert-message hidden"></div>
+    </div>
+
+    <!-- Last Checked Emails Section -->
+    <div class="results-container">
+        <h2>Recent Verification Results</h2>
+
+        {% if last_checked_emails %}
+            <div class="table-responsive">
+                <table id="lastCheckedEmailsTable" class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Result</th>
+                            <th>Provider</th>
+                            <th>Role Based</th>
+                            <th>Accept All</th>
+                            <th>Full Inbox</th>
+                            <th>Temporary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for email_record in last_checked_emails %}
+                            <tr>
+                                <td>{{ email_record.email }}</td>
+                                <td class="status-{{ email_record.result|lower|replace(' ', '-') }}">{{ email_record.result }}</td>
+                                <td>{{ email_record.provider }}</td>
+                                <td>{{ 'Yes' if email_record.role_based else 'No' }}</td>
+                                <td>{{ 'Yes' if email_record.accept_all else 'No' }}</td>
+                                <td>{{ 'Yes' if email_record.full_inbox else 'No' }}</td>
+                                <td>{{ 'Yes' if email_record.disposable else 'No' }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <p>No checked emails found. Start by verifying an email above.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner">
+            <div class="double-bounce1"></div>
+            <div class="double-bounce2"></div>
         </div>
     </div>
-    {% endblock %}
+{% endblock %}
 
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+{% block scripts %}
+    {{ super() }}
     <script src="/static/js/singleverify.js"></script>
-    {% block extra_scripts %}{% endblock %}
-
-
+{% endblock %}
