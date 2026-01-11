@@ -76,15 +76,14 @@ document.addEventListener('DOMContentLoaded', function() {
         createListChart();
     }
     
-    // Create recent verification chart
+
     function createRecentChart() {
         const recentChartCanvas = document.getElementById('recent-chart');
         if (!recentChartCanvas) return;
-        
+
         const recentSummary = getRecentSummaryData();
         if (!recentSummary) return;
-        
-        // Create bar chart
+
         new Chart(recentChartCanvas, {
             type: 'bar',
             data: {
@@ -98,12 +97,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         recentSummary.recent_unknown
                     ],
                     backgroundColor: [
-                        '#4CAF50',  // Green for verified
-                        '#f39c12',  // Orange for risky
-                        '#e74c3c',  // Red for invalid
-                        '#95a5a6'   // Gray for unknown
+                        'rgba(168, 230, 207, 0.4)',   // light green
+                        'rgba(255, 165, 0, 0.4)',     // light orange
+                        'rgba(255, 99, 132, 0.4)',    // light red
+                        'rgba(128, 128, 128, 0.3)'    // light gray
                     ],
-                    borderWidth: 0
+                    borderColor: [
+                        'rgba(0, 128, 0, 1)',         // dark green
+                        'rgba(255, 140, 0, 1)',       // dark orange
+                        'rgba(220, 20, 60, 1)',       // dark red
+                        'rgba(105, 105, 105, 1)'      // dark gray
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 3,
+                    barThickness: 100
                 }]
             },
             options: {
@@ -111,11 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 maintainAspectRatio: false,
                 plugins: {
                     title: {
-                        display: true,
-                        text: 'Last 30 Days Results',
-                        font: {
-                            size: 14
-                        }
+                        display: false
                     },
                     legend: {
                         display: false
@@ -132,8 +135,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
     
-    // Create list summary chart
     function createListChart() {
         const listChartCanvas = document.getElementById('list-chart');
         if (!listChartCanvas) return;
@@ -141,25 +144,26 @@ document.addEventListener('DOMContentLoaded', function() {
         const listSummary = getListSummaryData();
         if (!listSummary) return;
         
-        // Create pie chart
+        // Create radar chart with pastel colors
         new Chart(listChartCanvas, {
-            type: 'pie',
+            type: 'radar',
             data: {
                 labels: ['Verified', 'Risky', 'Invalid', 'Unknown'],
                 datasets: [{
+                    label: 'Email Status',
                     data: [
                         listSummary.total_verified,
                         listSummary.total_risky,
                         listSummary.total_invalid,
                         listSummary.total_unknown
                     ],
-                    backgroundColor: [
-                        '#4CAF50',  // Green for verified
-                        '#f39c12',  // Orange for risky
-                        '#e74c3c',  // Red for invalid
-                        '#95a5a6'   // Gray for unknown
-                    ],
-                    borderWidth: 0
+                    backgroundColor: 'rgba(168, 230, 207, 0.4)', 
+                    borderColor: 'rgba(0, 128, 0, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(0, 128, 0, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: '#a8e6cf'
                 }]
             },
             options: {
@@ -167,10 +171,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 maintainAspectRatio: false,
                 plugins: {
                     title: {
-                        display: true,
-                        text: 'Overall Lists Results',
-                        font: {
-                            size: 14
+                        display: false,
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        ticks: {
+                            display: false,
+                            stepSize: Math.max(1, Math.ceil(Math.max(
+                                listSummary.total_verified,
+                                listSummary.total_risky,
+                                listSummary.total_invalid,
+                                listSummary.total_unknown
+                            ) / 5))
+                        },
+                        pointLabels: {
+                            font: {
+                                size: 12
+                            }
                         }
                     }
                 }

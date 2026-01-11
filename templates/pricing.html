@@ -1,30 +1,66 @@
 {% extends "base.html" %}
 
-{% block title %}Pricing{% endblock %}
+{% block title %}Pricing | Email Verification Tool{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/pricing.css">
+{% endblock %}
 
 {% block content %}
-    <div class="pricing-container">
-        <!-- Free Tier -->
-        <div class="tier-block">
-            <h2>Free Tier</h2>
-            <p class="price">$0 / month</p>
-            <ul class="features">
-                <li>50 Single Verifications</li>
-            </ul>
-            <a href="/signup" class="signup-btn">Sign Up</a>
-        </div>
+<div class="page-header">
+    <h1>Choose Your Plan</h1>
+    <p>Select the plan that fits your email verification needs</p>
+</div>
 
-        <!-- Pro Tier -->
-        <div class="tier-block">
-            <h2>Pro Tier</h2>
-            <p class="price">$49 / month</p>
-            <ul class="features">
-                <li>Unlimited Single Verifications</li>
-                <li>List Uploads</li>
-                <li>Live Checks</li>
-            </ul>
-            <!-- Updated link to call /get-pro route -->
-            <a href="/get-pro" class="signup-btn">Get Pro</a>
-        </div>
+<div class="pricing-container">
+    <!-- Free Tier -->
+    <div class="tier-block">
+        <h2>Free Tier</h2>
+        <p class="price">$0<span class="period">/month</span></p>
+        <div class="divider"></div>
+        <ul class="features">
+            <li>50 Single Verifications</li>
+            <li class="disabled">List Uploads</li>
+            <li class="disabled">Live Checks</li>
+            <li class="disabled">Priority Support</li>
+        </ul>
+        <button class="signup-btn" disabled>Current Plan</button>
     </div>
+
+    <!-- Pro Tier -->
+    <div class="tier-block">
+        <h2>Pro Tier</h2>
+        <p class="price">$49<span class="period">/month</span></p>
+        <div class="divider"></div>
+        <ul class="features">
+            <li>Unlimited Single Verifications</li>
+            <li>List Uploads</li>
+            <li>Live Checks</li>
+            <li>Priority Support</li>
+        </ul>
+        <a href="/get-pro" class="signup-btn pro-btn">Get Pro</a>
+    </div>
+</div>
+
+<div class="pricing-faq">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-grid">
+        <div class="faq-item">
+            <h3>What's included in the Free Tier?</h3>
+            <p>The Free Tier gives you access to 50 individual email verifications per month. Perfect for small businesses or individuals with minimal verification needs.</p>
+        </div>
+        <div class="faq-item">
+            <h3>What are List Uploads?</h3>
+            <p>List Uploads allow you to verify multiple emails at once by uploading a CSV file containing all your email addresses, saving you time and effort.</p>
+        </div>
+        <!-- <div class="faq-item">
+            <h3>Can I upgrade or downgrade my plan?</h3>
+            <p>Yes, you can upgrade to Pro at any time. You can also downgrade to the Free Tier at the end of your billing cycle.</p>
+        </div>
+        <div class="faq-item">
+            <h3>What payment methods do you accept?</h3>
+            <p>We accept all major credit cards and PayPal for Pro account payments.</p>
+        </div> -->
+    </div>
+</div>
 {% endblock %}

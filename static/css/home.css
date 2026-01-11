@@ -36,13 +36,20 @@
   color: var(--primary-color);
 }
 
+/* Main content row - quick verify and quick actions side by side */
+.main-content-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
 /* Quick Email Verification Section */
 .quick-verify {
   background-color: var(--white);
   border-radius: 8px;
   padding: 20px;
-  margin-bottom: 20px;
   box-shadow: var(--box-shadow);
+  flex: 2; /* Takes up more space than quick actions */
 }
 
 .quick-verify h2 {
@@ -55,6 +62,30 @@
   color: #666;
   margin: 0 0 15px 0;
   font-size: 14px;
+}
+
+/* Quick Actions Container */
+.quick-actions-container {
+  flex: 1; /* Takes up less space than quick verify */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Quick Actions */
+.quick-actions {
+  background-color: var(--white);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: var(--box-shadow);
+  height: 100%; /* Makes it the same height as quick-verify */
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-actions h2 {
+  color: var(--secondary-color);
+  font-size: 20px;
+  margin: 0 0 15px 0;
 }
 
 /* Form Styling */
@@ -137,12 +168,55 @@
   background-color: rgba(76, 175, 80, 0.05);
 }
 
+/* Action Cards */
+.action-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex-grow: 1; /* Makes cards fill the available space */
+}
+
+.action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  padding: 20px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  flex: 1; /* Each card takes equal space */
+}
+
+.action-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.action-card svg {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.action-card h3 {
+  color: var(--secondary-color);
+  margin: 0 0 5px 0;
+  font-size: 16px;
+}
+
+.action-card p {
+  color: #666;
+  margin: 0;
+  font-size: 14px;
+}
+
 /* Verification Summary Section */
 .summary-section {
   background-color: var(--white);
   border-radius: 8px;
   padding: 20px;
-  margin-bottom: 20px;
   box-shadow: var(--box-shadow);
 }
 
@@ -152,8 +226,7 @@
   margin: 0 0 15px 0;
 }
 
-/* CHANGED: Replaced grid with flexbox */
-.summary-grid {
+.summary-flex {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
@@ -177,14 +250,13 @@
 
 /* Chart Containers */
 .chart-container {
-  height: 200px;
+  height: 350px;
   margin-top: 15px;
   margin-bottom: 15px;
   position: relative;
 }
 
-/* CHANGED: Replaced grid with flexbox */
-.stats-grid {
+.stats-flex {
   display: flex;
   flex-wrap: wrap;
 }
@@ -243,82 +315,30 @@
   background-color: var(--primary-dark);
 }
 
-/* Quick Actions */
-.quick-actions {
-  background-color: var(--white);
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: var(--box-shadow);
-}
-
-.quick-actions h2 {
-  color: var(--secondary-color);
-  font-size: 20px;
-  margin: 0 0 15px 0;
-}
-
-/* CHANGED: Replaced grid with flexbox */
-.action-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-.action-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  padding: 20px;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  flex: 1 1 calc(50% - 15px);
-  min-width: 200px;
-}
-
-.action-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-}
-
-.action-card svg {
-  color: var(--primary-color);
-  margin-bottom: 10px;
-}
-
-.action-card h3 {
-  color: var(--secondary-color);
-  margin: 0 0 5px 0;
-  font-size: 16px;
-}
-
-.action-card p {
-  color: #666;
-  margin: 0;
-  font-size: 14px;
-}
-
 /* Result Status Colors */
-.status-verified {
-  color: var(--primary-color);
-  font-weight: bold;
+.status-email-exists{ 
+    color:#21f356; 
+    font-weight:bold; 
+}
+
+.status-email-does-not-exist { 
+    color:#e74c3c; 
+    font-weight:bold; 
 }
 
 .status-invalid {
-  color: #e74c3c;
-  font-weight: bold;
+    color: #e74c3c;
+    font-weight: bold;
 }
 
 .status-risky {
-  color: #f39c12;
-  font-weight: bold;
+    color: #f39c12;
+    font-weight: bold;
 }
 
 .status-unknown {
-  color: #95a5a6;
-  font-weight: bold;
+    color: #95a5a6;
+    font-weight: bold;
 }
 
 /* Chart Legends */
@@ -346,13 +366,19 @@
 }
 
 /* Media Queries */
+@media (max-width: 992px) {
+  /* Switch to vertical layout for smaller screens */
+  .main-content-row {
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 768px) {
-  .summary-grid .summary-card,
-  .action-cards .action-card {
+  .summary-flex .summary-card {
     flex: 1 1 100%;
   }
   
-  .stats-grid .stat-item {
+  .stats-flex .stat-item {
     flex: 1 1 100%;
     margin-right: 0;
   }
