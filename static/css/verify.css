@@ -10,13 +10,14 @@
 
 .dashboard-header h1 {
     color: var(--secondary-color);
-    font-size: 28px;
+    font-size: 21px; /* Reduced from 28px */
     margin: 0;
 }
 
 .dashboard-header p {
     color: #666;
     margin: 5px 0 0 0;
+    font-size: 13px; /* Reduced from 16px (default) */
 }
 
 /* Attempts Remaining Badge */
@@ -27,7 +28,8 @@
     border-radius: 20px;
     padding: 8px 15px;
     color: var(--primary-dark);
-    font-weight: 600;
+    font-weight: 400;
+    font-size: 13px; /* Reduced from 16px (default) */
 }
 
 .attempts-badge svg {
@@ -48,7 +50,7 @@
 /* Section Headers */
 h2 {
     color: var(--secondary-color);
-    font-size: 20px;
+    font-size: 16px; /* Reduced from 20px */
     margin: 0 0 5px 0;
 }
 
@@ -56,7 +58,7 @@ h2 {
 .results-container p {
     color: #666;
     margin: 0 0 15px 0;
-    font-size: 14px;
+    font-size: 11.5px; /* Reduced from 14px */
 }
 
 /* Form Styling */
@@ -67,8 +69,9 @@ h2 {
 .form-group label {
     display: block;
     margin-bottom: 5px;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--secondary-color);
+    font-size: 13px; /* Reduced from 16px (default) */
 }
 
 .input-group {
@@ -82,36 +85,7 @@ h2 {
     border-radius: 5px;
     padding: 12px;
     font-family: var(--font-family);
-}
-
-/* Button Styling */
-.btn-primary,
-.btn-danger {
-    min-width: 120px;
-    border: none;
-    border-radius: 5px;
-    padding: 12px 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.btn-primary {
-    background-color: var(--primary-color);
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: var(--primary-dark);
-}
-
-.btn-danger {
-    background-color: #e74c3c;
-    color: white;
-}
-
-.btn-danger:hover {
-    background-color: #c0392b;
+    font-size: 13px; /* Reduced from 16px (default) */
 }
 
 /* Table Styling */
@@ -130,11 +104,12 @@ h2 {
     text-align: left;
     padding: 12px;
     border-bottom: 1px solid #eee;
+    font-size: 13px; /* Reduced from 15px (estimated default) */
 }
 
 .results-table th {
     background-color: #f7f7f7;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--secondary-color);
 }
 
@@ -146,30 +121,45 @@ h2 {
     background-color: rgba(76, 175, 80, 0.05);
 }
 
-/* Result Status Colors */
-.status-email-exists{ 
-    color:#21f356; 
-    font-weight:bold; 
+/* Result Status Colors - Pill Design */
+.status-email-exists,
+.status-verified { 
+    color: #22bb66;
+    font-weight: 500;
+    font-size: 11px;
+    display: inline-block;
+    text-align: center;
 }
 
-.status-email-does-not-exist { 
-    color:#e74c3c; 
-    font-weight:bold; 
-}
-
-.status-invalid {
+.status-invalid,
+.status-invalid { 
     color: #e74c3c;
-    font-weight: bold;
+    font-weight: 500;
+    font-size: 11px;
+    display: inline-block;
 }
 
-.status-risky {
-    color: #f39c12;
-    font-weight: bold;
+.status-risky,
+.status-offline { 
+    color: #e67e22;
+    font-weight: 500;
+    font-size: 11px;
+    display: inline-block;
 }
 
-.status-unknown {
-    color: #95a5a6;
-    font-weight: bold;
+.status-unknown,
+.status-inactive { 
+    color: #b7b52d;
+    font-weight: 500;
+    font-size: 11px;
+    display: inline-block;
+}
+
+.status-active {
+    color: #22bb66;
+    font-weight: 500;
+    font-size: 11px;
+    display: inline-block;
 }
 
 /* Alert Message Container */
@@ -177,7 +167,8 @@ h2 {
     margin-top: 15px;
     padding: 15px;
     border-radius: 5px;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 13px; /* Reduced from 16px (default) */
 }
 
 .alert-message.success {
@@ -216,6 +207,7 @@ h2 {
 .empty-state p {
     color: #888;
     margin-bottom: 15px;
+    font-size: 13px; /* Reduced from 16px (default) */
 }
 
 /* Loading Overlay */
@@ -230,6 +222,12 @@ h2 {
     z-index: 9999;
     justify-content: center;
     align-items: center;
+}
+
+.loader-text {
+    color: white;
+    margin-top: 15px;
+    font-size: 13px; /* Reduced from 16px (default) */
 }
 
 /* Spinner Animation */
@@ -282,7 +280,7 @@ h2 {
     }
 
     .btn-primary,
-    .btn-danger {
+    .btn-secondary {
         width: 100%;
         margin-top: 10px;
     }

@@ -32,7 +32,7 @@
                 <label for="emailAddress">Email Address</label>
                 <div class="input-group">
                     <input type="email" id="emailAddress" name="emailAddress" placeholder="example@domain.com" required>
-                    <button type="submit">Verify Now</button>
+                    <button type="submit" class="btn primary-btn">Verify Now</button>
                 </div>
             </div>
         </form>
@@ -80,6 +80,7 @@
                 </table>
             </div>
         </div>
+        
     </div>
 
     <div class="quick-actions-container">
@@ -105,7 +106,7 @@
     <h2>Verification Summary</h2>
     <div class="summary-flex">
         <div class="summary-card">
-            <h3>Manual Check Summary</h3>
+            <h3>Last 30 days</h3>
             {% if recent_summary %}
             <div id="recent-summary-data" data-summary='{"recent_verified":{{ recent_summary.recent_verified }},"recent_invalid":{{ recent_summary.recent_invalid }},"recent_risky":{{ recent_summary.recent_risky }},"recent_unknown":{{ recent_summary.recent_unknown }},"total_recent_emails_checked":{{ recent_summary.total_recent_emails_checked }}}'>
                 <div class="chart-container">
@@ -131,6 +132,10 @@
                     <div class="stat-item">
                         <span>Unknown</span>
                         <span class="status-unknown">{{ recent_summary.recent_unknown }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span>-</span>
+                        <span class="status-verified">-</span>
                     </div>
                 </div>
             </div>

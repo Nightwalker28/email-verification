@@ -23,52 +23,52 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Handle quick email verification form submission
-    const manualEmailForm = document.getElementById('manualEmailForm');
-    if (manualEmailForm) {
-        manualEmailForm.addEventListener('submit', function(event) {
-            event.preventDefault();
+    // const manualEmailForm = document.getElementById('manualEmailForm');
+    // if (manualEmailForm) {
+    //     manualEmailForm.addEventListener('submit', function(event) {
+    //         event.preventDefault();
             
-            const emailInput = document.getElementById('emailAddress');
-            const email = emailInput.value.trim();
+    //         const emailInput = document.getElementById('emailAddress');
+    //         const email = emailInput.value.trim();
             
-            if (email) {
-                // Show loading state
-                const submitButton = manualEmailForm.querySelector('button[type="submit"]');
-                const originalText = submitButton.textContent;
-                submitButton.disabled = true;
-                submitButton.textContent = 'Verifying...';
+    //         if (email) {
+    //             // Show loading state
+    //             const submitButton = manualEmailForm.querySelector('button[type="submit"]');
+    //             const originalText = submitButton.textContent;
+    //             submitButton.disabled = true;
+    //             submitButton.textContent = 'Verifying...';
                 
-                // Send the verification request
-                fetch('/api/verify', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ email }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Reset form and button
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalText;
+    //             // Send the verification request
+    //             fetch('/api/verify', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //                 body: JSON.stringify({ email }),
+    //             })
+    //             .then(response => response.json())
+    //             .then(data => {
+    //                 // Reset form and button
+    //                 submitButton.disabled = false;
+    //                 submitButton.textContent = originalText;
                     
-                    if (data.success) {
-                        // Redirect to the result page or reload to show updated results
-                        window.location.reload();
-                    } else {
-                        // Show error
-                        showAlert(data.message || 'Verification failed', 'error');
-                    }
-                })
-                .catch(error => {
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalText;
-                    showAlert('An error occurred during verification', 'error');
-                    console.error('Error:', error);
-                });
-            }
-        });
-    }
+    //                 if (data.success) {
+    //                     // Redirect to the result page or reload to show updated results
+    //                     window.location.reload();
+    //                 } else {
+    //                     // Show error
+    //                     showAlert(data.message || 'Verification failed', 'error');
+    //                 }
+    //             })
+    //             .catch(error => {
+    //                 submitButton.disabled = false;
+    //                 submitButton.textContent = originalText;
+    //                 showAlert('An error occurred during verification', 'error');
+    //                 console.error('Error:', error);
+    //             });
+    //         }
+    //     });
+    // }
     
     // Function to create charts
     function createCharts() {
@@ -110,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     ],
                     borderWidth: 2,
                     borderRadius: 3,
-                    barThickness: 100
                 }]
             },
             options: {

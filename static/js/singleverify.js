@@ -1,7 +1,7 @@
 // Utility to display messages; uses alert-success for normal and alert-danger for errors.
 const displayMessage = (message, isError = false) => {
     const messageContainer = $('#message-container');
-    messageContainer.removeClass('d-none alert-success alert-danger');
+    messageContainer.removeClass('hidden alert-success alert-danger');
     messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
     messageContainer.text(message);
     messageContainer.show();
@@ -10,14 +10,20 @@ const displayMessage = (message, isError = false) => {
   
   // Helper function to perform email verification via AJAX.
   const performVerification = (url, emailAddress) => {
-    $('#loadingOverlay').show();
+    // Show the custom loader
+    const loadingOverlay = $('#loadingOverlay');
+    loadingOverlay.addClass('active');
+    loadingOverlay.show();
+    
     $.ajax({
       url: url,
       type: 'POST',
       contentType: 'application/json',
       data: JSON.stringify({ email: emailAddress }),
       success: (response, status, xhr) => {
-        $('#loadingOverlay').hide();
+        // Hide the custom loader
+        loadingOverlay.removeClass('active');
+        loadingOverlay.hide();
   
         // Check if this is a silent HTML redirect (Flask sending the pricing page)
         if (
@@ -32,7 +38,9 @@ const displayMessage = (message, isError = false) => {
         window.location.reload();
       },
       error: (xhr) => {
-        $('#loadingOverlay').hide();
+        // Hide the custom loader
+        loadingOverlay.removeClass('active');
+        loadingOverlay.hide();
   
         // Fallback: detect if redirect HTML landed in error handler
         if (xhr.status === 200 && xhr.responseText && xhr.responseText.includes('<title>Pricing')) {
@@ -64,4 +72,3 @@ const displayMessage = (message, isError = false) => {
       performVerification('/force-verify', emailAddress);
     });
   });
-  

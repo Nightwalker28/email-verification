@@ -444,7 +444,7 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                     else:
                         email_data["result"] = "Email exists"
                 elif primary_result is False:
-                    email_data["result"] = "Email does not exist"
+                    email_data["result"] = "Invalid"
                 else:
                     email_data["result"] = "Unknown"
                 logger.info(f"Live verification final result for {email}: {email_data['result']}")
@@ -970,7 +970,7 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                     else:
                         email_data["result"] = "Email exists"
                 elif primary_result is False:
-                    email_data["result"] = "Email does not exist"
+                    email_data["result"] = "Invalid"
                 else:  # primary_result == "Unknown"
                     email_data["result"] = "Unknown"
 

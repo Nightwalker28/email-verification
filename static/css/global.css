@@ -1,13 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
 :root {
   --primary-color: #4CAF50;
   --primary-dark: #388E3C;
   --secondary-color: #333;
   --light-bg: #f4f4f4;
   --white: #ffffff;
-  --font-family: 'Nunito', sans-serif;
+  --font-family: 'Poppins', sans-serif;
   --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   --transition-speed: 0.3s;
-  --sidebar-width: 300px;
+  --sidebar-width: 260px;
   --sidebar-width-collapsed: 70px;
 }
 
@@ -66,6 +68,85 @@ body, html {
   background-color: #f2dede;
   border-color: #ebccd1;
   color: #a94442;
+}
+
+/* BUtton */
+.btn {
+  border: none;
+  border-radius: 5px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-size: 12px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.primary-btn {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.primary-btn:hover {
+  background-color: var(--primary-dark);
+}
+
+.secondary-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.secondary-btn:hover {
+  background-color: #d32f2f;
+}
+
+
+/* Loading Overlay Style */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(3px); 
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loading-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Loading Animation Style */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.svgbox {
+  --blue: rgb(148, 66, 63);
+  stroke: var(--blue);
+  stroke-width: 5;
+  fill: none;
+  stroke-dasharray: 50, 14;
+  stroke-dashoffset: 192;
+  animation: dash_682 1.4s linear infinite;
+}
+
+@keyframes dash_682 {
+  72.5% {
+    opacity: 1;
+  }
+  to {
+    stroke-dashoffset: 1;
+  }
 }
 
 /* Responsive adjustments */
