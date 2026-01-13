@@ -1,0 +1,433 @@
+{
+  "document": "doc.report.command",
+  "version": "ov/command/slim/1.1",
+  "engine": "linux/amd64|ALP|x.1.42.2|29e62e7836de7b1004607c51c502537ffe1969f0|2025-01-16_07:48:54AM|x",
+  "containerized": false,
+  "host_distro": {
+    "name": "Ubuntu",
+    "version": "24.04",
+    "display_name": "Ubuntu 24.04.2 LTS"
+  },
+  "type": "slim",
+  "state": "done",
+  "target_reference": "email-verification-dev:latest",
+  "system": {
+    "type": "Linux",
+    "release": "6.11.0-25-generic",
+    "distro": {
+      "name": "Debian GNU/Linux",
+      "version": "12",
+      "display_name": "Debian GNU/Linux 12 (bookworm)"
+    }
+  },
+  "source_image": {
+    "identity": {
+      "id": "sha256:2496fbf47c283f49075c64a1b3b164622f5cb8977b2c058ead20e93583b6979a",
+      "tags": [
+        "latest"
+      ],
+      "names": [
+        "email-verification-dev:latest"
+      ]
+    },
+    "size": 538941716,
+    "size_human": "539 MB",
+    "create_time": "2025-05-21T06:39:55Z",
+    "runtime_name": "docker",
+    "architecture": "amd64",
+    "user": "flaskuser",
+    "exposed_ports": [
+      "5000/tcp"
+    ],
+    "os": "linux",
+    "labels": {
+      "com.docker.compose.project": "email-verification",
+      "com.docker.compose.service": "app",
+      "com.docker.compose.version": "2.35.1"
+    },
+    "env_vars": [
+      "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+      "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+      "PYTHON_VERSION=3.13.3",
+      "PYTHON_SHA256=40f868bcbdeb8149a3149580bb9bfd407b3321cd48f0be631af955ac92c0e041",
+      "PYTHONDONTWRITEBYTECODE=1",
+      "PYTHONUNBUFFERED=1"
+    ],
+    "container_entry": {
+      "exe_path": ""
+    }
+  },
+  "minified_image_size": 189563090,
+  "minified_image_size_human": "190 MB",
+  "minified_image": "email-verification-dev:slim",
+  "minified_image_id": "sha256:cfe028f489b274aaede49a7496ca7ebf3bb0c5e23309763b3eebca09a724b14f",
+  "minified_image_digest": "sha256:50f8ab68ab82a57c771059681a45a390ad63a7277a001e7cc438c6025d4ec154",
+  "minified_image_has_data": true,
+  "minified_by": 2.8430730687076267,
+  "artifact_location": "/tmp/mint-state/.mint-state/images/2496fbf47c283f49075c64a1b3b164622f5cb8977b2c058ead20e93583b6979a/artifacts",
+  "container_report_name": "creport.json",
+  "seccomp_profile_name": "email-verification-dev-seccomp.json",
+  "apparmor_profile_name": "email-verification-dev-apparmor-profile",
+  "image_stack": [
+    {
+      "is_top_image": true,
+      "id": "sha256:2496fbf47c283f49075c64a1b3b164622f5cb8977b2c058ead20e93583b6979a",
+      "full_name": "email-verification-dev:latest",
+      "repo_name": "email-verification-dev",
+      "version_tag": "latest",
+      "raw_tags": [
+        "email-verification-dev:latest"
+      ],
+      "create_time": "2025-05-21T06:39:55Z",
+      "new_size": 538941716,
+      "new_size_human": "539 MB",
+      "instructions": [
+        {
+          "type": "RUN",
+          "time": "2025-04-28T00:00:00Z",
+          "is_nop": false,
+          "is_exec_form": true,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 74833949,
+          "size_human": "75 MB",
+          "command_snippet": "RUN []",
+          "command_all": "RUN []",
+          "system_commands": [
+            "[]"
+          ],
+          "comment": "debuerreotype 0.15",
+          "inst_set_time_bucket": "2025-04-28T05:30:00+05:30",
+          "inst_set_time_index": 0,
+          "inst_set_time_reverse_index": 4
+        },
+        {
+          "type": "ENV",
+          "time": "2025-05-08T22:27:23Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 0,
+          "params": "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "command_snippet": "ENV PATH=/usr/local/bin:/usr/local/sbin:/usr...",
+          "command_all": "ENV PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-09T03:45:00+05:30",
+          "inst_set_time_index": 1,
+          "inst_set_time_reverse_index": 3
+        },
+        {
+          "type": "RUN",
+          "time": "2025-05-08T22:27:23Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 9234033,
+          "size_human": "9.2 MB",
+          "command_snippet": "RUN set -eux; \tapt-get update; \tapt-get inst...",
+          "command_all": "RUN set -eux; \tapt-get update; \tapt-get install -y --no-install-recommends \t\tca-certificates \t\tnetbase \t\ttzdata \t; \trm -rf /var/lib/apt/lists/*",
+          "system_commands": [
+            "set -eux",
+            "apt-get update",
+            "apt-get install -y --no-install-recommends ca-certificates netbase tzdata",
+            "rm -rf /var/lib/apt/lists/*"
+          ],
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-09T03:45:00+05:30",
+          "inst_set_time_index": 1,
+          "inst_set_time_reverse_index": 3
+        },
+        {
+          "type": "ENV",
+          "time": "2025-05-08T22:27:23Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 0,
+          "params": "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+          "command_snippet": "ENV GPG_KEY=7169605F62C751356D054A26A821E680...",
+          "command_all": "ENV GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-09T03:45:00+05:30",
+          "inst_set_time_index": 1,
+          "inst_set_time_reverse_index": 3
+        },
+        {
+          "type": "ENV",
+          "time": "2025-05-08T22:27:23Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 0,
+          "params": "PYTHON_VERSION=3.13.3",
+          "command_snippet": "ENV PYTHON_VERSION=3.13.3",
+          "command_all": "ENV PYTHON_VERSION=3.13.3",
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-09T03:45:00+05:30",
+          "inst_set_time_index": 1,
+          "inst_set_time_reverse_index": 3
+        },
+        {
+          "type": "ENV",
+          "time": "2025-05-08T22:27:23Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 0,
+          "params": "PYTHON_SHA256=40f868bcbdeb8149a3149580bb9bfd407b3321cd48f0be631af955ac92c0e041",
+          "command_snippet": "ENV PYTHON_SHA256=40f868bcbdeb8149a3149580bb...",
+          "command_all": "ENV PYTHON_SHA256=40f868bcbdeb8149a3149580bb9bfd407b3321cd48f0be631af955ac92c0e041",
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-09T03:45:00+05:30",
+          "inst_set_time_index": 1,
+          "inst_set_time_reverse_index": 3
+        },
+        {
+          "type": "RUN",
+          "time": "2025-05-08T22:27:23Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 36683309,
+          "size_human": "37 MB",
+          "command_snippet": "RUN set -eux; \t\tsavedAptMark=\"$(apt-mark sho...",
+          "command_all": "RUN set -eux; \t\tsavedAptMark=\"$(apt-mark showmanual)\"; \tapt-get update; \tapt-get install -y --no-install-recommends \t\tdpkg-dev \t\tgcc \t\tgnupg \t\tlibbluetooth-dev \t\tlibbz2-dev \t\tlibc6-dev \t\tlibdb-dev \t\tlibffi-dev \t\tlibgdbm-dev \t\tliblzma-dev \t\tlibncursesw5-dev \t\tlibreadline-dev \t\tlibsqlite3-dev \t\tlibssl-dev \t\tmake \t\ttk-dev \t\tuuid-dev \t\twget \t\txz-utils \t\tzlib1g-dev \t; \t\twget -O python.tar.xz \"https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz\"; \techo \"$PYTHON_SHA256 *python.tar.xz\" | sha256sum -c -; \twget -O python.tar.xz.asc \"https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc\"; \tGNUPGHOME=\"$(mktemp -d)\"; export GNUPGHOME; \tgpg --batch --keyserver hkps://keys.openpgp.org --recv-keys \"$GPG_KEY\"; \tgpg --batch --verify python.tar.xz.asc python.tar.xz; \tgpgconf --kill all; \trm -rf \"$GNUPGHOME\" python.tar.xz.asc; \tmkdir -p /usr/src/python; \ttar --extract --directory /usr/src/python --strip-components=1 --file python.tar.xz; \trm python.tar.xz; \t\tcd /usr/src/python; \tgnuArch=\"$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)\"; \t./configure \t\t--build=\"$gnuArch\" \t\t--enable-loadable-sqlite-extensions \t\t--enable-optimizations \t\t--enable-option-checking=fatal \t\t--enable-shared \t\t$(test \"$gnuArch\" != 'riscv64-linux-musl' && \\\n\techo '--with-lto') \t\t--with-ensurepip \t; \tnproc=\"$(nproc)\"; \tEXTRA_CFLAGS=\"$(dpkg-buildflags --get CFLAGS)\"; \tLDFLAGS=\"$(dpkg-buildflags --get LDFLAGS)\"; \tLDFLAGS=\"${LDFLAGS:--Wl},--strip-all\"; \t\tarch=\"$(dpkg --print-architecture)\"; arch=\"${arch##*-}\"; \t\tcase \"$arch\" in \t\t\tamd64|arm64) \t\t\t\tEXTRA_CFLAGS=\"${EXTRA_CFLAGS:-} -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer\"; \t\t\t\t;; \t\t\ti386) \t\t\t\t;; \t\t\t*) \t\t\t\tEXTRA_CFLAGS=\"${EXTRA_CFLAGS:-} -fno-omit-frame-pointer\"; \t\t\t\t;; \t\tesac; \tmake -j \"$nproc\" \t\t\"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}\" \t\t\"LDFLAGS=${LDFLAGS:-}\" \t; \trm python; \tmake -j \"$nproc\" \t\t\"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}\" \t\t\"LDFLAGS=${LDFLAGS:--Wl},-rpath='\\$\\$ORIGIN/../lib'\" \t\tpython \t; \tmake install; \t\tcd /; \trm -rf /usr/src/python; \t\tfind /usr/local -depth \t\t\\( \t\t\t\\( -type d -a \\( -name test -o -name tests -o -name idle_test \\) \\) \t\t\t-o \\( -type f -a \\( -name '*.pyc' -o -name '*.pyo' -o -name 'libpython*.a' \\) \\) \t\t\\) -exec rm -rf '{}' + \t; \t\tldconfig; \t\tapt-mark auto '.*' > /dev/null; \tapt-mark manual $savedAptMark; \tfind /usr/local -type f -executable -not \\( -name '*tkinter*' \\) -exec ldd '{}' ';' \t\t| awk '/=>/ { so = $(NF-1); if (index(so, \"/usr/local/\") == 1) { next }; gsub(\"^/(usr/)?\", \"\", so); printf \"*%s\\n\", so }' \t\t| sort -u \t\t| xargs -r dpkg-query --search \t\t| cut -d: -f1 \t\t| sort -u \t\t| xargs -r apt-mark manual \t; \tapt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \trm -rf /var/lib/apt/lists/*; \t\texport PYTHONDONTWRITEBYTECODE=1; \tpython3 --version; \tpip3 --version",
+          "system_commands": [
+            "set -eux; savedAptMark=\"$(apt-mark showmanual)\"; apt-get update; apt-get install -y --no-install-recommends dpkg-dev gcc gnupg libbluetooth-dev libbz2-dev libc6-dev libdb-dev libffi-dev libgdbm-dev liblzma-dev libncursesw5-dev libreadline-dev libsqlite3-dev libssl-dev make tk-dev uuid-dev wget xz-utils zlib1g-dev ; wget -O python.tar.xz \"https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz\"; echo \"$PYTHON_SHA256 *python.tar.xz\" | sha256sum -c -; wget -O python.tar.xz.asc \"https://www.python.org/ftp/python/${PYTHON_VERSION%%[a-z]*}/Python-$PYTHON_VERSION.tar.xz.asc\"; GNUPGHOME=\"$(mktemp -d)\"; export GNUPGHOME; gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys \"$GPG_KEY\"; gpg --batch --verify python.tar.xz.asc python.tar.xz; gpgconf --kill all; rm -rf \"$GNUPGHOME\" python.tar.xz.asc; mkdir -p /usr/src/python; tar --extract --directory /usr/src/python --strip-components=1 --file python.tar.xz; rm python.tar.xz; cd /usr/src/python; gnuArch=\"$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)\"; ./configure --build=\"$gnuArch\" --enable-loadable-sqlite-extensions --enable-optimizations --enable-option-checking=fatal --enable-shared $(test \"$gnuArch\" != 'riscv64-linux-musl'",
+            "echo '--with-lto') --with-ensurepip ; nproc=\"$(nproc)\"; EXTRA_CFLAGS=\"$(dpkg-buildflags --get CFLAGS)\"; LDFLAGS=\"$(dpkg-buildflags --get LDFLAGS)\"; LDFLAGS=\"${LDFLAGS:--Wl},--strip-all\"; arch=\"$(dpkg --print-architecture)\"; arch=\"${arch##*-}\"; case \"$arch\" in amd64|arm64) EXTRA_CFLAGS=\"${EXTRA_CFLAGS:-} -fno-omit-frame-pointer -mno-omit-leaf-frame-pointer\"; ;; i386) ;; *) EXTRA_CFLAGS=\"${EXTRA_CFLAGS:-} -fno-omit-frame-pointer\"; ;; esac; make -j \"$nproc\" \"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}\" \"LDFLAGS=${LDFLAGS:-}\" ; rm python; make -j \"$nproc\" \"EXTRA_CFLAGS=${EXTRA_CFLAGS:-}\" \"LDFLAGS=${LDFLAGS:--Wl},-rpath='$$ORIGIN/../lib'\" python ; make install; cd /; rm -rf /usr/src/python; find /usr/local -depth ( ( -type d -a ( -name test -o -name tests -o -name idle_test ) ) -o ( -type f -a ( -name '*.pyc' -o -name '*.pyo' -o -name 'libpython*.a' ) ) ) -exec rm -rf '{}' + ; ldconfig; apt-mark auto '.*' > /dev/null; apt-mark manual $savedAptMark; find /usr/local -type f -executable -not ( -name '*tkinter*' ) -exec ldd '{}' ';' | awk '/=>/ { so = $(NF-1); if (index(so, \"/usr/local/\") == 1) { next }; gsub(\"^/(usr/)?\", \"\", so); printf \"*%sn\", so }' | sort -u | xargs -r dpkg-query --search | cut -d: -f1 | sort -u | xargs -r apt-mark manual ; apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; rm -rf /var/lib/apt/lists/*; export PYTHONDONTWRITEBYTECODE=1; python3 --version; pip3 --version"
+          ],
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-09T03:45:00+05:30",
+          "inst_set_time_index": 1,
+          "inst_set_time_reverse_index": 3
+        },
+        {
+          "type": "RUN",
+          "time": "2025-05-08T22:27:23Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 36,
+          "size_human": "36 B",
+          "command_snippet": "RUN set -eux; \tfor src in idle3 pip3 pydoc3 ...",
+          "command_all": "RUN set -eux; \tfor src in idle3 pip3 pydoc3 python3 python3-config; do \t\tdst=\"$(echo \"$src\" | tr -d 3)\"; \t\t[ -s \"/usr/local/bin/$src\" ]; \t\t[ ! -e \"/usr/local/bin/$dst\" ]; \t\tln -svT \"$src\" \"/usr/local/bin/$dst\"; \tdone",
+          "system_commands": [
+            "set -eux",
+            "for src in idle3 pip3 pydoc3 python3 python3-config",
+            "do dst=\"$(echo \"$src\" | tr -d 3)\"",
+            "[ -s \"/usr/local/bin/$src\" ]",
+            "[ ! -e \"/usr/local/bin/$dst\" ]",
+            "ln -svT \"$src\" \"/usr/local/bin/$dst\"",
+            "done"
+          ],
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-09T03:45:00+05:30",
+          "inst_set_time_index": 1,
+          "inst_set_time_reverse_index": 3
+        },
+        {
+          "type": "CMD",
+          "time": "2025-05-08T22:27:23Z",
+          "is_nop": false,
+          "is_exec_form": true,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 0,
+          "params": "[\"python3\"]\n",
+          "command_snippet": "CMD [\"python3\"]\n",
+          "command_all": "CMD [\"python3\"]\n",
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-09T03:45:00+05:30",
+          "inst_set_time_index": 1,
+          "inst_set_time_reverse_index": 3
+        },
+        {
+          "type": "ENV",
+          "time": "2025-05-20T11:47:03Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 0,
+          "params": "PYTHONDONTWRITEBYTECODE=1",
+          "command_snippet": "ENV PYTHONDONTWRITEBYTECODE=1",
+          "command_all": "ENV PYTHONDONTWRITEBYTECODE=1",
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-20T17:15:00+05:30",
+          "inst_set_time_index": 2,
+          "inst_set_time_reverse_index": 2
+        },
+        {
+          "type": "ENV",
+          "time": "2025-05-20T11:47:03Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 0,
+          "params": "PYTHONUNBUFFERED=1",
+          "command_snippet": "ENV PYTHONUNBUFFERED=1",
+          "command_all": "ENV PYTHONUNBUFFERED=1",
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-20T17:15:00+05:30",
+          "inst_set_time_index": 2,
+          "inst_set_time_reverse_index": 2
+        },
+        {
+          "type": "WORKDIR",
+          "time": "2025-05-20T11:47:03Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 0,
+          "params": "/app",
+          "command_snippet": "WORKDIR /app",
+          "command_all": "WORKDIR /app",
+          "system_commands": [
+            "mkdir -p /app"
+          ],
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-20T17:15:00+05:30",
+          "inst_set_time_index": 2,
+          "inst_set_time_reverse_index": 2
+        },
+        {
+          "type": "COPY",
+          "time": "2025-05-20T12:14:43Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 308103541,
+          "size_human": "308 MB",
+          "params": "/install /usr/local",
+          "command_snippet": "COPY /install /usr/local",
+          "command_all": "COPY /install /usr/local",
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-20T17:30:00+05:30",
+          "inst_set_time_index": 3,
+          "inst_set_time_reverse_index": 1
+        },
+        {
+          "type": "COPY",
+          "time": "2025-05-21T06:39:54Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 110077917,
+          "size_human": "110 MB",
+          "params": ". .",
+          "command_snippet": "COPY . .",
+          "command_all": "COPY . .",
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-21T12:00:00+05:30",
+          "inst_set_time_index": 4,
+          "inst_set_time_reverse_index": 0
+        },
+        {
+          "type": "RUN",
+          "time": "2025-05-21T06:39:54Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 8931,
+          "size_human": "8.9 kB",
+          "command_snippet": "RUN useradd -m flaskuser",
+          "command_all": "RUN useradd -m flaskuser",
+          "system_commands": [
+            "useradd -m flaskuser"
+          ],
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-21T12:00:00+05:30",
+          "inst_set_time_index": 4,
+          "inst_set_time_reverse_index": 0
+        },
+        {
+          "type": "RUN",
+          "time": "2025-05-21T06:39:55Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 0,
+          "command_snippet": "RUN mkdir -p /app/uploads && \\\n\tchown -R fla...",
+          "command_all": "RUN mkdir -p /app/uploads && \\\n\tchown -R flaskuser /app/uploads",
+          "system_commands": [
+            "mkdir -p /app/uploads",
+            "chown -R flaskuser /app/uploads"
+          ],
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-21T12:00:00+05:30",
+          "inst_set_time_index": 4,
+          "inst_set_time_reverse_index": 0
+        },
+        {
+          "type": "USER",
+          "time": "2025-05-21T06:39:55Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 0,
+          "params": "flaskuser",
+          "command_snippet": "USER flaskuser",
+          "command_all": "USER flaskuser",
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-21T12:00:00+05:30",
+          "inst_set_time_index": 4,
+          "inst_set_time_reverse_index": 0
+        },
+        {
+          "type": "EXPOSE",
+          "time": "2025-05-21T06:39:55Z",
+          "is_nop": false,
+          "local_image_exists": false,
+          "layer_index": 0,
+          "size": 0,
+          "params": "5000/tcp",
+          "command_snippet": "EXPOSE 5000/tcp",
+          "command_all": "EXPOSE 5000/tcp",
+          "comment": "buildkit.dockerfile.v0",
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-21T12:00:00+05:30",
+          "inst_set_time_index": 4,
+          "inst_set_time_reverse_index": 0
+        },
+        {
+          "type": "CMD",
+          "time": "2025-05-21T06:39:55Z",
+          "is_last_instruction": true,
+          "is_nop": false,
+          "is_exec_form": true,
+          "local_image_exists": true,
+          "layer_index": 0,
+          "size": 0,
+          "params": "[\"gunicorn\",\"-w\",\"4\",\"-b\",\"0.0.0.0:5000\",\"factory:create_app()\"]\n",
+          "command_snippet": "CMD [\"gunicorn\",\"-w\",\"4\",\"-b\",\"0.0.0.0:5000\"...",
+          "command_all": "CMD [\"gunicorn\",\"-w\",\"4\",\"-b\",\"0.0.0.0:5000\",\"factory:create_app()\"]\n",
+          "comment": "buildkit.dockerfile.v0",
+          "raw_tags": [
+            "email-verification-dev:latest"
+          ],
+          "is_buildkit_instruction": true,
+          "inst_set_time_bucket": "2025-05-21T12:00:00+05:30",
+          "inst_set_time_index": 4,
+          "inst_set_time_reverse_index": 0
+        }
+      ]
+    }
+  ],
+  "image_created": true,
+  "image_build_engine": "internal"
+}

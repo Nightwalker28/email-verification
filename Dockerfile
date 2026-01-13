@@ -1,30 +1,53 @@
-# Build stage
-FROM python:3.13.3-alpine AS builder
+# ---------- Build stage ----------
+FROM python:3.13-alpine AS builder
 
-# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+# Install build tools and dev libs
+RUN apk update && apk add --no-cache \
+    build-base \
+    gcc \
+    g++ \
+    libffi-dev \
+    libpq \
+    openssl-dev \
+    mariadb-dev \
+    git \
+    curl
 
-# Install dependencies with cache mount for pip
 COPY requirements.txt .
-RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --upgrade pip && \
-    pip install --prefix=/install --no-cache-dir -r requirements.txt
 
-# Final stage
-FROM python:3.13.3-alpine
+# Install Python deps to a temp location
+RUN pip install --upgrade pip && \
+    pip install --prefix=/install -r requirements.txt
+
+# ---------- Final stage ----------
+FROM python:3.13-alpine
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Copy only what’s needed
+# Copy installed packages from builder
 COPY --from=builder /install /usr/local
+
+# Copy the application code
 COPY . .
 
-# Add non-root user
-RUN adduser --disabled-password --gecos '' flaskuser
+# Create a non-root user (Alpine-style)
+RUN adduser -D -h /home/flaskuser flaskuser
+
+# Create upload directory and give ownership to flaskuser
+RUN mkdir -p /app/uploads && chown -R flaskuser /app
+
+# Switch to non-root user
 USER flaskuser
 
-CMD ["python", "run.py"]
+EXPOSE 5000
+
+# Start the app with Gunicorn
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "factory:create_app()"]
