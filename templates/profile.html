@@ -1,61 +1,341 @@
 {% extends "base.html" %}
 
-{% block title %}Settings{% endblock %}
+{% block title %}Profile | Email Verification Tool{% endblock %}
 
-    {% block content %}
-    <div class="container">
-        <h2>Edit Profile</h2>
-        <form>
-            <label for="first_name">First Name</label>
-            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required><br>
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/profile.css">
+{% endblock %}
 
-            <label for="last_name">Last Name</label>
-            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required><br>
+{% block content %}
+<div class="dashboard-header">
+    <div>
+        <h1>Account Settings</h1>
+        <p>Manage your profile information and account preferences</p>
+    </div>
+</div>
 
-            <!-- Password fields, hidden if user is Google login -->
-            <div id="passwordFields" style="display: none;">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Enter a new password"><br>
-
-                <label for="confirm_password">Confirm Password:</label>
-                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm the password"><br>
+<div class="profile-container">
+    <div class="profile-sidebar">
+        <div class="user-info">
+            <div class="user-details">
+                <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+                <p>{{ user.email }}</p>
+                <span class="account-type">{{ "Google Account" if is_google_login else "Standard Account" }}</span>
             </div>
-
-            <button type="submit">Save Changes</button>
-        </form>
+        </div>
+        <div class="sidebar-menu">
+            <a href="#profile" class="active">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                Profile Information
+            </a>
+            <a href="#security">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                Security Settings
+            </a>
+            <a href="#billing">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                Billing & Subscription
+            </a>
+            <a href="#api">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                API Access
+            </a>
+        </div>
     </div>
-        <div id="message-container" class="alert" role="alert"></div>
+
+    <div class="profile-content">
+        <div id="profile" class="content-section active">
+            <div class="section-header">
+                <h2>Profile Information</h2>
+                <p>Update your personal information</p>
+            </div>
+            
+            <form id="profileForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first_name">First Name</label>
+                        <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" disabled>
+                    <small>Email address cannot be changed</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="company">Company Name (Optional)</label>
+                    <input type="text" id="company" name="company" value="{{ user.company if user.company else '' }}">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn primary-btn">Save Changes</button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="security" class="content-section">
+            <div class="section-header">
+                <h2>Security Settings</h2>
+                <p>Manage your password and account security</p>
+            </div>
+            
+            <form id="securityForm">
+                <!-- Password fields, hidden if user is Google login -->
+                <div id="passwordFields" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">New Password</label>
+                            <input type="password" id="password" name="password" placeholder="Enter a new password">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password</label>
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm the password">
+                        </div>
+                    </div>
+                    
+                    <div class="password-requirements">
+                        <h4>Password Requirements:</h4>
+                        <ul>
+                            <li id="length">At least 8 characters</li>
+                            <li id="uppercase">At least one uppercase letter</li>
+                            <li id="lowercase">At least one lowercase letter</li>
+                            <li id="number">At least one number</li>
+                            <li id="special">At least one special character</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn primary-btn">Update Password</button>
+                    </div>
+                </div>
+                
+                <div id="googleLoginMessage" style="display: none;">
+                    <div class="info-box">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                        <p>You're signed in with Google. Password management is handled through your Google account.</p>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="section-divider"></div>
+            
+            <div class="two-factor-section">
+                <h3>Two-Factor Authentication</h3>
+                <p>Add an extra layer of security to your account</p>
+                
+                <div class="toggle-container">
+                    <span>Enable Two-Factor Authentication</span>
+                    <label class="switch">
+                        <input type="checkbox" id="twoFactorToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                
+                <div id="twoFactorSetup" style="display: none;">
+                    <div class="steps-container">
+                        <div class="step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Download an authenticator app</h4>
+                                <p>Download Google Authenticator or Authy on your mobile device</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Scan QR code</h4>
+                                <p>Use your authenticator app to scan this QR code</p>
+                                <div class="qr-placeholder">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="8" y1="12" x2="16" y2="12"></line><line x1="12" y1="16" x2="12" y2="8"></line></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Verify code</h4>
+                                <p>Enter the 6-digit code from your authenticator app</p>
+                                <div class="verification-inputs">
+                                    <input type="text" maxlength="1" class="verification-input">
+                                    <input type="text" maxlength="1" class="verification-input">
+                                    <input type="text" maxlength="1" class="verification-input">
+                                    <input type="text" maxlength="1" class="verification-input">
+                                    <input type="text" maxlength="1" class="verification-input">
+                                    <input type="text" maxlength="1" class="verification-input">
+                                </div>
+                                <button class="btn secondary-btn">Verify & Enable</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="billing" class="content-section">
+            <div class="section-header">
+                <h2>Billing & Subscription</h2>
+                <p>Manage your payment information and subscription plan</p>
+                <!-- <p style="color:red;">DEBUG: subscription = {{ user.subscription }} (type: {{ user.subscription.__class__.__name__ }})</p> -->
+            </div>
+            
+            <div class="current-plan">
+                <div class="plan-header">
+                    <h3>Current Plan</h3>
+                    <span class="plan-badge">{{ "Pro" if user.subscription else "Basic" }}</span>
+                </div>
+                
+                <div class="plan-details">
+                    {% if user.subscription %}
+                    <div class="plan-detail">
+                        <span>Daily Verification Attempts:</span>
+                        <span>Unlimited</span>
+                    </div>
+                    <div class="plan-detail">
+                        <span>File Upload Attempts:</span>
+                        <span>Unlimited</span>
+                    </div>
+                    <div class="plan-detail">
+                        <span>API Access:</span>
+                        <span>Full Access</span>
+                    </div>
+                    <div class="plan-detail">
+                        <span>Priority Support:</span>
+                        <span>Included</span>
+                    </div>
+                    <div class="plan-detail">
+                        <span>Next Billing Date:</span>
+                        <span>22 June 2025</span>
+                    </div>
+                    {% else %}
+                    <div class="plan-detail">
+                        <span>Daily Verification Attempts:</span>
+                        <span>50</span>
+                    </div>
+                    <div class="plan-detail">
+                        <span>File Upload Attempts:</span>
+                        <span>0</span>
+                    </div>
+                    <div class="plan-detail">
+                        <span>API Access:</span>
+                        <span>Limited</span>
+                    </div>
+                    <div class="plan-detail">
+                        <span>Support:</span>
+                        <span>Standard</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if not user.subscription %}
+                <button class="btn primary-btn">Upgrade to Pro</button>
+                {% else %}
+                <div class="pro-status">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                    <span>You're currently on the Pro plan</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="section-divider"></div>
+            
+            <div class="payment-method">
+                <h3>Payment Method</h3>
+                <div class="card-info">
+                    <div class="card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                    </div>
+                    <div class="card-details">
+                        <h4>Visa ending in 4242</h4>
+                        <p>Expires 09/2027</p>
+                    </div>
+                    <button class="text-btn">Edit</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="api" class="content-section">
+            <div class="section-header">
+                <h2>API Settings</h2>
+                <p>Manage your API keys and access</p>
+            </div>
+            
+            <div class="api-keys">
+                <div class="api-key-header">
+                    <h3>Your API Keys</h3>
+                    <button class="btn secondary-btn">Generate New Key</button>
+                </div>
+                
+                <div class="key-container">
+                    <div class="key-info">
+                        <h4>Production Key</h4>
+                        <div class="key-value">
+                            <input type="password" value="sk_live_WI38NDhkDFjklWOI3894" disabled>
+                            <button class="icon-btn show-hide-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                            <button class="icon-btn copy-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                            </button>
+                        </div>
+                        <p>Created: May 1, 2025</p>
+                    </div>
+                    <div class="key-actions">
+                        <button class="text-btn text-danger">Revoke</button>
+                    </div>
+                </div>
+                
+                <div class="key-container">
+                    <div class="key-info">
+                        <h4>Test Key</h4>
+                        <div class="key-value">
+                            <input type="password" value="sk_test_LKej384KDjfW38dDKJ39" disabled>
+                            <button class="icon-btn show-hide-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                            <button class="icon-btn copy-btn">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                            </button>
+                        </div>
+                        <p>Created: May 1, 2025</p>
+                    </div>
+                    <div class="key-actions">
+                        <button class="text-btn text-danger">Revoke</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-divider"></div>
+            
+            <div class="api-usage">
+                <h3>API Usage</h3>
+                <div class="api-usage-stats">
+                    <div class="usage-stat">
+                        <div class="usage-label">This Month</div>
+                        <div class="usage-value">458 / 1,000</div>
+                        <div class="progress-bar">
+                            <div class="progress" style="width: 45.8%"></div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" class="text-link">View API Documentation</a>
+            </div>
+        </div>
     </div>
-    {% endblock %}
+</div>
 
-    {% block scripts %}
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const isGoogleLogin = JSON.parse("{{ is_google_login | tojson }}");
+<div id="message-container" class="alert" role="alert"></div>
 
-        if (!isGoogleLogin) {
-            document.getElementById('passwordFields').style.display = 'block';
-        }
-    });
+<!-- Pass Google login status to JavaScript -->
+<script data-google-login="{{ is_google_login | tojson }}"></script>
+{% endblock %}
 
-    function validateForm(event) {
-                // Get the password and confirm password values
-                const password = document.getElementById('password').value;
-                const confirmPassword = document.getElementById('confirm_password').value;
-                const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    
-                if (password !== confirmPassword) {
-                    event.preventDefault();
-                    alert('Passwords do not match. Please try again.');
-                    return;
-                }
-    
-                if (!passwordPattern.test(password)) {
-                    event.preventDefault();
-                    alert('Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character.');
-                    return;
-                }
-            }
-    </script>
-    <script src="/static/js/profile.js"></script>
-    {% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="/static/js/profile.js"></script>
+{% endblock %}
