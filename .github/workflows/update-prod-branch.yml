@@ -1,0 +1,31 @@
+name: Prepare Production Branch
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  prepare-prod:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Configure Git
+      run: |
+        git config user.name "nightwalker28"
+        git config user.email "maadmustafa28@gmail.com"
+
+    - name: Create prod branch with only deployment files
+      run: |
+        git checkout -B prod
+        git reset --hard
+        git rm -rf .
+        git checkout main -- docker-compose.prod.yml .env 
+        git add .
+        git commit -m "Update prod deployment files from main" || echo "No changes to commit"
+        git push --force origin prod

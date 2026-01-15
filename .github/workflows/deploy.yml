@@ -1,0 +1,25 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH and run Ansible playbook
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.ANSIBLE_HOST }}
+          username: ansible
+          key: ${{ secrets.ANSIBLE_SSH_KEY }}
+          script: |
+            cd ~/ansible
+            ansible-playbook -i inventory.yml playbooks/deploy-dockerized-stack.yml \
+              --extra-vars "app_name=valid8 \
+                            app_domain=staging.thevalid8.com \
+                            app_repo_url=https://github.com/Techmee-Digital/email-verification.git \
+                            ssl_email=maadm@techmeedigital.com \
+                            app_path=/home/ansible/valid8"

@@ -40,11 +40,6 @@ body, html {
   transition: margin-left var(--transition-speed) ease;
 }
 
-.content {
-  padding: 30px;
-  overflow-y: auto;
-}
-
 /* Alert Messages */
 .alert {
   position: fixed;

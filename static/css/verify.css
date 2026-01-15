@@ -1,5 +1,10 @@
 /* Verify Page Styling - Matching Home Theme */
 
+.verify-container {
+  padding: 30px;
+  overflow-y: auto;
+}
+
 /* Dashboard Header */
 .dashboard-header {
     display: flex;
@@ -10,14 +15,14 @@
 
 .dashboard-header h1 {
     color: var(--secondary-color);
-    font-size: 21px; /* Reduced from 28px */
+    font-size: 21px; 
     margin: 0;
 }
 
 .dashboard-header p {
     color: #666;
     margin: 5px 0 0 0;
-    font-size: 13px; /* Reduced from 16px (default) */
+    font-size: 13px; 
 }
 
 /* Attempts Remaining Badge */
@@ -29,7 +34,7 @@
     padding: 8px 15px;
     color: var(--primary-dark);
     font-weight: 400;
-    font-size: 13px; /* Reduced from 16px (default) */
+    font-size: 13px; 
 }
 
 .attempts-badge svg {
@@ -50,7 +55,7 @@
 /* Section Headers */
 h2 {
     color: var(--secondary-color);
-    font-size: 16px; /* Reduced from 20px */
+    font-size: 16px;
     margin: 0 0 5px 0;
 }
 
@@ -58,7 +63,7 @@ h2 {
 .results-container p {
     color: #666;
     margin: 0 0 15px 0;
-    font-size: 11.5px; /* Reduced from 14px */
+    font-size: 11.5px;
 }
 
 /* Form Styling */
@@ -71,7 +76,7 @@ h2 {
     margin-bottom: 5px;
     font-weight: 500;
     color: var(--secondary-color);
-    font-size: 13px; /* Reduced from 16px (default) */
+    font-size: 13px; 
 }
 
 .input-group {
@@ -85,7 +90,7 @@ h2 {
     border-radius: 5px;
     padding: 12px;
     font-family: var(--font-family);
-    font-size: 13px; /* Reduced from 16px (default) */
+    font-size: 13px; 
 }
 
 /* Table Styling */
@@ -104,7 +109,7 @@ h2 {
     text-align: left;
     padding: 12px;
     border-bottom: 1px solid #eee;
-    font-size: 13px; /* Reduced from 15px (estimated default) */
+    font-size: 13px; 
 }
 
 .results-table th {
@@ -168,7 +173,7 @@ h2 {
     padding: 15px;
     border-radius: 5px;
     font-weight: 600;
-    font-size: 13px; /* Reduced from 16px (default) */
+    font-size: 13px; 
 }
 
 .alert-message.success {
@@ -207,7 +212,7 @@ h2 {
 .empty-state p {
     color: #888;
     margin-bottom: 15px;
-    font-size: 13px; /* Reduced from 16px (default) */
+    font-size: 13px; 
 }
 
 /* Loading Overlay */
@@ -227,7 +232,7 @@ h2 {
 .loader-text {
     color: white;
     margin-top: 15px;
-    font-size: 13px; /* Reduced from 16px (default) */
+    font-size: 13px; 
 }
 
 /* Spinner Animation */

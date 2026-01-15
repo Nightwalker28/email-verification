@@ -11,7 +11,7 @@ services:
       - 0.0.0.0:5000
       - factory:create_app()
     expose:
-      - "5000"
+      - "5001:5000"
     env_file:
       - .env
     depends_on:
@@ -24,7 +24,7 @@ services:
   celery:
     image: ghcr.io/techmee-digital/email-verification:prod
     container_name: email-verification-celery
-    command: celery -A pages.schedule:celery worker --pool=solo --loglevel=info
+    command: celery -A pages.schedule:celery worker --loglevel=info
     env_file:
       - .env
     depends_on:
