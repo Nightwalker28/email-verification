@@ -3,29 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Consider using the upload filename in the title -->
     <title>View File: {{ upload.original_filename if upload else 'File Data' }}</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Link your own CSS if needed -->
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> -->
+    <link rel="stylesheet" href="/static/css/global.css">
+    <link rel="stylesheet" href="/static/css/view.css">
 </head>
 <body>
-    <div class="container mt-5">
-        <!-- Use the original filename in the heading -->
-        <h2>Data for: {{ upload.original_filename if upload else 'File' }}</h2>
-        <div class="table-responsive">
-            <!-- **** CHANGE csv_data TO content **** -->
-            {{ content|safe }}
-            <!-- **** END CHANGE **** -->
+    <div class="view-container">
+        <!-- Header Section -->
+        <div class="dashboard-header">
+            <div>
+                <h1>{{ upload.original_filename if upload else 'File Data' }}</h1>
+                <p>View and analyze your uploaded file data</p>
+            </div>
+            <div class="header-actions">
+                <a class="btn secondary-btn" href="{{ url_for('files.download_file', unique_filename=upload.unique_filename) }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Download
+                </a>
+                <a class="btn primary-btn" href="{{ url_for('files.list_view') }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 12H5"></path>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Back to List
+                </a>
+            </div>
         </div>
-        <!-- Add some margin to the button -->
-        <a class="btn btn-info mt-3" href="{{ url_for('files.download_file', unique_filename=upload.unique_filename) }}">Download</a>
-        <!-- Optional: Add a link back to the list -->
-        <a class="btn btn-secondary mt-3" href="{{ url_for('files.list_view') }}">Back to List</a>
+
+        <!-- File Stats Section -->
+        {% if upload %}
+        <div class="summary-section" style="margin-bottom: 20px;">
+            <h2>File Statistics</h2>
+            <div class="summary-flex">
+                <div class="stat-card valid">
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 6L9 17l-5-5"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ upload.valid_emails }}</div>
+                        <div class="stat-label">Valid Emails</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card risky">
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ upload.risky_emails }}</div>
+                        <div class="stat-label">Risky Emails</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card invalid">
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ upload.invalid_emails }}</div>
+                        <div class="stat-label">Invalid Emails</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card unknown">
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ upload.unknown_emails }}</div>
+                        <div class="stat-label">Unknown Emails</div>
+                    </div>
+                </div>
+                
+                <div class="stat-card total">
+                    <div class="stat-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                            <polyline points="22,6 12,13 2,6"/>
+                        </svg>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-value">{{ upload.total_emails }}</div>
+                        <div class="stat-label">Total Emails</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Data Table Section -->
+        <div class="summary-section">
+            <h2>File Contents</h2>
+            <div class="table-container">
+                <div class="table-responsive">
+                    {{ content|safe }}
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- Add Bootstrap JS if needed for other components -->
-    <!-- <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script> -->
-    <!-- <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script> -->
-    <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
 </body>
 </html>
