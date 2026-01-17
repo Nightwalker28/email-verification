@@ -1,9 +1,120 @@
 $(document).ready(function() {
-    // Update file name display when a file is selected
+    let selectedFile = null;
+
+    // Utility function to format file size
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Update file display
+    function updateFileDisplay(file) {
+        selectedFile = file;
+        if (file) {
+            $('#file-name-display').text(file.name);
+            $('.file-size-display').text(formatFileSize(file.size));
+            $('.file-upload-info').addClass('show');
+            $('.file-upload-wrapper').addClass('has-file');
+            $('.drag-drop-area').hide();
+        } else {
+            clearFileDisplay();
+        }
+    }
+
+    // Clear file display
+    function clearFileDisplay() {
+        selectedFile = null;
+        $('#file-name-display').text('No file selected');
+        $('.file-size-display').text('');
+        $('.file-upload-info').removeClass('show');
+        $('.file-upload-wrapper').removeClass('has-file');
+        $('.drag-drop-area').show();
+        $('#csvFile').val('');
+    }
+
+    // Handle file input change
     $('#csvFile').on('change', function() {
-        const fileName = this.files && this.files[0] ? this.files[0].name : 'No file selected';
-        $('#file-name-display').text(fileName);
-        console.log('File selected:', fileName);
+        const file = this.files && this.files[0] ? this.files[0] : null;
+        updateFileDisplay(file);
+        console.log('File selected:', file ? file.name : 'No file');
+    });
+
+    // Remove file button
+    $(document).on('click', '.remove-file-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        clearFileDisplay();
+    });
+
+    // Drag and drop functionality
+    const $uploadWrapper = $('.file-upload-wrapper');
+
+    // Prevent default drag behaviors
+    $(document).on('dragenter dragover drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    // Drag enter
+    $uploadWrapper.on('dragenter', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).addClass('drag-over');
+    });
+
+    // Drag over
+    $uploadWrapper.on('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).addClass('drag-over');
+    });
+
+    // Drag leave
+    $uploadWrapper.on('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Only remove drag-over if we're actually leaving the wrapper
+        if (!$(this).is(e.target) && !$.contains(this, e.target)) {
+            $(this).removeClass('drag-over');
+        }
+    });
+
+    // Drop
+    $uploadWrapper.on('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('drag-over');
+
+        const files = e.originalEvent.dataTransfer.files;
+        if (files.length > 0) {
+            const file = files[0];
+            
+            // Validate file type
+            const allowedTypes = ['.csv', '.xlsx', '.xls'];
+            const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+            
+            if (allowedTypes.includes(fileExtension)) {
+                // Update the file input
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                $('#csvFile')[0].files = dataTransfer.files;
+                
+                updateFileDisplay(file);
+                console.log('File dropped:', file.name);
+            } else {
+                displayMessage('Please select a valid file format (.csv, .xlsx, .xls)', true);
+            }
+        }
+    });
+
+    // Click to select file
+    $uploadWrapper.on('click', function(e) {
+        if (!$(e.target).hasClass('remove-file-btn') && !$(e.target).closest('.remove-file-btn').length) {
+            $('#csvFile').click();
+        }
     });
 
     // Utility to display messages
