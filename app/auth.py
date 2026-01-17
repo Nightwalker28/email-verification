@@ -208,20 +208,17 @@ def reset_with_token(token):
         return redirect(url_for('auth.passwordreset'))
 
     if request.method == "POST":
-        data = request.get_json()
-        new_password = data.get("password") if data else None
+        new_password = request.form.get("password")
 
         if not new_password:
             return error_response("New password is required.", 400)
-
-        # Add check: prevent using the old password? (Requires storing previous hashes or comparing)
 
         try:
             reset_password(user, new_password)
             return success_response({"message": "Password updated successfully!", "redirect_url": url_for("main.index")}, 200)
         except Exception as e:
-             current_app.logger.error(f"Error resetting password with token for user {user.email}: {e}")
-             return error_response("An error occurred while updating your password. Please try again.", 500)
+            current_app.logger.error(f"Error resetting password with token for user {user.email}: {e}")
+            return error_response("An error occurred while updating your password. Please try again.", 500)
 
     return render_template("reset_password.html", token=token)
 
