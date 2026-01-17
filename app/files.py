@@ -177,29 +177,24 @@ def download_file(unique_filename):
 
 @files_bp.route('/delete/<unique_filename>', methods=['POST'])
 @login_required
-def delete_file(unique_filename):
-    """Deletes an uploaded file and its associated records for the logged-in user."""
+def delete_file(unique_filename: str):
+    """Deletes an uploaded file and orphans its Summary, leaving the summary row intact."""
     user_id = session['user']
-    logger.info(f"User {user_id} attempting to delete file: {unique_filename}")
+    current_app.logger.info(f"User {user_id} attempting to delete file: {unique_filename}")
 
-    try:
-        success = delete_upload(unique_filename, user_id)
+    success = delete_upload(unique_filename, user_id)
+    if success:
+        current_app.logger.info(f"Successfully deleted upload '{unique_filename}' for user {user_id}")
+        return success_response('File deleted successfully.', 200)
 
-        if success:
-            logger.info(f"Successfully deleted file {unique_filename} and associated data for user {user_id}")
-            return success_response('File deleted successfully.', 200) 
-        else:
-            upload_exists = UserUpload.query.filter_by(unique_filename=unique_filename, user_id=user_id).count() > 0
-            if not upload_exists:
-                 logger.warning(f"Delete failed because file {unique_filename} not found or not owned by user {user_id}.")
-                 return error_response('File not found or access denied.', 404)
-            else:
-                 logger.error(f"delete_upload function returned False for existing file {unique_filename}, user {user_id}.")
-                 return error_response('Deletion failed due to an internal error. Check logs.', 500)
-    except Exception as e:
-        logger.exception(f"Unexpected error during delete operation for file {unique_filename}, user {user_id}: {e}")
-        db.session.rollback() 
-        return error_response('An unexpected error occurred during deletion.', 500)
+    # determine whether it never existed or an internal error
+    exists = UserUpload.query.filter_by(unique_filename=unique_filename, user_id=user_id).first()
+    if not exists:
+        current_app.logger.warning(f"File not found or access denied: {unique_filename} (user {user_id})")
+        return error_response('File not found or access denied.', 404)
+
+    current_app.logger.error(f"delete_upload returned False for existing file {unique_filename} (user {user_id})")
+    return error_response('Deletion failed due to an internal error.', 500)
 
 
 @files_bp.route('/view/<unique_filename>', methods=['GET'])

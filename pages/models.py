@@ -65,32 +65,55 @@ class PasswordResetToken(db.Model):
 
 class UserUpload(db.Model):
     __tablename__ = 'user_uploads'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    original_filename = db.Column(db.String(255), nullable=False)
-    unique_filename = db.Column(db.String(255), nullable=False)
-    filepath = db.Column(db.String(255), nullable=False)
-    verified_filepath = db.Column(db.String(255), nullable=True)
-    upload_date = db.Column(db.DateTime, default=datetime.utcnow)
+
+    id               = db.Column(db.Integer, primary_key=True)
+    user_id          = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    original_filename  = db.Column(db.String(255), nullable=False)
+    unique_filename    = db.Column(db.String(255), nullable=False)
+    filepath           = db.Column(db.String(255), nullable=False)
+    verified_filepath  = db.Column(db.String(255), nullable=True)
+    upload_date        = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # one-to-one link to Summary; we'll manually null upload_id before delete
+    summary = relationship(
+        'Summary',
+        uselist=False,
+        back_populates='upload',
+        passive_deletes=True
+    )
+
     user = relationship('User', backref=db.backref('uploads', lazy=True))
-    def __repr__(self) -> str:
+
+    def __repr__(self):
         return f'<UserUpload {self.unique_filename} for user {self.user_id}>'
 
 
 class Summary(db.Model):
     __tablename__ = 'summary'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False, index=True)
-    upload_id = db.Column(db.Integer, db.ForeignKey('user_uploads.id'), nullable=False, unique=True, index=True)
-    list_name = db.Column(db.String(120), nullable=False)
+
+    id           = db.Column(db.Integer, primary_key=True)
+    user_id      = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False, index=True)
+    upload_id    = db.Column(
+        db.Integer,
+        ForeignKey('user_uploads.id', ondelete='SET NULL'),
+        nullable=True,
+        unique=True,
+        index=True
+    )
+    list_name    = db.Column(db.String(120), nullable=False)
     total_emails = db.Column(db.Integer, nullable=False)
-    valid_emails = db.Column(db.Integer, default=0)
-    risky_emails = db.Column(db.Integer, default=0)
+    valid_emails   = db.Column(db.Integer, default=0)
+    risky_emails   = db.Column(db.Integer, default=0)
     invalid_emails = db.Column(db.Integer, default=0)
     unknown_emails = db.Column(db.Integer, default=0)
-    upload = relationship('UserUpload', backref=db.backref('summary', uselist=False, lazy='joined')) # Use joined loading if often needed together
-    user = relationship('User', backref=db.backref('summaries', lazy=True))
-    def __repr__(self) -> str:
+    upload = relationship(
+        'UserUpload',
+        back_populates='summary',
+        passive_deletes=True
+    )
+    user   = relationship('User', backref=db.backref('summaries', lazy=True))
+
+    def __repr__(self):
         return f'<Summary {self.list_name} for user {self.user_id}>'
 
 
