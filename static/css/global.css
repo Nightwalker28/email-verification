@@ -154,6 +154,52 @@ body, html {
   }
 }
 
+.d-none {
+  display: none !important;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-overlay.d-none {
+    display: none !important;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 25px 30px;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  color: var(--secondary-color);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.modal-buttons .btn {
+  min-width: 100px;
+}
+
+
 /* Responsive adjustments */
 @media (max-width: 1000px) {
   body.sidebar-expanded .main-container {

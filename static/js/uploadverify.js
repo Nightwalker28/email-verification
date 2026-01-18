@@ -1,4 +1,7 @@
 $(document).ready(function() {
+
+    $('#deleteModal').hide();
+    
     let selectedFile = null;
 
     // Utility function to format file size
@@ -122,10 +125,13 @@ $(document).ready(function() {
         const messageContainer = $('#message-container');
         if (messageContainer.length) {
             messageContainer.removeClass('d-none alert-success alert-danger');
-            messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
+            messageContainer.addClass('show ' + (isError ? 'alert-danger' : 'alert-success'));
             messageContainer.text(message);
             messageContainer.show();
-            setTimeout(() => messageContainer.hide(), 5000);
+            setTimeout(() => {
+                messageContainer.removeClass('show');
+                messageContainer.hide();
+            }, 5000);
         } else {
             alert(message);
         }
@@ -181,9 +187,14 @@ $(document).ready(function() {
             data: formData,
             contentType: false,
             processData: false,
-            success: function() {
+            success: function(response) {
                 hideLoading();
-                window.location.reload();
+                displayMessage('File uploaded and verified successfully!', false);
+                clearFileDisplay();
+                // Reload to show new file in the list
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
             },
             error: function(xhr) {
                 hideLoading();
@@ -217,9 +228,14 @@ $(document).ready(function() {
             data: formData,
             contentType: false,
             processData: false,
-            success: function() {
+            success: function(response) {
                 hideLoading();
-                window.location.reload();
+                displayMessage('File force verified successfully!', false);
+                clearFileDisplay();
+                // Reload to show new file in the list
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
             },
             error: function(xhr) {
                 hideLoading();
@@ -259,4 +275,103 @@ $(document).ready(function() {
             }
         });
     });
+
+    let deleteFormToSubmit = null;
+
+    // Show modal on delete click - FIXED EVENT DELEGATION
+    $(document).on('click', '.delete-btn', function (e) {
+        e.preventDefault();
+        e.stopPropagation(); // Prevent event bubbling
+        
+        console.log('Delete button clicked'); // Debug log
+        
+        deleteFormToSubmit = $(this).closest('form');
+        
+        // Show modal using multiple methods to ensure visibility
+        $('#deleteModal').removeClass('d-none').show().css('display', 'flex');
+        
+        console.log('Modal should be visible now'); // Debug log
+    });
+
+    // Confirm deletion - Remove row from DOM instead of refreshing
+    $('#confirmDeleteBtn').on('click', function () {
+        console.log('Confirm delete clicked'); // Debug log
+        
+        if (deleteFormToSubmit) {
+            // Hide modal first
+            $('#deleteModal').addClass('d-none').hide();
+            
+            // Get form action URL for the AJAX request
+            const formAction = deleteFormToSubmit.attr('action');
+            
+            // Find the table row to remove (the form is inside the td)
+            const rowToDelete = deleteFormToSubmit.closest('tr');
+            const detailsRowId = rowToDelete.find('.toggle-details').data('id');
+            const detailsRow = $(`#details-${detailsRowId}`);
+            
+            // Show loading
+            showLoading("Deleting file...");
+            
+            // Submit via AJAX instead of form submission
+            $.ajax({
+                url: formAction,
+                type: 'POST',
+                success: function(response) {
+                    hideLoading();
+                    displayMessage('File deleted successfully!', false);
+                    
+                    // Remove both the main row and details row from the DOM
+                    rowToDelete.fadeOut(300, function() {
+                        $(this).remove();
+                    });
+                    
+                    if (detailsRow.length) {
+                        detailsRow.fadeOut(300, function() {
+                            $(this).remove();
+                        });
+                    }
+                    
+                    // Check if table is now empty and show empty state
+                    setTimeout(() => {
+                        const remainingRows = $('.uploads-table tbody tr:not(.details-row)').length;
+                        if (remainingRows === 0) {
+                            $('.table-responsive').hide();
+                            $('.uploads-section').append(`
+                                <div class="empty-state">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                    <p>No uploaded files found</p>
+                                    <p class="empty-state-help">Upload a file to get started with batch verification</p>
+                                </div>
+                            `);
+                        }
+                    }, 400);
+                },
+                error: function(xhr) {
+                    hideLoading();
+                    // Show error alert
+                    const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "An error occurred while deleting the file";
+                    displayMessage(errorMessage, true);
+                }
+            });
+            
+            deleteFormToSubmit = null;
+        }
+    });
+
+    // Cancel deletion
+    $('#cancelDeleteBtn').on('click', function () {
+        console.log('Cancel delete clicked'); // Debug log
+        
+        deleteFormToSubmit = null;
+        $('#deleteModal').addClass('d-none').hide();
+    });
+
+    // Close modal when clicking outside of it
+    $(document).on('click', '#deleteModal', function(e) {
+        if (e.target === this) {
+            deleteFormToSubmit = null;
+            $('#deleteModal').addClass('d-none').hide();
+        }
+    });
+    
 });
