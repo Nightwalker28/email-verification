@@ -20,7 +20,6 @@
             <h2>Upload New File</h2>
             <p>Upload a CSV or Excel file containing a list of email addresses to verify</p>
             
-            <!-- Important: Make sure the form doesn't submit traditionally -->
             <form id="uploadForm" enctype="multipart/form-data" method="post" onsubmit="return false;">
                 <div class="form-group">
                     <label for="csvFile">Select File</label>
@@ -39,7 +38,8 @@
                                 <h3>Drag & drop your file here</h3>
                                 <p>or click to browse and select a file</p>
                             </div>
-                            <button type="button" class="file-select-button">Browse Files</button>
+                            <input type="file" id="csvFile" name="file" accept=".csv,.xlsx,.xls" style="display:none;">
+                            <label for="csvFile" class="file-select-button" style="color: white;">Browse Files</label>
                         </div>
                         
                         <!-- File Info Display (hidden by default) -->
@@ -68,8 +68,48 @@
                 </div>
                 
                 <div class="button-group">
-                    <button type="button" id="verifyBtn" class="btn primary-btn">Verify List</button>
-                    <button type="button" id="forceVerifyBtn" class="btn secondary-btn">Force Verify</button>
+                    <button type="button" id="verifyBtn" class="btn primary-btn">
+                        <span class="button-text">Verify List</span>
+                        <span class="spinner" style="display:none;">
+                            <svg width="18" height="18" viewBox="0 0 38 38" stroke="#fff">
+                                <g fill="none" fill-rule="evenodd">
+                                    <g transform="translate(1 1)" stroke-width="3">
+                                        <circle stroke-opacity=".3" cx="18" cy="18" r="18"/>
+                                        <path d="M36 18c0-9.94-8.06-18-18-18">
+                                            <animateTransform
+                                                attributeName="transform"
+                                                type="rotate"
+                                                from="0 18 18"
+                                                to="360 18 18"
+                                                dur="1s"
+                                                repeatCount="indefinite"/>
+                                        </path>
+                                    </g>
+                                </g>
+                            </svg>
+                        </span>
+                    </button>  
+                    <button type="button" id="forceVerifyBtn" class="btn secondary-btn">
+                        <span class="button-text">Force Verify</span>
+                        <span class="spinner" style="display:none;">
+                            <svg width="18" height="18" viewBox="0 0 38 38" stroke="#fff">
+                                <g fill="none" fill-rule="evenodd">
+                                    <g transform="translate(1 1)" stroke-width="3">
+                                        <circle stroke-opacity=".3" cx="18" cy="18" r="18"/>
+                                        <path d="M36 18c0-9.94-8.06-18-18-18">
+                                            <animateTransform
+                                                attributeName="transform"
+                                                type="rotate"
+                                                from="0 18 18"
+                                                to="360 18 18"
+                                                dur="1s"
+                                                repeatCount="indefinite"/>
+                                        </path>
+                                    </g>
+                                </g>
+                            </svg>
+                        </span>
+                    </button>                     
                 </div>
             </form>
             
@@ -109,7 +149,14 @@
                 <tbody>
                     {% for upload in uploads %}
                         <tr>
-                            <td><a href="#" class="toggle-details" data-id="{{ upload.id }}">{{ upload.original_filename }}</a></td>
+                            <td>
+                                <a href="#" class="toggle-details" data-id="{{ upload.id }}">
+                                    <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" style="vertical-align:middle;margin-right:6px;">
+                                    <path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    {{ upload.original_filename }}
+                                </a>
+                            </td>
                             <td>{{ upload.upload_date }}</td>
                             <td class="actions-cell">
                                 <a class="action-btn view-btn" href="{{ url_for('files.view_file', unique_filename=upload.unique_filename) }}">

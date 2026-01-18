@@ -2,8 +2,6 @@ $(document).ready(function() {
 
     $('#deleteModal').hide();
     
-    let selectedFile = null;
-
     // Utility function to format file size
     function formatFileSize(bytes) {
         if (bytes === 0) return '0 Bytes';
@@ -161,26 +159,31 @@ $(document).ready(function() {
         const id = $(this).data('id');
         const detailsRow = $(`#details-${id}`);
         detailsRow.toggleClass('show');
+        $(this).toggleClass('open', detailsRow.hasClass('show'));
     });
 
     // Handle normal file upload via verify button
     $('#verifyBtn').on('click', function(e) {
         e.preventDefault();
-        
+        const $btn = $(this);
+        const $text = $btn.find('.button-text');
+        const $spinner = $btn.find('.spinner');
+
+        // Show spinner, hide text
+        $text.hide();
+        $spinner.show();
+
         const fileInput = $('#csvFile')[0];
-        console.log('File input:', fileInput);
-        console.log('Files:', fileInput.files);
-        
         if (!fileInput.files || !fileInput.files[0]) {
             displayMessage("Please select a file to upload.", true);
+            $spinner.hide();
+            $text.show();
             return;
         }
-        
-        console.log('Selected file:', fileInput.files[0].name);
-        
+
         const formData = new FormData($('#uploadForm')[0]);
         showLoading("Uploading and verifying emails...");
-        
+
         $.ajax({
             url: '/upload',
             type: 'POST',
@@ -191,7 +194,8 @@ $(document).ready(function() {
                 hideLoading();
                 displayMessage('File uploaded and verified successfully!', false);
                 clearFileDisplay();
-                // Reload to show new file in the list
+                $spinner.hide();
+                $text.show();
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
@@ -200,6 +204,8 @@ $(document).ready(function() {
                 hideLoading();
                 const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "An error occurred";
                 displayMessage(errorMessage, true);
+                $spinner.hide();
+                $text.show();
             }
         });
     });
@@ -207,21 +213,24 @@ $(document).ready(function() {
     // Handle force file upload
     $('#forceVerifyBtn').on('click', function(e) {
         e.preventDefault();
-        
+        const $btn = $(this);
+        const $text = $btn.find('.button-text');
+        const $spinner = $btn.find('.spinner');
+
+        $text.hide();
+        $spinner.show();
+
         const fileInput = $('#csvFile')[0];
-        console.log('Force verify - File input:', fileInput);
-        console.log('Force verify - Files:', fileInput.files);
-        
         if (!fileInput.files || !fileInput.files[0]) {
             displayMessage("Please select a file to upload.", true);
+            $spinner.hide();
+            $text.show();
             return;
         }
-        
-        console.log('Force verify - Selected file:', fileInput.files[0].name);
-        
+
         const formData = new FormData($('#uploadForm')[0]);
         showLoading("Force verifying emails...");
-        
+
         $.ajax({
             url: '/force-upload',
             type: 'POST',
@@ -232,7 +241,8 @@ $(document).ready(function() {
                 hideLoading();
                 displayMessage('File force verified successfully!', false);
                 clearFileDisplay();
-                // Reload to show new file in the list
+                $spinner.hide();
+                $text.show();
                 setTimeout(() => {
                     window.location.reload();
                 }, 1500);
@@ -241,6 +251,8 @@ $(document).ready(function() {
                 hideLoading();
                 const errorMessage = xhr.responseJSON ? xhr.responseJSON.error : "An error occurred";
                 displayMessage(errorMessage, true);
+                $spinner.hide();
+                $text.show();
             }
         });
     });
