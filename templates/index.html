@@ -5,11 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- For responsiveness -->
     <title>Sign In</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- For responsiveness -->
+    <title>Sign In</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="/static/css/index.css">
     <script src="/static/js/signin.js"></script>
 </head>
+<body class="d-flex justify-content-center align-items-center vh-100">
+    <div class="background-image"></div>
+    <div class="container bg-dark text-white p-4 rounded-lg shadow-lg" style="max-width: 400px;">
+        <div class="text-center">
+            <img src="/static/images/logo.png" alt="Logo" class="logo img-fluid mb-4">
+        </div>
 <body class="d-flex justify-content-center align-items-center vh-100">
     <div class="background-image"></div>
     <div class="container bg-dark text-white p-4 rounded-lg shadow-lg" style="max-width: 400px;">
@@ -38,14 +48,22 @@
         <button class="google-button btn btn-outline-secondary btn-block mb-2" onclick="window.location.href='/google';">
             <img src="/static/images/google-icon.svg" alt="Google Logo" class="google-logo"> Sign In with Google
         </button>
+        <button class="google-button btn btn-outline-secondary btn-block mb-2" onclick="window.location.href='/google';">
+            <img src="/static/images/google-icon.svg" alt="Google Logo" class="google-logo"> Sign In with Google
+        </button>
 
+        <p class="signup-text text-center mt-3">
+            Don't have an account? <a href="/signup" class="text-success">Sign Up!</a>
         <p class="signup-text text-center mt-3">
             Don't have an account? <a href="/signup" class="text-success">Sign Up!</a>
         </p>
         <p class="forgot-password text-center">
             <a href="/password" class="text-success">Forgot Password</a>
+        <p class="forgot-password text-center">
+            <a href="/password" class="text-success">Forgot Password</a>
         </p>
     </div>
+    
     
 </body>
 </html>
