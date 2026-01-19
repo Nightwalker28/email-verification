@@ -1,18 +1,19 @@
+let alertTimeout;
 function displayMessage(message, isError = false) {
     const messageContainer = $('#message-container');
-    messageContainer.removeClass('d-none alert-success alert-danger');
+    messageContainer.removeClass('alert-success alert-danger show');
     messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
     messageContainer.text(message);
-    messageContainer.show();
-    if (!isError) {
-      setTimeout(() => {
-        messageContainer.hide();
-        window.close(); // Close window after success
-      }, 5000);
-    } else {
-      setTimeout(() => messageContainer.hide(), 5000);
-    }
-  }
+
+    setTimeout(() => {
+        messageContainer.addClass('show');
+    }, 10);
+
+    if (alertTimeout) clearTimeout(alertTimeout);
+    alertTimeout = setTimeout(() => {
+        messageContainer.removeClass('show');
+    }, 5000);
+}
   
   document.addEventListener("DOMContentLoaded", () => {
     const passwordInput = document.getElementById('password');
@@ -62,19 +63,52 @@ function displayMessage(message, isError = false) {
     });
   
     confirmPasswordInput.addEventListener('input', toggleSubmitButton);
-  
-    form.addEventListener('submit', (event) => {
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
       const passwordValue = passwordInput.value;
       const confirmPasswordValue = confirmPasswordInput.value;
+
       if (passwordValue !== confirmPasswordValue) {
-        event.preventDefault();
-        alert('Passwords do not match. Please try again.');
+        displayMessage('Passwords do not match. Please try again.', true);
         return;
       }
       if (!areAllRequirementsValid(passwordValue)) {
-        event.preventDefault();
-        alert('Password must meet all the requirements.');
+        displayMessage('Password must meet all the requirements.', true);
+        return;
       }
+
+      submitButton.disabled = true;
+      submitButton.classList.add('loading');
+      const originalText = submitButton.innerHTML;
+      submitButton.innerHTML = '<span class="spinner"></span> Resetting...';
+
+      const formData = new FormData(form);
+
+      $.ajax({
+        url: form.action,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        dataType: 'html',
+        success: function(response) {
+          displayMessage('Password updated successfully!');
+          setTimeout(() => {
+            submitButton.classList.remove('loading');
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
+          }, 4000);
+        },
+        error: function(xhr) {
+          let errorMsg = xhr.responseText || 'An error occurred. Please try again.';
+          displayMessage(errorMsg, true);
+          submitButton.classList.remove('loading');
+          submitButton.innerHTML = originalText;
+          submitButton.disabled = false;
+        }
+      });
     });
   
     toggleSubmitButton();

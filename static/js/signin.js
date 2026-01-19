@@ -1,14 +1,20 @@
+let alertTimeout;
 function displayMessage(message, isError = false) {
-  const messageContainer = $('#message-container');
-  messageContainer.removeClass('alert-success alert-danger d-none').show(); 
-  messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
-  messageContainer.text(message);
-  setTimeout(() => {
-    messageContainer.fadeOut(500, function() {
-      $(this).addClass('d-none');
-    });
-  }, 5000);
+    const messageContainer = $('#message-container');
+    messageContainer.removeClass('alert-success alert-danger show');
+    messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
+    messageContainer.text(message);
+
+    setTimeout(() => {
+        messageContainer.addClass('show');
+    }, 10);
+
+    if (alertTimeout) clearTimeout(alertTimeout);
+    alertTimeout = setTimeout(() => {
+        messageContainer.removeClass('show');
+    }, 5000);
 }
+
 
 $(document).ready(() => {
   $('#manual-signin-form').on('submit', function (event) {

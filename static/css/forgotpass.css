@@ -1,4 +1,5 @@
-/* Reset and base styles */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,7 +7,7 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-color: #f4f4f4;
     display: flex;
     justify-content: center;
@@ -112,6 +113,22 @@ input:focus {
     cursor: not-allowed;
 }
 
+/* Loading spinner styles */
+.spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Text links styles */
 .login-text {
     text-align: center;
@@ -131,21 +148,39 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Alert message */
+/* Alert Messages */
 .alert {
-    color: #B93333;
-    font-size: 0.85rem;
-    margin: 0.5rem 0;
-    padding: 0.5rem;
-    text-align: center;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  min-width: 200px;
+  max-width: 500px;
+  text-align: center;
 }
 
-.hidden {
-    display: none;
+.alert.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
-.success {
-    color: #66B933;
+.alert-success {
+  background-color: #4CAF50;
+}
+
+.alert-danger {
+  background-color: #e74c3c;
 }
 
 /* Responsive adjustments */

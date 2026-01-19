@@ -1,4 +1,5 @@
-/* Reset and base styles */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -6,7 +7,7 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Poppins', sans-serif;
     background-color: #f4f4f4;
     display: flex;
     justify-content: center;
@@ -212,27 +213,39 @@ input:focus {
     color: #aaaaaa;
 }
 
-/* Alert message */
+/* Alert Messages */
 .alert {
-    font-size: 0.85rem;
-    margin: 0.5rem 0;
-    padding: 0.5rem;
-    text-align: center;
-    border-radius: 4px;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  border-radius: 6px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateX(-50%) translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  min-width: 200px;
+  max-width: 500px;
+  text-align: center;
+}
+
+.alert.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
 }
 
 .alert-success {
-    color: #33b94c !important;
-    background-color: rgba(55, 185, 51, 0.1) !important;
+  background-color: #4CAF50;
 }
 
 .alert-danger {
-    color: #B93333 !important;
-    background-color: rgba(185, 51, 51, 0.1) !important;
-}
-
-.hidden {
-    display: none;
+  background-color: #e74c3c;
 }
 
 /* Text links styles */

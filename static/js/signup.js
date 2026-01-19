@@ -1,11 +1,19 @@
+let alertTimeout;
 function displayMessage(message, isError = false) {
     const messageContainer = $('#message-container');
-    messageContainer.removeClass('d-none alert-success alert-danger');
+    messageContainer.removeClass('alert-success alert-danger show');
     messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
     messageContainer.text(message);
-    messageContainer.show();
-    setTimeout(() => messageContainer.hide(), 3000);
-  }
+
+    setTimeout(() => {
+        messageContainer.addClass('show');
+    }, 10);
+
+    if (alertTimeout) clearTimeout(alertTimeout);
+    alertTimeout = setTimeout(() => {
+        messageContainer.removeClass('show');
+    }, 5000);
+}
   
   // Function to show loading state on button
   function setButtonLoading(isLoading) {
