@@ -17,7 +17,7 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY')
-    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
     MAIL_SERVER = os.environ.get('MAIL_SERVER')
@@ -45,8 +45,8 @@ class Config:
 
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(hours=1)
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB
-    broker_url = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
-    result_backend = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
+    broker_url = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0') # Use lowercase key
+    result_backend = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0') # Use lowercase key
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/1')
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_size': int(os.environ.get('DB_POOL_SIZE', 10)),

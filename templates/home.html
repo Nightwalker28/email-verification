@@ -52,9 +52,9 @@
                                 <th>Temporary</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {% if show_recent_result and last_checked_emails %}
-                            {% for email_record in last_checked_emails %}
+                        <tbody id="homeRecentResultsTableBody">
+                            {% if last_checked_emails and last_checked_emails|length > 0 %}
+                            {% set email_record = last_checked_emails[0] %} {# Get the first (most recent) email #}
                             <tr>
                                 <td>{{ email_record.email }}</td>
                                 <td class="status-{{ email_record.result|lower|replace(' ', '-') }}">{{ email_record.result|title }}</td>
@@ -64,16 +64,9 @@
                                 <td>{{ 'Yes' if email_record.full_inbox else 'No' }}</td>
                                 <td>{{ 'Yes' if email_record.disposable else 'No' }}</td>
                             </tr>
-                            {% endfor %}
                             {% else %}
                             <tr>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td>-</td>
+                                <td colspan="7" style="text-align: center;">No recent verifications to display.</td>
                             </tr>
                             {% endif %}
                         </tbody>

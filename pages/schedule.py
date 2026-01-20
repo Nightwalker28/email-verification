@@ -1,18 +1,16 @@
 # pages/schedule.py
-import os
-import time
+import os, time, json, redis, logging
 from datetime import datetime, timedelta
 from typing import Any, Dict
 import pandas as pd # Import pandas
-from factory import create_app # Assuming factory.py creates your Flask app
-from celery import Celery, Task # Import Task base class
+from celery import Celery, Task, shared_task, current_task, states
 from celery.schedules import crontab
-import logging
 from flask import Flask # Import Flask for type hinting
-
-from config import Config, logger, db, UPLOAD_FOLDER
+from pages.users import get_user_id
+from pages.emailverification import perform_email_verification
+from config import Config, logger, db, providers, roles
 from pages.models import UserUpload, Summary, TempUser, User # Import User model
-
+from factory import celery
 # --- Import the CORRECT functions from fileupload ---
 from pages.fileupload import (
     process_file,       # Main processing function
@@ -21,62 +19,33 @@ from pages.fileupload import (
     read_excel_file,    # Helper to read excel
     detect_csv_properties # Helper to read csv
 )
+from celery.exceptions import Ignore # Import Ignore for specific error handling
 # --- End Import Correction ---
 
-# ------------------------------------------------------------------------------
-# Flask App Instance (Create first)
-# ------------------------------------------------------------------------------
-flask_app = create_app()
-
+# Define flask_app at the module level.
+# This instance will be set by the Celery worker's startup script.
+flask_app: Flask = None
 # ------------------------------------------------------------------------------
 # Celery Context Task (Define before Celery app creation)
 # ------------------------------------------------------------------------------
 class ContextTask(Task):
     """A Celery Task base class that ensures tasks run within a Flask app context."""
     abstract = True
-    # No need to store app here, will use module-level flask_app
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any:
-        # Directly use the flask_app instance defined at the module level
-        with flask_app.app_context():
-            return super().__call__(*args, **kwargs)
-
-# ------------------------------------------------------------------------------
-# Celery Application Setup
-# ------------------------------------------------------------------------------
-
-# --- Celery Initialization Function ---
-def make_celery(app: Flask) -> Celery:
-    """Configures and returns a Celery application instance."""
-    celery_instance = Celery(
-        app.import_name,
-        broker=app.config.get('CELERY_BROKER_URL', Config.broker_url), # Get from app config
-        backend=app.config.get('CELERY_RESULT_BACKEND', Config.result_backend), # Get from app config
-        # include=['pages.schedule'] # Explicitly include task modules if needed
-    )
-    celery_instance.conf.update(app.config)
-    celery_instance.conf.worker_hijack_root_logger = False
-
-    # Attach app logger handlers
-    celery_logger = logging.getLogger("celery")
-    if not celery_logger.handlers:
-        for handler in logger.handlers:
-            celery_logger.addHandler(handler)
-    celery_logger.setLevel(logger.level)
-
-    # Set the base task class using the module-level ContextTask
-    celery_instance.Task = ContextTask
-    return celery_instance
-
-# --- Create Celery Instance ---
-# Create Celery instance using the function and the Flask app
-celery = make_celery(flask_app)
+    def __call__(self, *args: Any, **kwargs: Any) -> Any: # This method wraps the task's run method
+        if flask_app:
+            with flask_app.app_context():
+                return super().__call__(*args, **kwargs)
+        else:
+            logger.error(f"Task {self.name}: Flask app context (flask_app) not available.")
+            # For tasks interacting with DB, context is crucial.
+            raise RuntimeError(f"Task {self.name} cannot run without Flask app context.")
 
 # ------------------------------------------------------------------------------
 # Celery Tasks (Decorated with the 'celery' instance created above)
 # ------------------------------------------------------------------------------
-@celery.task(bind=True)
-def delete_old_files_task(self: ContextTask) -> None: # Type hint should work now
+@celery.task(bind=True, base=ContextTask)
+def delete_old_files_task(self: Task) -> None:
     """Deletes UserUploads, Summaries, and files older than 30 days."""
     logger.info("Starting the process to delete old files.")
     one_month_ago = datetime.utcnow() - timedelta(days=30)
@@ -124,8 +93,8 @@ def delete_old_files_task(self: ContextTask) -> None: # Type hint should work no
             error_count += 1
     logger.info(f"Finished deleting old files. Deleted: {deleted_count}, Errors: {error_count}")
 
-@celery.task(bind=True)
-def cleanup_expired_temp_users_task(self: ContextTask) -> None: # Type hint should work now
+@celery.task(bind=True, base=ContextTask)
+def cleanup_expired_temp_users_task(self: Task) -> None:
     """Deletes temporary user registration records older than 24 hours."""
     expiration_time = datetime.utcnow() - timedelta(hours=24)
     logger.info("Starting cleanup for expired temp users.")
@@ -152,8 +121,8 @@ def cleanup_expired_temp_users_task(self: ContextTask) -> None: # Type hint shou
         logger.error(f"Error during bulk cleanup of temp users: {e}", exc_info=True)
 
 
-@celery.task(bind=True)
-def process_uploaded_file_task(self: ContextTask, unique_name: str, user_id: int, force: bool = False) -> Dict[str, Any]: # Type hint should work now
+@celery.task(bind=True, base=ContextTask)
+def process_uploaded_file_task(self: Task, unique_name: str, user_id: int, force: bool = False) -> Dict[str, Any]:
     """
     Background task to process an uploaded file, verify emails, generate summary,
     and save the results to a new file, then delete the original.
@@ -287,6 +256,84 @@ def process_uploaded_file_task(self: ContextTask, unique_name: str, user_id: int
         db.session.rollback() # Ensure rollback on unexpected error
         logger.exception(f"Task failed unexpectedly for file {unique_name}, user {user_id}: {e}")
         return {"status": "error", "message": f"An unexpected error occurred: {e}"}
+    
+# Add base=ContextTask here so this task runs within the Flask app context
+@celery.task(bind=True, base=ContextTask, soft_time_limit=90, time_limit=120)
+def email_verify_task(self, email: str, user_id: int, force_live: bool):
+    """
+    Runs the heavy perform_email_verification in the background.
+    """
+    task_id = self.request.id
+    logger.info(f"Task {task_id}: Starting email_verify_task for email: {email}, user_id: {user_id}, force_live: {force_live}")
+    redis_client_instance = None # Initialize client to None
+
+    try:
+        # The ContextTask base class handles the app context now
+        # verification_details is the dict from perform_email_verification
+        verification_details = perform_email_verification(
+            email, providers, roles, user=user_id, force_live_check=force_live, commit_immediately=True
+        )
+        logger.info(f"Task {task_id}: perform_email_verification completed for {email}. Result: {verification_details}")
+
+        # Data to be published to Redis (this structure is good for the client)
+        sse_data_for_redis_publish = {
+            "status": "completed",
+            "email": email, # Original email
+            "details": verification_details # The result from perform_email_verification
+        }
+        
+        try:
+            redis_client_instance = redis.Redis.from_url(Config.REDIS_URL)
+            redis_client_instance.ping() # Test connection before publishing
+            logger.info(f"Task {task_id}: Redis client connected for publishing to channel {task_id}.")
+            
+            json_payload = json.dumps(sse_data_for_redis_publish)
+            logger.debug(f"Task {task_id}: Publishing to Redis channel {task_id}: {json_payload}")
+            
+            publish_success_count = redis_client_instance.publish(task_id, json_payload)
+            logger.info(f"Task {task_id}: Redis publish command executed for {email}. Subscribers received by publish: {publish_success_count}")
+            if publish_success_count == 0:
+                logger.warning(f"Task {task_id}: Redis publish for {email} returned 0, meaning no clients were subscribed to {task_id} at the time of publishing.")
+        except redis.exceptions.RedisError as redis_err:
+            logger.error(f"Task {task_id}: Redis error during SSE publish for {email}: {redis_err}", exc_info=True)
+        except json.JSONDecodeError as json_err: # Corrected from JSONDecodeError to json.JSONDecodeError
+            logger.error(f"Task {task_id}: JSON encoding error for SSE data for {email}: {json_err}", exc_info=True)
+        except Exception as e:
+            logger.error(f"Task {task_id}: Unexpected error during SSE publish phase for {email}: {e}", exc_info=True)
+
+        # Data to be returned by the Celery task (becomes task.result)
+        # This should also contain the email so the SSE endpoint can use it if it fetches the result directly.
+        celery_task_result = {
+            "email": email,
+            "details": verification_details
+        }
+        return celery_task_result
+
+    except Exception as e:
+        logger.error(f"Task {task_id}: Unhandled exception in email_verify_task for {email}: {e}", exc_info=True)
+        error_sse_data_for_redis_publish = {
+            "status": "error",
+            "email": email,
+            "message": f"Verification task failed for {email}. Please check server logs." # Generic message for client
+        }
+        try:
+            if not redis_client_instance:
+                redis_client_instance = redis.Redis.from_url(Config.REDIS_URL)
+            redis_client_instance.publish(task_id, json.dumps(error_sse_data_for_redis_publish))
+            logger.info(f"Task {task_id}: Published error status to SSE for {email} due to task failure.")
+        except Exception as pub_err:
+            logger.error(f"Task {task_id}: Failed to publish error status to SSE for {email}: {pub_err}", exc_info=True)
+        
+        # Update Celery task state with metadata including the email
+        self.update_state(state=states.FAILURE, meta={'exc_type': type(e).__name__, 'exc_message': str(e), 'email': email})
+        raise Ignore() # Mark as failed but prevent Celery from retrying automatically
+    finally:
+        if redis_client_instance:
+            try:
+                redis_client_instance.close()
+                logger.debug(f"Task {task_id}: Redis client closed for {email}.")
+            except Exception as e:
+                logger.error(f"Task {task_id}: Error closing Redis client for {email}: {e}", exc_info=True)
 # --- End Task Logic Update ---
 
 # ------------------------------------------------------------------------------

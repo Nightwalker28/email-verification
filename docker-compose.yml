@@ -21,7 +21,7 @@ services:
   celery:
     image: email-verification-dev
     container_name: email-verification-celery
-    command: celery -A pages.schedule:celery worker --pool=solo --loglevel=info
+    command: celery -A run_celery.celery worker --concurrency=4 --loglevel=info
     volumes:
       - .:/app
     working_dir: /app

@@ -252,7 +252,7 @@ def get_user_summary(user_id: Union[int, str]) -> Tuple[Dict[str, Any], Optional
         recent_summary['total_recent_emails_checked'] += count
         if result == 'Email exists':
             recent_summary['recent_verified'] += count
-        elif result == 'Email does not exist':
+        elif result == 'Invalid':
             recent_summary['recent_invalid'] += count
         elif result == 'Risky':
             recent_summary['recent_risky'] += count

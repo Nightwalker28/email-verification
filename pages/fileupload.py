@@ -27,7 +27,7 @@ EMAIL_REGEX_PATTERN = re.compile(r'\b(e-?mail|email[_\s]?address)\b', re.IGNOREC
 # Verification result constants
 RESULT_EXISTS = "Email exists"
 RESULT_RISKY = "Risky"
-RESULT_DOES_NOT_EXIST = "Email does not exist"
+RESULT_DOES_NOT_EXIST = "Invalid"
 RESULT_ERROR = "Error"
 RESULT_UNKNOWN = "Unknown"
 RESULT_DB_ERROR = "Database Error"
@@ -373,8 +373,8 @@ def process_emails_concurrently(emails: pd.Series, user: User, force: bool = Fal
                     roles=roles,
                     user=user,
                     force_live_check=force,
-                    increment=True,
-                    commit_immediately=True # IMPORTANT: Rely on final task commit
+                    increment=False,
+                    commit_immediately=False # IMPORTANT: Rely on final task commit
                 )
                 # --- Make sure ALL expected keys are included here ---
                 return {
