@@ -48,7 +48,6 @@
   border-radius: 8px;
   padding: 20px;
   box-shadow: var(--box-shadow);
-  margin-bottom: 20px;
 }
 
 .summary-section h2 {
@@ -186,7 +185,7 @@
 
 .table-responsive {
   overflow-x: auto;
-  max-height: 600px;
+  max-height: 500px;
   overflow-y: auto;
 }
 

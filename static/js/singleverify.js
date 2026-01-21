@@ -1,25 +1,29 @@
-// Utility to display messages; uses alert-success for normal and alert-danger for errors.
-const displayMessage = (message, isError = false) => {
+let alertTimeout;
+function displayMessage(message, isError = false) {
     const messageContainer = $('#message-container');
-    messageContainer.removeClass('hidden alert-success alert-danger');
+    messageContainer.removeClass('alert-success alert-danger show');
     messageContainer.addClass(isError ? 'alert-danger' : 'alert-success');
     messageContainer.text(message);
-    messageContainer.show();
-    setTimeout(() => messageContainer.hide(), 5000);
-};
+
+    setTimeout(() => {
+        messageContainer.addClass('show');
+    }, 10);
+
+    if (alertTimeout) clearTimeout(alertTimeout);
+    alertTimeout = setTimeout(() => {
+        messageContainer.removeClass('show');
+    }, 5000);
+}
 
 // Helper function to show loading state on button
 const setButtonLoading = (button, isLoading, originalText) => {
     if (isLoading) {
         button.prop('disabled', true);
         button.html(`
-            <svg class="spinner" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" stroke-opacity="0.25"/>
-                <path d="M12 2a10 10 0 0 1 10 10" stroke-opacity="0.75">
-                    <animateTransform attributeName="transform" type="rotate" dur="1s" repeatCount="indefinite" values="0 12 12;360 12 12"/>
-                </path>
-            </svg>
-            Verifying...
+            <span style="display: inline-flex; align-items: center; justify-content: center; gap: 8px;">
+                <div class="spinner"></div>
+                <span>Verifying...</span>
+            </span>
         `);
     } else {
         button.prop('disabled', false);

@@ -24,7 +24,7 @@ services:
   celery:
     image: ghcr.io/techmee-digital/email-verification:prod
     container_name: email-verification-celery
-    command: celery -A pages.schedule:celery worker --loglevel=info
+    command: celery -A run_celery.celery worker --concurrency=4 --loglevel=info
     env_file:
       - .env
     depends_on:

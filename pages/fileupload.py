@@ -866,7 +866,8 @@ def read_file_as_html(unique_filename: str, user_id: int) -> Optional[str]:
 
         max_rows_display = 1000
         # Add a title indicating if it's the verified version
-        title_prefix = "Verified Data" if is_verified else "Original Data"
+        title_prefix = "" if is_verified else "Original Data"
+        # title_prefix = "Verified Data" if is_verified else "Original Data"
         html_output = f"<h4>{title_prefix}</h4>" # Add a sub-heading
 
         html_output += df.head(max_rows_display).fillna('').to_html(
