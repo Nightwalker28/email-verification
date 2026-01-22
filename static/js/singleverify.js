@@ -12,7 +12,7 @@ function displayMessage(message, isError = false) {
     if (alertTimeout) clearTimeout(alertTimeout);
     alertTimeout = setTimeout(() => {
         messageContainer.removeClass('show');
-    }, 5000);
+    }, 1000);
 }
 
 // Helper function to show loading state on button
@@ -165,6 +165,7 @@ const performVerification = (url, emailAddress, buttonElement, originalButtonTex
             if (eventData.status === 'completed') {
               updateResultsTable(eventData.email, eventData.details);
               displayMessage(`Verification for ${eventData.email} completed.`, false);
+              $('#emailAddress').val('').focus(); // ✅ Clears input
               eventSource.close();
               // Reset button state
               setButtonLoading(buttonElement, false, originalButtonText);
