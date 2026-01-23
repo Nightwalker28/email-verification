@@ -11,14 +11,6 @@
     <div class="hero-content">
         <h1>Simple, Transparent Pricing</h1>
         <p>Choose the perfect plan for your email verification needs. No hidden fees, no surprises.</p>
-        <div class="billing-toggle">
-            <span class="toggle-label">Monthly</span>
-            <label class="switch">
-                <input type="checkbox" id="billing-toggle">
-                <span class="slider"></span>
-            </label>
-            <span class="toggle-label">Yearly <span class="save-badge">Save 20%</span></span>
-        </div>
     </div>
 </div>
 
@@ -41,7 +33,7 @@
             <ul class="features-list">
                 <li class="feature-item">
                     <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>
-                    <span>50 email verifications/monthly</span>
+                    <span>10 email verifications/daily</span>
                 </li>
                 <li class="feature-item">
                     <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>
@@ -59,14 +51,10 @@
                     <svg class="x-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     <span>API access</span>
                 </li>
-                <li class="feature-item disabled">
-                    <svg class="x-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                    <span>Standard support</span>
-                </li>
             </ul>
         </div>
         <div class="card-footer">
-            <button class="plan-btn current-plan" disabled>Current Plan</button>
+            <button class="plan-btn secondary">Current Plan</button>
         </div>
     </div>
 
@@ -79,13 +67,9 @@
         </div>
         <div class="price-section">
             <div class="price">
-                <span class="currency">$</span>
-                <span class="amount monthly-price">49</span>
-                <span class="amount yearly-price" style="display: none;">39</span>
-                <span class="period">/month</span>
+                <span class="contact-pricing">Contact us for pricing</span>
             </div>
-            <p class="price-note monthly-note">Billed monthly</p>
-            <p class="price-note yearly-note" style="display: none;">Billed yearly ($468/year)</p>
+            <p class="price-note">Custom pricing based on your needs</p>
         </div>
         <div class="features-section">
             <ul class="features-list">
@@ -111,69 +95,12 @@
                 </li>
                 <li class="feature-item">
                     <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>
-                    <span>Priority support</span>
-                </li>
-                <li class="feature-item">
-                    <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>
                     <span>API access</span>
                 </li>
             </ul>
         </div>
         <div class="card-footer">
-            <a href="/get-pro" class="plan-btn primary">Get Professional</a>
-        </div>
-    </div>
-
-    <!-- Enterprise Tier -->
-    <div class="pricing-card" data-plan="enterprise">
-        <div class="card-header">
-            <h3>Enterprise</h3>
-            <p class="plan-description">For large organizations</p>
-        </div>
-        <div class="price-section">
-            <div class="price">
-                <span class="currency">$</span>
-                <span class="amount monthly-price">199</span>
-                <span class="amount yearly-price" style="display: none;">159</span>
-                <span class="period">/month</span>
-            </div>
-            <p class="price-note monthly-note">Billed monthly</p>
-            <p class="price-note yearly-note" style="display: none;">Billed yearly ($1,908/year)</p>
-        </div>
-        <div class="features-section">
-            <ul class="features-list">
-                <li class="feature-item">
-                    <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>
-                    <span>Everything in Professional</span>
-                </li>
-                <li class="feature-item">
-                    <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>
-                    <span>REST API access</span>
-                </li>
-                <li class="feature-item">
-                    <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>
-                    <span>Webhook integrations</span>
-                </li>
-                <li class="feature-item">
-                    <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>
-                    <span>Custom integrations support</span>
-                </li>
-                <li class="feature-item">
-                    <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>
-                    <span>Dedicated account manager</span>
-                </li>
-                <li class="feature-item">
-                    <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>
-                    <span>24/7 phone & chat support</span>
-                </li>
-                <li class="feature-item">
-                    <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20,6 9,17 4,12"></polyline></svg>
-                    <span>SLA guarantee</span>
-                </li>
-            </ul>
-        </div>
-        <div class="card-footer">
-            <button class="plan-btn secondary">Coming Soon</button>
+            <button class="plan-btn primary" id="contact-us-btn">Contact Us</button>
         </div>
     </div>
 </div>
@@ -187,55 +114,36 @@
                     <th>Features</th>
                     <th>Starter</th>
                     <th>Professional</th>
-                    <th>Enterprise</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td class="feature-name">Monthly verifications</td>
-                    <td>50</td>
-                    <td>Unlimited</td>
+                    <td class="feature-name">Daily verifications</td>
+                    <td>10</td>
                     <td>Unlimited</td>
                 </tr>
                 <tr>
                     <td class="feature-name">Advanced email validation</td>
                     <td><span class="table-x">✗</span></td>
                     <td><span class="table-check">✓</span></td>
-                    <td><span class="table-check">✓</span></td>
                 </tr>
                 <tr>
                     <td class="feature-name">Bulk uploads</td>
                     <td><span class="table-x">✗</span></td>
-                    <td><span class="table-check">✓</span></td>
                     <td><span class="table-check">✓</span></td>
                 </tr>
                 <tr>
                     <td class="feature-name">Export results</td>
                     <td><span class="table-x">✗</span></td>
                     <td><span class="table-check">✓</span></td>
+                </tr>
+                <tr>
+                    <td class="feature-name">Detailed verification reports</td>
+                    <td><span class="table-x">✗</span></td>
                     <td><span class="table-check">✓</span></td>
                 </tr>
                 <tr>
                     <td class="feature-name">API access</td>
-                    <td><span class="table-x">✗</span></td>
-                    <td><span class="table-check">✓</span></td>
-                    <td><span class="table-check">✓</span></td>
-                </tr>
-                <tr>
-                    <td class="feature-name">Priority support</td>
-                    <td><span class="table-x">✗</span></td>
-                    <td><span class="table-check">✓</span></td>
-                    <td><span class="table-check">✓</span></td>
-                </tr>
-                <tr>
-                    <td class="feature-name">Dedicated account manager</td>
-                    <td><span class="table-x">✗</span></td>
-                    <td><span class="table-x">✗</span></td>
-                    <td><span class="table-check">✓</span></td>
-                </tr>
-                <tr>
-                    <td class="feature-name">SLA guarantee</td>
-                    <td><span class="table-x">✗</span></td>
                     <td><span class="table-x">✗</span></td>
                     <td><span class="table-check">✓</span></td>
                 </tr>
@@ -249,11 +157,11 @@
     <div class="faq-grid">
         <div class="faq-item">
             <h3>What's included in the Free Tier?</h3>
-            <p>The Free Tier gives you access to 50 individual email verifications per month. Perfect for small businesses or individuals with minimal verification needs.</p>
+            <p>The Free Tier gives you access to 10 individual email verifications per day. Perfect for small businesses or individuals with minimal verification needs.</p>
         </div>
         <div class="faq-item">
             <h3>How do bulk CSV uploads work?</h3>
-            <p>With Professional and Enterprise plans, you can upload CSV files containing hundreds or thousands of email addresses. Our system will verify them all at once and provide you with a detailed report of the results.</p>
+            <p>With the Professional plan, you can upload CSV files containing hundreds or thousands of email addresses. Our system will verify them all at once and provide you with a detailed report of the results.</p>
         </div>
         <div class="faq-item">
             <h3>Can I upgrade or downgrade my plan?</h3>
@@ -261,15 +169,70 @@
         </div>
         <div class="faq-item">
             <h3>What payment methods do you accept?</h3>
-            <p>We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and for Enterprise customers, we also offer invoice billing.</p>
+            <p>We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and for Professional customers, we also offer invoice billing.</p>
         </div>
         <div class="faq-item">
             <h3>Is there an API available?</h3>
-            <p>Our REST API is planned for the Enterprise plan which is coming soon. The API will allow you to integrate email verification directly into your applications and workflows with full webhook support.</p>
+            <p>Yes, API access is available with our Professional plan. The API allows you to integrate email verification directly into your applications and workflows.</p>
         </div>
         <div class="faq-item">
             <h3>What is advanced email validation?</h3>
-            <p>maad give description</p>
+            <p>Advanced email validation includes deeper checks such as domain reputation, mailbox existence verification, spam trap detection, and risk assessment to provide more accurate results.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Form Modal -->
+<div id="contact-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Contact Us for Professional Plan</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="contact-form" action="{{ url_for('main.send_contact_email') }}" method="POST">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: 1 / span 2;">
+                        <label for="company">Company Name</label>
+                        <input type="text" id="company" name="company" class="form-control">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: 1 / span 2;">
+                        <label for="volume">Expected Monthly Email Volume</label>
+                        <select id="volume" name="volume" placeholder="Select an option" class="form-control">
+                            <option value="1000-5000">1,000 - 5,000 emails</option>
+                            <option value="5000-25000">5,000 - 25,000 emails</option>
+                            <option value="25000-100000">25,000 - 100,000 emails</option>
+                            <option value="100000+">100,000+ emails</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" style="grid-column: 1 / span 2;">
+                        <label for="message">Tell us about your needs *</label>
+                        <textarea id="message" name="message" class="form-control" rows="4" required placeholder="Please describe your email verification requirements, any specific features you need, and timeline..."></textarea>
+                    </div>
+                </div>
+                <input type="hidden" name="to_email" value="sheedh@acumenintelligence.com, maadm@techmeedigital.com, support@techmeedigital.com">
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                        <span class="btn-text">Send Message</span>
+                        <span class="spinner" style="display: none;"></span>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

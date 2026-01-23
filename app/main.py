@@ -1,6 +1,6 @@
 from flask import (
     Blueprint, render_template, redirect, url_for, 
-    session, request, current_app, Response, stream_with_context
+    session, request, current_app, Response, stream_with_context, jsonify
 ) 
 from sqlalchemy.exc import SQLAlchemyError
 from .auth import login_required 
@@ -11,10 +11,11 @@ from pages.users import (
     check_user_access
 )
 from pages.models import User, get_last_checked_emails, db
-from config import success_response, error_response, Config
+from config import success_response, error_response, Config, mail_server
 # Assuming email_verify_task is imported here, and celery instance from factory
 from pages.schedule import email_verify_task 
 import redis, json
+import html
 
 main = Blueprint("main", __name__)
 
@@ -227,3 +228,91 @@ def status_sse(task_id):
             sub.close()
     return Response(stream_with_context(events()),
                     mimetype="text/event-stream")
+
+@main.route("/send-contact-email", methods=["POST"])
+def send_contact_email():
+    """Handles contact form submissions from the pricing page."""
+    data = request.get_json()
+    if not data:
+        current_app.logger.warn("Contact form submission with no JSON data.")
+        return jsonify({"success": False, "message": "Invalid request data. JSON expected."}), 400
+
+    name = data.get("name", "").strip()
+    email_from = data.get("email", "").strip()  # Email of the person contacting
+    company = data.get("company", "Not provided").strip()
+    volume = data.get("volume", "Not specified")
+    message_content = data.get("message", "").strip()
+    to_email_str = data.get("to_email", "").strip() # Comma-separated list of recipient emails
+    subject = data.get("subject", "New Contact Form Submission").strip()
+
+    if not all([name, email_from, message_content, to_email_str, subject]):
+        missing_fields = []
+        if not name: missing_fields.append("name")
+        if not email_from: missing_fields.append("email")
+        if not message_content: missing_fields.append("message")
+        if not to_email_str: missing_fields.append("recipient emails")
+        if not subject: missing_fields.append("subject")
+        error_msg = f"Missing required fields: {', '.join(missing_fields)}."
+        current_app.logger.warn(f"Contact form submission failed validation: {error_msg}")
+        return jsonify({"success": False, "message": error_msg}), 400
+
+    # Prepare HTML email body
+    html_body = f"""
+    <html>
+    <head>
+        <style>
+            body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+            .container {{ padding: 20px; border: 1px solid #ddd; border-radius: 5px; max-width: 600px; margin: 20px auto; }}
+            h2 {{ color: #0056b3; border-bottom: 1px solid #eee; padding-bottom: 10px; }}
+            p {{ margin-bottom: 10px; }}
+            strong {{ font-weight: bold; color: #555; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Professional Plan Inquiry</h2>
+            <p><strong>Name:</strong> {html.escape(name)}</p>
+            <p><strong>Email:</strong> {html.escape(email_from)}</p>
+            <p><strong>Company:</strong> {html.escape(company)}</p>
+            <p><strong>Expected Monthly Email Volume:</strong> {html.escape(volume)}</p>
+            <p><strong>Message:</strong></p>
+            <p>{html.escape(message_content).replace(chr(10), "<br>")}</p>
+        </div>
+    </body>
+    </html>
+    """
+
+    recipient_emails = [e.strip() for e in to_email_str.split(',') if e.strip()]
+    if not recipient_emails:
+        current_app.logger.warn(f"Contact form submission from {email_from} had no valid recipient emails in '{to_email_str}'.")
+        return jsonify({"success": False, "message": "No valid recipient emails provided."}), 400
+
+    # Use the mail_server function for each recipient.
+    # Note: mail_server sends one email at a time.
+    # If you want to send a single email to multiple recipients, mail_server would need modification.
+    all_sent_successfully = True
+    errors_sending = []
+
+    for recipient_email in recipient_emails:
+        try:
+            current_app.logger.info(f"Attempting to send contact email to: {recipient_email} from: {email_from} (user) with subject: {subject}")
+            if not mail_server(recipient_email, subject, html_body):
+                all_sent_successfully = False
+                errors_sending.append(recipient_email)
+                current_app.logger.error(f"mail_server failed to send contact email to {recipient_email} for inquiry from {email_from}.")
+            else:
+                current_app.logger.info(f"Successfully sent contact email to {recipient_email} for inquiry from {email_from}.")
+        except Exception as e:
+            all_sent_successfully = False
+            errors_sending.append(recipient_email)
+            current_app.logger.error(f"Exception sending contact email to {recipient_email} for inquiry from {email_from}: {e}", exc_info=True)
+
+    if all_sent_successfully:
+        return jsonify({"success": True, "message": "Message sent successfully! We will get back to you shortly."}), 200
+    else:
+        error_message = f"Message sent, but failed to deliver to some recipients: {', '.join(errors_sending)}. Please contact support if this issue persists."
+        if len(errors_sending) == len(recipient_emails): # All failed
+            error_message = "Sorry, we couldn't send your message at this time. Please try again later or contact us directly."
+        
+        current_app.logger.error(f"Contact form submission from {email_from} failed for recipients: {', '.join(errors_sending)}")
+        return jsonify({"success": False, "message": error_message}), 500

@@ -3,6 +3,7 @@ from flask_session import Session
 from config import Config, db, oauth, migrate
 import os
 from celery import Celery
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 celery = Celery(
     'emailverification',      # Use a consistent application name
@@ -13,7 +14,7 @@ celery = Celery(
 def create_app():
     app = Flask(__name__)  # Flask will use ./templates and ./static automatically.
     app.config.from_object(Config)
-
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
     # Initialize extensions.
     db.init_app(app)
     oauth.init_app(app)
