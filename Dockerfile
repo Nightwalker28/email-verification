@@ -50,4 +50,4 @@ USER flaskuser
 EXPOSE 5000
 
 # Start the app with Gunicorn
-CMD ["python run.py"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "factory:create_app()"]

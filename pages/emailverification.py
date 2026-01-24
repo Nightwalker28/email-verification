@@ -93,11 +93,13 @@ def get_mx_records(domain: str) -> List[str]:
 
 def _handle_smtp_connection(server: smtplib.SMTP, mx_record: str, smtp_config: Dict[str, Any]) -> None:
     """Handles EHLO and STARTTLS logic."""
+    logger.info(f"Connecting to {mx_record}. Using EHLO/HELO hostname: '{server.local_hostname}'")
     server.ehlo()
     if smtp_config.get('use_tls') and 'starttls' in server.esmtp_features:
         try:
             server.starttls()
             server.ehlo()  # Re-issue EHLO after starting TLS
+            logger.info(f"Re-issuing EHLO after STARTTLS. Using hostname: '{server.local_hostname}'")
             logger.info(f"Successfully initiated TLS with {mx_record}")
         except smtplib.SMTPException as tls_error:
             logger.warning(f"STARTTLS failed for {mx_record}: {tls_error}. Proceeding without TLS.")
@@ -117,7 +119,8 @@ def verify_email_attempt(mx_records: List[str], email: str, smtp_config: Dict[st
         server: Optional[smtplib.SMTP] = None
         try:
             logger.debug(f"Attempting connection to {mx_record} for {email}")
-            server = smtplib.SMTP(mx_record, timeout=SMTP_TIMEOUT)
+            helo_host = smtp_config.get('helo_host')
+            server = smtplib.SMTP(mx_record, timeout=SMTP_TIMEOUT, local_hostname=helo_host)
             _handle_smtp_connection(server, mx_record, smtp_config)
             code, message = server.mail(mail_from)
             if code != 250:
@@ -386,7 +389,8 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                 # Define SMTP config once
                 smtp_config = {
                     'mail_from': getattr(Config, 'SMTP_MAIL'),
-                    'use_tls': getattr(Config, 'SMTP_USE_TLS', False)
+                    'use_tls': getattr(Config, 'SMTP_USE_TLS', False),
+                    'helo_host': getattr(Config, 'SMTP_HELO', None)
                 }
                 # --- Initial Primary Email Check ---
                 logger.debug(f"Performing initial primary check for {email}")

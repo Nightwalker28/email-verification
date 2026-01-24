@@ -1,8 +1,7 @@
-
 services:
   app:
     image: ghcr.io/techmee-digital/email-verification:prod
-    container_name: email-verification-web
+    container_name: valid8-web
     command:
       - gunicorn
       - -w
@@ -10,46 +9,54 @@ services:
       - -b
       - 0.0.0.0:5000
       - factory:create_app()
-    expose:
-      - "5001:5000"
     env_file:
       - .env
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
+    ports:
+      - "127.0.0.1:5000:5000"
     restart: unless-stopped
+    networks:
+      - default
 
   celery:
     image: ghcr.io/techmee-digital/email-verification:prod
-    container_name: email-verification-celery
+    container_name: valid8-celery
     command: celery -A run_celery.celery worker --concurrency=4 --loglevel=info
     env_file:
       - .env
+    volumes:
+      - uploads_data:/app/uploads
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
     restart: unless-stopped
+    networks:
+      - default
 
   redis:
     image: redis:alpine
-    container_name: email-verification-redis
+    container_name: valid8-redis
     volumes:
       - redis_data:/data
     restart: unless-stopped
+    networks:
+      - default
 
   db:
     image: mysql:8
-    container_name: email-verification-db
+    container_name: mysql
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    ports:
-      - "3307:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -57,37 +64,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  nginx:
-    image: nginx:alpine
-    container_name: email-verification-nginx
-    ports:
-      - "8081:80"
-      - "8444:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./certbot/etc:/etc/letsencrypt
-      - ./certbot/lib:/var/lib/letsencrypt
-      - ./certbot/webroot:/usr/share/nginx/html
-    depends_on:
-      - app
-    restart: unless-stopped
-
-  certbot:
-    image: certbot/certbot
-    container_name: email-verification-certbot
-    volumes:
-      - ./certbot/etc:/etc/letsencrypt
-      - ./certbot/lib:/var/lib/letsencrypt
-      - ./certbot/webroot:/app/webroot
-    entrypoint: ""
-    command: >
-      sh -c "certbot certonly --webroot --webroot-path=/app/webroot
-      --email {{ ssl_email }} --agree-tos --no-eff-email
-      -d {{ app_domain }}"
-    depends_on:
-      - nginx
+    networks:
+      - default
+      - mysql
 
 volumes:
   db_data:
   redis_data:
+  uploads_data:
+
+networks:
+  default:
+  mysql:
+    external: true
