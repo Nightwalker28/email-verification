@@ -23,23 +23,6 @@
   font-size: 13px;
 }
 
-.attempts-badge {
-  display: flex;
-  align-items: center;
-  background-color: rgba(76, 175, 80, 0.1);
-  border-radius: 20px;
-  padding: 8px 15px;
-  color: var(--primary-dark);
-  font-weight: 500;
-  margin-bottom: 15px;
-  font-size: 13px;
-}
-
-.attempts-badge svg {
-  margin-right: 8px;
-  color: var(--primary-color);
-}
-
 .main-content-row {
   display: flex;
   gap: 20px;
@@ -364,7 +347,4 @@
     align-items: flex-start;
   }
 
-  .attempts-badge {
-    margin-top: 10px;
-  }
 }

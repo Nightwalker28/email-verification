@@ -110,23 +110,6 @@ const updateResultsTable = (email, details) => {
   updateSpecificTable('#homeRecentResultsTableBody', true);
 };
 
-// Helper function to update attempts badge
-const updateAttemptsBadge = (attemptsRemaining) => {
-  if (attemptsRemaining !== undefined) {
-    const attemptsSpan = $('#attempts-remaining-count');
-    if (attemptsSpan.length) {
-      attemptsSpan.text(attemptsRemaining);
-    } else {
-      // If the badge needs to be created dynamically (e.g. user was paid, now free)
-      // This might be more complex and involve recreating the badge div.
-      // For now, we only update if the span exists.
-      // A full page reload might be simpler if the entire badge structure changes.
-      // Consider if the parent .attempts-badge should be shown/hidden.
-      // For now, just updating the number.
-    }
-  };
-};
-
 // Helper function to perform email verification via AJAX.
 const performVerification = (url, emailAddress, buttonElement, originalButtonText) => {
     // Show loading state on the clicked button
@@ -139,21 +122,8 @@ const performVerification = (url, emailAddress, buttonElement, originalButtonTex
       data: JSON.stringify({ email: emailAddress }),
       success: (response, status, xhr) => {
         
-  
-        // Check if this is a silent HTML redirect (Flask sending the pricing page)
-        if (
-          typeof response === "string" &&
-          response.includes('<title>Pricing') // or any unique element on the pricing page
-        ) {
-          window.location.href = '/pricing';
-          return;
-        }
-  
         // Normal success path - Start SSE listening
         const taskId = response.data.task_id;
-        if (response.data.attempts_remaining !== undefined) {
-          updateAttemptsBadge(response.data.attempts_remaining);
-        }
 
         if (taskId) {
           displayMessage('Verification started. Waiting for results...', false);
@@ -189,13 +159,6 @@ const performVerification = (url, emailAddress, buttonElement, originalButtonTex
       error: (xhr) => {
         // Reset button state
         setButtonLoading(buttonElement, false, originalButtonText);
-  
-        // Fallback: detect if redirect HTML landed in error handler
-        if (xhr.status === 200 && xhr.responseText && xhr.responseText.includes('<title>Pricing')) {
-          window.location.href = '/pricing';
-          return;
-        }
-  
         const errorMessage = xhr.responseJSON?.error || "An error occurred";
         displayMessage(errorMessage, true);
       }

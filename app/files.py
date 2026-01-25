@@ -14,7 +14,6 @@ from pages.fileupload import (
 )
 from pages.models import db, UserUpload, Summary, User
 from config import UPLOAD_FOLDER, success_response, error_response, logger
-from pages.users import check_user_access
 
 files_bp = Blueprint('files', __name__)
 
@@ -29,10 +28,6 @@ def list_view():
         session.clear()
         return redirect(url_for('auth.manual_signin'))
     
-    access_check = check_user_access(user, "list_view")
-    if access_check:
-        return access_check
-
     # Fetch uploads for the current user, ordered by date
     # Consider adding .options(joinedload(UserUpload.summary)) if you frequently access summary data
     # from sqlalchemy.orm import joinedload 

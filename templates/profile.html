@@ -33,10 +33,6 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     Security Settings
                 </a>
-                <a href="#billing">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-                    Billing & Subscription
-                </a>
                 <!-- <a href="#api">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     API Access
@@ -178,89 +174,6 @@
                 </div> -->
             </div>
             
-            <div id="billing" class="content-section">
-                <div class="section-header">
-                    <h2>Billing & Subscription</h2>
-                    <p>Manage your payment information and subscription plan</p>
-                    <!-- <p style="color:red;">DEBUG: subscription = {{ user.subscription }} (type: {{ user.subscription.__class__.__name__ }})</p> -->
-                </div>
-                
-                <div class="current-plan">
-                    <div class="plan-header">
-                        <h3>Current Plan</h3>
-                        <span class="plan-badge">{{ "Pro" if user.subscription else "Basic" }}</span>
-                    </div>
-                    
-                    <div class="plan-details">
-                        {% if user.subscription %}
-                        <div class="plan-detail">
-                            <span>Monthly Verification Attempts:</span>
-                            <span>Unlimited</span>
-                        </div>
-                        <div class="plan-detail">
-                            <span>File Upload Attempts:</span>
-                            <span>Unlimited</span>
-                        </div>
-                        <!-- <div class="plan-detail">
-                            <span>API Access:</span>
-                            <span>Full Access</span>
-                        </div> -->
-                        <div class="plan-detail">
-                            <span>Support:</span>
-                            <span>Priority</span>
-                        </div>
-                        <div class="plan-detail">
-                            <span>Next Billing Date:</span>
-                            <span>22 June 2025</span>
-                        </div>
-                        {% else %}
-                        <div class="plan-detail">
-                            <span>Monthly Verification Attempts:</span>
-                            <span>50</span>
-                        </div>
-                        <div class="plan-detail">
-                            <span>File Upload Attempts:</span>
-                            <span>0</span>
-                        </div>
-                        <!-- <div class="plan-detail">
-                            <span>API Access:</span>
-                            <span>None</span>
-                        </div> -->
-                        <div class="plan-detail">
-                            <span>Support:</span>
-                            <span>Standard</span>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    {% if not user.subscription %}
-                    <a href="/list">
-                        <button class="btn primary-btn">Upgrade to Pro</button>
-                    </a>
-                    {% else %}
-                    <div class="pro-status">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                        <span>You're currently on the Pro plan</span>
-                    </div>
-                    {% endif %}
-                </div>
-                
-                <!-- <div class="section-divider"></div> -->
-                
-                <!-- <div class="payment-method">
-                    <h3>Payment Method</h3>
-                    <div class="card-info">
-                        <div class="card-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-                        </div>
-                        <div class="card-details">
-                            <h4>Visa ending in 4242</h4>
-                            <p>Expires 09/2027</p>
-                        </div>
-                        <button class="text-btn">Edit</button>
-                    </div>
-                </div> -->
-            </div>
             
             <!-- <div id="api" class="content-section">
                 <div class="section-header">

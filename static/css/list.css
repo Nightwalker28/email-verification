@@ -464,10 +464,6 @@ input[type="file"] {
     align-items: flex-start;
   }
   
-  .attempts-badge {
-    margin-top: 10px;
-  }
-  
   .button-group {
     flex-direction: column;
   }

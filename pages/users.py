@@ -1,15 +1,11 @@
 from datetime import datetime, timedelta
 from typing import Optional, Tuple, Dict, Any, Union
-from flask import redirect, session, current_app, Response, url_for 
+from flask import Response, session
 from sqlalchemy import func
 from sqlalchemy.exc import SQLAlchemyError
 from pages.models import db, User, Summary, searched_email_user, SearchedEmail
 from pages.loginsignup import reset_password 
-from config import error_response, success_response, logger 
-
-# --- Constants for Configuration Keys ---
-VERIFICATION_ATTEMPTS_LIMIT_KEY = 'FREE_USER_VERIFICATION_LIMIT'
-DEFAULT_VERIFICATION_ATTEMPTS_LIMIT = 50
+from config import error_response, success_response, logger
 
 # --- Helper Functions ---
 
@@ -36,92 +32,6 @@ def get_user_id(user: Optional[Union[User, int, str]] = None) -> Optional[str]:
     return str(user_id_val) if user_id_val is not None else None
 
 
-def check_user_access(user: User, route_name: str) -> Optional[Response]:
-    """
-    Checks if the user has access based on payment status and usage limits.
-
-    Args:
-        user: The User object.
-        route_name: A string identifying the route/action being accessed.
-
-    Returns:
-        A Flask Response object (redirect to pricing) if access is denied, 
-        otherwise None.
-    """
-    if user.is_paid:
-        return None 
-    limit = current_app.config.get(VERIFICATION_ATTEMPTS_LIMIT_KEY, DEFAULT_VERIFICATION_ATTEMPTS_LIMIT)
-    route_rules = {
-        'verify_email_address': {'limit_check': True},
-        'list_view': {'deny_free': True},
-        'force_verify_email_address': {'deny_free': True},
-        'upload_file': {'deny_free': True},
-    }
-
-    rule = route_rules.get(route_name)
-
-    if not rule:
-        return None
-
-    if rule.get('deny_free'):
-        logger.info(f"Access denied for free user {user.email} to route '{route_name}'. Redirecting to pricing.")
-        return redirect(url_for('main.pricing'))
-
-    if rule.get('limit_check') and user.verification_attempts >= limit:
-        logger.info(f"Verification limit ({limit}) reached for free user {user.email}. Redirecting to pricing.")
-        return redirect(url_for('main.pricing'))
-
-    return None
-
-
-def reset_verification_attempts(user: User) -> bool:
-    """
-    Resets the user's verification attempts if the current day is different 
-    from the last reset day. Commits the change.
-
-    Args:
-        user: The User object.
-
-    Returns:
-        True if attempts were reset or didn't need resetting, False on DB error.
-    """
-
-    current_date = datetime.utcnow().date()
-    last_reset_date = user.last_reset.date() if user.last_reset else None
-
-    if last_reset_date != current_date:
-        logger.info(f"Resetting verification attempts for user {user.email} (Last reset: {last_reset_date}, Current: {current_date})")
-        user.verification_attempts = 0
-        user.last_reset = datetime.utcnow()
-        try:
-            db.session.add(user)
-            db.session.commit()
-            return True
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            logger.error(f"Database error resetting verification attempts for user {user.email}: {e}", exc_info=True)
-            return False
-    return True
-
-
-def get_verification_attempts(user: User) -> int:
-    """
-    Returns the number of verification attempts remaining for the user.
-
-    Args:
-        user: The User object.
-
-    Returns:
-        Number of attempts remaining.
-    """
-    if user.is_paid:
-        return float('inf') 
-
-    limit = current_app.config.get(VERIFICATION_ATTEMPTS_LIMIT_KEY, DEFAULT_VERIFICATION_ATTEMPTS_LIMIT)
-    remaining = max(limit - user.verification_attempts, 0)
-    return remaining
-
-
 def get_user_profile(user: User) -> Dict[str, Any]:
     """
     Retrieves the user's profile details needed for display.
@@ -136,7 +46,6 @@ def get_user_profile(user: User) -> Dict[str, Any]:
         'first_name': user.first_name,
         'last_name': user.last_name,
         'email': user.email,
-        'subscription': user.is_paid, 
     }
 
 

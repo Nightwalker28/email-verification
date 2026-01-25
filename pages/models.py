@@ -17,9 +17,6 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     is_google = db.Column(db.Boolean, default=False)
-    is_paid = db.Column(db.Boolean, default=False)
-    verification_attempts = db.Column(db.Integer, default=0)
-    last_reset = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self) -> str:
         return f'<User {self.email}>'
@@ -274,8 +271,7 @@ def create_user(first_name: str, last_name: str, email: str, password: str, is_g
             last_name=last_name,
             email=email,
             password=password,
-            is_google=is_google,
-            is_paid=False
+            is_google=is_google
         )
         db.session.add(new_user)
         db.session.commit()
@@ -298,8 +294,7 @@ def get_or_create_google_user(email: str, first_name: str, last_name: str) -> Us
         last_name=last_name,
         email=email,
         password='',  # No password for Google users
-        is_google=True,
-        is_paid=False
+        is_google=True
     )
     try:
         db.session.add(new_user)
