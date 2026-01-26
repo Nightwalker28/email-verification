@@ -8,8 +8,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 # Assuming config holds the Flask app instance or a way to access its config
 from flask import current_app 
 
-from pages.models import User, db, PasswordResetToken, Organization, TempUser
-from config import mail_server, FREE_EMAIL_PROVIDERS, disposable
+from pages.models import User, db, PasswordResetToken, TempUser
+from config import mail_server
 
 def _get_domain(email: str) -> str:
     """Extracts the lowercased domain from an email address."""
@@ -32,54 +32,6 @@ def generate_nonce(length: int = 32) -> str:
     return secrets.token_urlsafe(length)
 
 
-def is_work_email(email: str) -> bool:
-    """
-    Determines if the email address belongs to a free email provider.
-
-    Args:
-        email (str): The email address.
-
-    Returns:
-        bool: True if the email is from a free provider, False otherwise.
-    """
-    domain = _get_domain(email)
-    return domain in FREE_EMAIL_PROVIDERS
-
-
-def is_disposable_email(email: str) -> bool:
-    """
-    Determines if the email address is from a disposable provider.
-
-    Args:
-        email (str): The email address.
-
-    Returns:
-        bool: True if the email is disposable, False otherwise.
-    """
-    domain = _get_domain(email)
-    return domain in disposable
-
-
-def can_create_user(email: str) -> bool:
-    """
-    Checks if a new user can be created based on the user count for the domain.
-
-    Args:
-        email (str): The user's email.
-
-    Returns:
-        bool: True if the domain has not reached its limit, False otherwise.
-    """
-    domain = _get_domain(email)
-    # Consider making the limit configurable
-    user_limit = current_app.config.get('ORGANIZATION_USER_LIMIT', 5) 
-    organization = Organization.query.filter_by(domain=domain).first()
-    # Check if organization exists before accessing user_count
-    if organization and organization.user_count >= user_limit:
-        return False
-    return True
-
-
 def verify_user(email: str) -> bool:
     """
     Validates whether the email is acceptable for user creation.
@@ -92,12 +44,6 @@ def verify_user(email: str) -> bool:
     """
     # Added check for empty domain from _get_domain helper
     if not _get_domain(email): 
-        return False
-    if is_work_email(email):
-        return False
-    if is_disposable_email(email):
-        return False
-    if not can_create_user(email):
         return False
     return True
 

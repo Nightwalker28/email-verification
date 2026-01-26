@@ -129,19 +129,6 @@ class TempUser(db.Model):
         return f'<TempUser {self.email}>'
 
 
-class Organization(db.Model):
-    __tablename__ = 'orgs'
-    id = db.Column(db.Integer, primary_key=True)
-    domain = db.Column(db.String(255), nullable=False, unique=True)
-    user_count = db.Column(db.Integer, default=0)
-
-    def increment_count(self) -> None:
-        self.user_count += 1
-
-    def __repr__(self) -> str:
-        return f'<Organization {self.domain} ({self.user_count} users)>'
-
-
 class ApiKey(db.Model):
     __tablename__ = 'api_keys'
     id = db.Column(db.Integer, primary_key=True)
@@ -252,20 +239,9 @@ def create_temp_user(first_name: str, last_name: str, email: str, hashed_passwor
 
 def create_user(first_name: str, last_name: str, email: str, password: str, is_google: bool) -> Optional[User]:
     """
-    Creates a new user after ensuring the associated organization has not exceeded its limit.
-    Returns the new user on success, or None if the domain limit has been reached.
+    Creates a new user and returns the user on success.
     """
-    domain = email.split('@')[-1].lower()
-    organization = Organization.query.filter_by(domain=domain).first()
     try:
-        if organization:
-            if organization.user_count >= 5:
-                return None  # Limit reached; cannot create user
-            organization.increment_count()
-        else:
-            organization = Organization(domain=domain, user_count=1)
-            db.session.add(organization)
-
         new_user = User(
             first_name=first_name,
             last_name=last_name,
