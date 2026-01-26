@@ -41,7 +41,5 @@ def create_app():
     app.register_blueprint(auth_blueprint)
     from app.files import files_bp as files_blueprint
     app.register_blueprint(files_blueprint)
-    # from app.api import api as api_blueprint
-    # app.register_blueprint(api_blueprint)
 
     return app

@@ -129,19 +129,6 @@ class TempUser(db.Model):
         return f'<TempUser {self.email}>'
 
 
-class ApiKey(db.Model):
-    __tablename__ = 'api_keys'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
-    api_key = db.Column(db.String(512), unique=True)
-    name = db.Column(db.String(128), nullable=False)
-
-    user = db.relationship('User', backref=db.backref('api_keys', lazy='dynamic'))
-
-    def __repr__(self) -> str:
-        return f'<ApiKey {self.name} for User {self.user_id}>'
-
-
 # ------------------------------------------------------------------------------
 # Helper Functions & Query Utilities
 # ------------------------------------------------------------------------------
