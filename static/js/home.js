@@ -15,14 +15,14 @@ $(document).ready(() => {
     });
   });
 
-  // Initialize the dashboard charts
+  
 document.addEventListener('DOMContentLoaded', function() {
-    // Create charts if Chart.js is available
+    
     if (typeof Chart !== 'undefined') {
         createCharts();
     }
     
-    // Function to create charts
+    
     function createCharts() {
         createRecentChart();
         createListChart();
@@ -49,16 +49,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         recentSummary.recent_unknown
                     ],
                     backgroundColor: [
-                        'rgba(168, 230, 207, 0.4)',   // light green
-                        'rgba(255, 165, 0, 0.4)',     // light orange
-                        'rgba(255, 99, 132, 0.4)',    // light red
-                        'rgba(128, 128, 128, 0.3)'    // light gray
+                        'rgba(168, 230, 207, 0.4)',   
+                        'rgba(255, 165, 0, 0.4)',     
+                        'rgba(255, 99, 132, 0.4)',    
+                        'rgba(128, 128, 128, 0.3)'    
                     ],
                     borderColor: [
-                        'rgba(0, 128, 0, 1)',         // dark green
-                        'rgba(255, 140, 0, 1)',       // dark orange
-                        'rgba(220, 20, 60, 1)',       // dark red
-                        'rgba(105, 105, 105, 1)'      // dark gray
+                        'rgba(0, 128, 0, 1)',         
+                        'rgba(255, 140, 0, 1)',       
+                        'rgba(220, 20, 60, 1)',       
+                        'rgba(105, 105, 105, 1)'      
                     ],
                     borderWidth: 2,
                     borderRadius: 3,
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const listSummary = getListSummaryData();
         if (!listSummary) return;
         
-        // Create radar chart with pastel colors
+        
         new Chart(listChartCanvas, {
             type: 'radar',
             data: {
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Get recent summary data from hidden element
+    
     function getRecentSummaryData() {
         const recentSummaryElement = document.getElementById('recent-summary-data');
         if (recentSummaryElement) {
@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return null;
     }
     
-    // Get list summary data from hidden element
+    
     function getListSummaryData() {
         const listSummaryElement = document.getElementById('list-summary-data');
         if (listSummaryElement) {
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return null;
     }
     
-    // Function to show alerts
+    
     function showAlert(message, type = 'success') {
         const alertDiv = document.createElement('div');
         alertDiv.className = `alert alert-${type}`;
@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         document.body.appendChild(alertDiv);
         
-        // Auto-hide after 5 seconds
+        
         setTimeout(() => {
             alertDiv.style.opacity = '0';
             setTimeout(() => {

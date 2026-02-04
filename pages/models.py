@@ -5,9 +5,7 @@ from flask import session
 from sqlalchemy.orm import aliased, relationship 
 from config import db, logger
 
-# ------------------------------------------------------------------------------
 # Models
-# ------------------------------------------------------------------------------
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -22,7 +20,6 @@ class User(db.Model):
         return f'<User {self.email}>'
 
 
-# Association table for many-to-many relationship between users and searched emails.
 searched_email_user = db.Table(
     'searched_email_user',
     db.Column('user_id', db.Integer, db.ForeignKey('users.user_id'), primary_key=True),
@@ -71,7 +68,6 @@ class UserUpload(db.Model):
     verified_filepath  = db.Column(db.String(255), nullable=True)
     upload_date        = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # one-to-one link to Summary; we'll manually null upload_id before delete
     summary = relationship(
         'Summary',
         uselist=False,
@@ -129,11 +125,8 @@ class TempUser(db.Model):
         return f'<TempUser {self.email}>'
 
 
-# ------------------------------------------------------------------------------
 # Helper Functions & Query Utilities
-# ------------------------------------------------------------------------------
 
-# Use an alias for the association table to avoid conflicts in queries.
 searched_email_user_alias = aliased(searched_email_user)
 
 

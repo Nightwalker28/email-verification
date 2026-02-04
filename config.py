@@ -45,8 +45,8 @@ class Config:
 
     PERMANENT_SESSION_LIFETIME = datetime.timedelta(hours=1)
     MAX_CONTENT_LENGTH = 5 * 1024 * 1024  # 5 MB
-    broker_url = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0') # Use lowercase key
-    result_backend = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0') # Use lowercase key
+    broker_url = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
+    result_backend = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/1')
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_size': int(os.environ.get('DB_POOL_SIZE', 10)),
@@ -54,7 +54,6 @@ class Config:
         'pool_recycle': int(os.environ.get('DB_POOL_RECYCLE', 280))
     }
 
-# Initialize extensions (they are tied to the app later)
 db = SQLAlchemy()
 migrate = Migrate()
 oauth = OAuth()
@@ -62,12 +61,10 @@ oauth = OAuth()
 MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
 ALLOWED_EXTENSIONS = {'csv', 'xlsx'}
 
-# Create uploads folder
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Setup logging with rotation (app.log will log INFO level messages)
 handler = logging.StreamHandler(sys.stdout)
 handler.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -80,7 +77,7 @@ def success_response(message: str = '', data: dict = None, status_code: int = 20
     """Creates a standardized success JSON response."""
     response_dict = {'status': 'success', 'message': message}
     if data is not None:
-        response_dict['data'] = data  # Add data under a 'data' key
+        response_dict['data'] = data
     response = jsonify(response_dict)
     response.status_code = status_code
     return response
@@ -90,7 +87,7 @@ def error_response(message='', status_code=400):
     response.status_code = status_code
     return response
 
-# Single definition of load_file (duplicate removed)
+
 def load_file(filename, separator=None):
     data = {}
     with open(filename, 'r') as file:
@@ -115,7 +112,7 @@ def mail_server_func(recipient_email, subject, html_body):
 
     context = ssl.create_default_context()
     try:
-        # if you're on port 465, use SMTP_SSL
+        
         if Config.MAIL_PORT == 465:
             server = smtplib.SMTP_SSL(
                 Config.MAIL_SERVER,
@@ -140,10 +137,9 @@ def mail_server_func(recipient_email, subject, html_body):
         print("Email send failed:", e)
         return False
 
-# Expose the mail_server function
+
 mail_server = mail_server_func
 
-# Load providers, roles, and disposable emails from text files.
 providers = load_file('providers.txt', separator=':')
 roles = load_file('roles.txt')
 disposable = load_file('index.txt')

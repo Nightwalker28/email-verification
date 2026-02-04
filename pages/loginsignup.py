@@ -1,11 +1,9 @@
-# c:\Users\maadm\Documents\Work\email-verification\pages\loginsignup.py
 import secrets
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
 
 from flask import render_template, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
-# Assuming config holds the Flask app instance or a way to access its config
 from flask import current_app 
 
 from pages.models import User, db, PasswordResetToken, TempUser
@@ -16,7 +14,6 @@ def _get_domain(email: str) -> str:
     try:
         return email.split('@')[-1].lower()
     except IndexError:
-        # Handle cases where email might not have '@'
         return ""
 
 def generate_nonce(length: int = 32) -> str:
@@ -42,7 +39,6 @@ def verify_user(email: str) -> bool:
     Returns:
         bool: True if the email is acceptable, False otherwise.
     """
-    # Added check for empty domain from _get_domain helper
     if not _get_domain(email): 
         return False
     return True
@@ -59,7 +55,6 @@ def validate_user(user: User, password: str) -> bool:
     Returns:
         bool: True if the password is valid, False otherwise.
     """
-    # Ensure user object and password attribute exist before checking
     if not user or not user.password:
         return False
     return check_password_hash(user.password, password)
@@ -77,9 +72,7 @@ def sign_in_user(user: User) -> None:
         session['user'] = str(user.user_id)
         session['user_email'] = str(user.email)
     except Exception as e:
-        # Consider logging the error here
         current_app.logger.error(f"Error setting session for user {user.email}: {e}")
-        # In case of an error, clear the session to avoid inconsistent state.
         session.clear()
 
 
@@ -93,7 +86,7 @@ def user_exists(email: str) -> Optional[User]:
     Returns:
         Optional[User]: The user object if found, otherwise None.
     """
-    return User.query.filter(User.email.ilike(email)).first() # Case-insensitive check
+    return User.query.filter(User.email.ilike(email)).first()
 
 
 def temp_exists(email: str) -> Optional[TempUser]:
@@ -106,7 +99,7 @@ def temp_exists(email: str) -> Optional[TempUser]:
     Returns:
         Optional[TempUser]: The temporary user if found, otherwise None.
     """
-    return TempUser.query.filter(TempUser.email.ilike(email)).first() # Case-insensitive check
+    return TempUser.query.filter(TempUser.email.ilike(email)).first()
 
 
 def generate_reset_token(user: User) -> str:
@@ -120,17 +113,16 @@ def generate_reset_token(user: User) -> str:
         str: The generated reset token.
     """
     token = secrets.token_urlsafe()
-    # Consider making token expiry configurable
     token_expiry_hours = current_app.config.get('RESET_TOKEN_EXPIRY_HOURS', 1)
     expires_at = datetime.utcnow() + timedelta(hours=token_expiry_hours)
     reset_token = PasswordResetToken(user_id=user.user_id, token=token, expires_at=expires_at)
     try:
         db.session.add(reset_token)
         db.session.commit()
-    except Exception as e: # Consider catching specific DB errors (e.g., SQLAlchemyError)
+    except Exception as e: 
         db.session.rollback()
         current_app.logger.error(f"Error generating reset token for user {user.email}: {e}")
-        raise e # Re-raise the exception after logging
+        raise e
     return token
 
 
@@ -145,16 +137,8 @@ def validate_reset_token(token: str) -> Optional[User]:
         Optional[User]: The user if the token is valid, otherwise None.
     """
     reset_token = PasswordResetToken.query.filter_by(token=token).first()
-    # Combine checks for existence and expiry
     if reset_token and reset_token.expires_at > datetime.utcnow():
-        # Eager load the user to potentially avoid a separate query later
-        # from sqlalchemy.orm import joinedload
-        # reset_token = PasswordResetToken.query.options(joinedload(PasswordResetToken.user)).filter_by(token=token).first()
         return reset_token.user 
-    # Optionally: Delete expired tokens here or in a separate cleanup task
-    # if reset_token: 
-    #     db.session.delete(reset_token)
-    #     db.session.commit()
     return None
 
 
@@ -167,15 +151,12 @@ def send_email(first_name: str, email: str, verification_token: str) -> None:
         email (str): The user's email.
         verification_token (str): The token used to verify the email.
     """
-    # Ensure url_for generates an absolute URL for emails
     verification_link = url_for('auth.verify_email', token=verification_token, _external=True)
     subject, html_body = create_welcome_email(first_name, verification_link)
     try:
         mail_server(email, subject, html_body)
     except Exception as e:
-        # Log error if email sending fails
         current_app.logger.error(f"Failed to send verification email to {email}: {e}")
-        # Decide if you need to raise the error or handle it silently
 
 
 def create_password_reset_email(reset_link: str) -> Tuple[str, str]:
@@ -189,7 +170,6 @@ def create_password_reset_email(reset_link: str) -> Tuple[str, str]:
         Tuple[str, str]: The subject and HTML body of the email.
     """
     subject = "Password Reset Request"
-    # Pass necessary variables to the template context
     html_body = render_template("emails/password_reset.html", reset_link=reset_link)
     return subject, html_body
 
@@ -206,7 +186,6 @@ def create_welcome_email(first_name: str, verification_link: str) -> Tuple[str, 
         Tuple[str, str]: The subject and HTML body of the welcome email.
     """
     subject = "Welcome to Acumen Intelligence - Verify Your Email"
-     # Pass necessary variables to the template context
     html_body = render_template("emails/welcome.html", first_name=first_name, verification_link=verification_link)
     return subject, html_body
 
@@ -220,18 +199,15 @@ def reset_password(user: User, new_password: str) -> None:
         new_password (str): The new plain-text password.
     """
     if not user:
-         # Or raise an error
         current_app.logger.error("Attempted to reset password for a non-existent user.")
         return 
 
     user.password = generate_password_hash(new_password)
     try:
-        # Delete only tokens associated with this specific user
         PasswordResetToken.query.filter_by(user_id=user.user_id).delete()
-        # Add the user object to the session if it's detached or modified
         db.session.add(user) 
         db.session.commit()
-    except Exception as e: # Consider catching specific DB errors
+    except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error resetting password or deleting tokens for user {user.email}: {e}")
-        raise e # Re-raise the exception after logging
+        raise e

@@ -1,10 +1,10 @@
-/* View Page Styles - Matching Home Page Design */
+/* View Page Styles */
 .view-container {
   padding: 30px;
   overflow-y: auto;
 }
 
-/* Header Section - Using same styles as home dashboard header */
+/* Header Section */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
@@ -42,7 +42,7 @@
   margin-right: 8px;
 }
 
-/* Summary Section - Using same styles as home page */
+/* Summary Section */
 .summary-section {
   background-color: var(--white);
   border-radius: 8px;
@@ -62,7 +62,7 @@
   gap: 20px;
 }
 
-/* Stat Cards - Custom styling for view page stats */
+/* Stat Cards */
 .stat-card {
   background-color: #f9f9f9;
   border-radius: 6px;
@@ -189,7 +189,7 @@
   overflow-y: auto;
 }
 
-/* Table Styling - Matching home page table styles */
+/* Table Styling */
 .table-responsive table {
   width: 100%;
   border-collapse: collapse;
@@ -216,7 +216,7 @@
   color: #333;
 }
 
-/* Ensure first row header doesn't get hover effect */
+
 .table-responsive table tr:first-child:hover td {
   background-color: #f7f7f7 !important;
 }
@@ -229,7 +229,7 @@
   border-bottom: none;
 }
 
-/* Status Colors - Matching home page */
+/* Status Colors */
 .status-email-exists, 
 .status-valid,
 .status-verified { 

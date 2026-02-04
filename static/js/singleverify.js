@@ -15,7 +15,7 @@ function displayMessage(message, isError = false) {
     }, 1000);
 }
 
-// Helper function to show loading state on button
+
 const setButtonLoading = (button, isLoading, originalText) => {
     if (isLoading) {
         button.prop('disabled', true);
@@ -31,24 +31,24 @@ const setButtonLoading = (button, isLoading, originalText) => {
     }
 };
 
-// Helper function to update the results table dynamically
+
 const updateResultsTable = (email, details) => {
-  // Function to update a single table
+  
   const updateSpecificTable = (tableBodySelector, isHomePageTable = false) => {
     const tableBody = $(tableBodySelector);
-    if (!tableBody.length) return; // Skip if table body doesn't exist
+    if (!tableBody.length) return; 
 
     let existingRow = null;
     tableBody.children('tr').each(function() {
       const row = $(this);
       if (row.children('td:first-child').text() === email) {
         existingRow = row;
-        return false; // Break the loop
+        return false; 
       }
     });
 
     if (existingRow) {
-      // Update existing row
+      
       existingRow.children('td:nth-child(2)')
         .removeClass((index, className) => (className.match(/(^|\s)status-\S+/g) || []).join(' '))
         .addClass(`status-${details.result.toLowerCase().replace(/ /g, '-')}`)
@@ -60,7 +60,7 @@ const updateResultsTable = (email, details) => {
       existingRow.children('td:nth-child(7)').text(details.temporary_mail);
       tableBody.prepend(existingRow);
     } else {
-      // Add new row
+      
       const newRow = $('<tr>');
       newRow.append($('<td>').text(email));
       newRow.append($('<td>').addClass(`status-${details.result.toLowerCase().replace(/ /g, '-')}`).text(details.result));
@@ -73,17 +73,17 @@ const updateResultsTable = (email, details) => {
       tableBody.prepend(newRow);
 
       if (isHomePageTable) {
-        // Home page table only shows 1 row
+        
         while (tableBody.children('tr').length > 1) {
           tableBody.children('tr').last().remove();
         }
-        // Ensure the "No recent verifications" message is handled if it was there
+        
         const noResultsRow = tableBody.find('td[colspan="7"]');
         if (noResultsRow.length) {
             noResultsRow.parent().remove();
         }
       } else {
-        // Verify page table limits to maxRows
+        
         const maxRows = 10;
         while (tableBody.children('tr').length > maxRows) {
           tableBody.children('tr').last().remove();
@@ -91,10 +91,10 @@ const updateResultsTable = (email, details) => {
       }
     }
 
-    // Handle empty state for the verify page table
+    
     if (!isHomePageTable) {
-        const emptyState = $('.results-container .empty-state'); // Specific to verify.html structure
-        const tableResponsive = $('#lastCheckedEmailsTable').closest('.table-responsive'); // Specific to verify.html
+        const emptyState = $('.results-container .empty-state'); 
+        const tableResponsive = $('#lastCheckedEmailsTable').closest('.table-responsive'); 
         if (emptyState.length && tableResponsive.length) {
             if (tableBody.children('tr').length > 0) {
                 emptyState.hide();
@@ -104,15 +104,15 @@ const updateResultsTable = (email, details) => {
     }
   };
 
-  // Update verify page table (if it exists)
+  
   updateSpecificTable('#lastCheckedEmailsTable tbody', false);
-  // Update home page table (if it exists)
+  
   updateSpecificTable('#homeRecentResultsTableBody', true);
 };
 
-// Helper function to perform email verification via AJAX.
+
 const performVerification = (url, emailAddress, buttonElement, originalButtonText) => {
-    // Show loading state on the clicked button
+    
     setButtonLoading(buttonElement, true, originalButtonText);
     
     $.ajax({
@@ -122,7 +122,7 @@ const performVerification = (url, emailAddress, buttonElement, originalButtonTex
       data: JSON.stringify({ email: emailAddress }),
       success: (response, status, xhr) => {
         
-        // Normal success path - Start SSE listening
+        
         const taskId = response.data.task_id;
 
         if (taskId) {
@@ -135,14 +135,14 @@ const performVerification = (url, emailAddress, buttonElement, originalButtonTex
             if (eventData.status === 'completed') {
               updateResultsTable(eventData.email, eventData.details);
               displayMessage(`Verification for ${eventData.email} completed.`, false);
-              $('#emailAddress').val('').focus(); // ✅ Clears input
+              $('#emailAddress').val('').focus(); 
               eventSource.close();
-              // Reset button state
+              
               setButtonLoading(buttonElement, false, originalButtonText);
             } else if (eventData.status === 'error' || eventData.status === 'failed') {
               displayMessage(`Verification task error for ${emailAddress}: ${eventData.message || 'Unknown error'}`, true);
               eventSource.close();
-              // Reset button state
+              
               setButtonLoading(buttonElement, false, originalButtonText);
             }
           };
@@ -151,13 +151,13 @@ const performVerification = (url, emailAddress, buttonElement, originalButtonTex
             console.error("EventSource failed:", err);
             displayMessage('Error receiving real-time updates. Please refresh to see results.', true);
             eventSource.close();
-            // Reset button state
+            
             setButtonLoading(buttonElement, false, originalButtonText);
           };
         }
       },
       error: (xhr) => {
-        // Reset button state
+        
         setButtonLoading(buttonElement, false, originalButtonText);
         const errorMessage = xhr.responseJSON?.error || "An error occurred";
         displayMessage(errorMessage, true);
@@ -166,32 +166,32 @@ const performVerification = (url, emailAddress, buttonElement, originalButtonTex
 };
 
 $(document).ready(() => {
-    // Store original button texts when the page loads
-    // For verify.html
-    const verifyPageVerifyButton = $('#manualEmailForm button[type="submit"]').not('.home-container #manualEmailForm button[type="submit"]'); // Exclude home page button
+    
+    
+    const verifyPageVerifyButton = $('#manualEmailForm button[type="submit"]').not('.home-container #manualEmailForm button[type="submit"]'); 
     const verifyPageForceButton = $('#forceVerifyBtn');
     const originalVerifyPageVerifyText = verifyPageVerifyButton.length ? verifyPageVerifyButton.html() : 'Verify Email';
     const originalVerifyPageForceText = verifyPageForceButton.length ? verifyPageForceButton.html() : 'Force Verify';
 
-    // For home.html
+    
     const homePageVerifyButton = $('.home-container #manualEmailForm button[type="submit"]');
     const originalHomePageVerifyText = homePageVerifyButton.length ? homePageVerifyButton.html() : 'Verify Now';
     
-    // Handle manual verification on verify.html
-    $('#manualEmailForm').not('.home-container #manualEmailForm').on('submit', (event) => { // Exclude home page form
+    
+    $('#manualEmailForm').not('.home-container #manualEmailForm').on('submit', (event) => { 
         event.preventDefault();
         const emailAddress = $('#emailAddress').val();
         performVerification('/verify', emailAddress, verifyPageVerifyButton, originalVerifyPageVerifyText);
     });
 
-    // Handle manual verification on home.html
+    
     $('.home-container #manualEmailForm').on('submit', (event) => {
         event.preventDefault();
-        const emailAddress = $('.home-container #emailAddress').val(); // Get email from home page input
+        const emailAddress = $('.home-container #emailAddress').val(); 
         performVerification('/verify', emailAddress, homePageVerifyButton, originalHomePageVerifyText);
     });
 
-    // Handle forced verification on verify.html (only if the button exists)
+    
     if (verifyPageForceButton.length) {
         verifyPageForceButton.on('click', () => {
             const emailAddress = $('#emailAddress').val();

@@ -49,8 +49,8 @@
 }
 
 .sidebar nav ul li a:hover {
-    background: rgba(255, 255, 255, 0.1); /* Lighter hover effect */
-    transform: scale(1.05); /* Slight scaling */
+    background: rgba(255, 255, 255, 0.1); 
+    transform: scale(1.05); 
 }
 
 .sidebar nav ul li img {
@@ -61,8 +61,8 @@
 }
 
 .sidebar nav ul li a:hover img {
-    transform: scale(1.2); /* Scale icons */
-    filter: brightness(1.5); /* Brighten icons */
+    transform: scale(1.2); 
+    filter: brightness(1.5); 
 }
 
 .sidebar nav ul li:first-child a {
@@ -111,7 +111,6 @@
         width: 90%;
     }
 
-    /* Optional: Show sidebar text on hover for better UX */
     .sidebar:hover {
         width: var(--sidebar-width);
     }

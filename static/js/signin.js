@@ -20,7 +20,6 @@ $(document).ready(() => {
   $('#manual-signin-form').on('submit', function (event) {
     event.preventDefault();
     const formData = new FormData(this);
-    // Optional: Add a loading indicator here
     const $submitButton = $(this).find('button[type="submit"]');
     $submitButton.prop('disabled', true).text('Signing In...'); 
     $.ajax({

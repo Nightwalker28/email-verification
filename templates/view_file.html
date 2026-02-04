@@ -10,7 +10,7 @@
 <body>
     <div class="view-container">
         
-        <!-- Header Section -->
+        
         <div class="dashboard-header">
             <div>
                 <h1>{{ upload.original_filename if upload else 'File Data' }}</h1>
@@ -35,82 +35,7 @@
             </div>
         </div>
 
-        <!-- File Stats Section -->
-        <!-- {% if upload %}
-        <div class="summary-section" style="margin-bottom: 20px;">
-            <h2>File Statistics</h2>
-            <div class="summary-flex">
-                <div class="stat-card valid">
-                    <div class="stat-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 6L9 17l-5-5"/>
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">{{ upload.valid_emails }}</div>
-                        <div class="stat-label">Valid Emails</div>
-                    </div>
-                </div>
-                
-                <div class="stat-card risky">
-                    <div class="stat-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                            <line x1="12" y1="9" x2="12" y2="13"/>
-                            <line x1="12" y1="17" x2="12.01" y2="17"/>
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">{{ upload.risky_emails }}</div>
-                        <div class="stat-label">Risky Emails</div>
-                    </div>
-                </div>
-                
-                <div class="stat-card invalid">
-                    <div class="stat-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <line x1="15" y1="9" x2="9" y2="15"/>
-                            <line x1="9" y1="9" x2="15" y2="15"/>
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">{{ upload.invalid_emails }}</div>
-                        <div class="stat-label">Invalid Emails</div>
-                    </div>
-                </div>
-                
-                <div class="stat-card unknown">
-                    <div class="stat-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10"/>
-                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-                            <line x1="12" y1="17" x2="12.01" y2="17"/>
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">{{ upload.unknown_emails }}</div>
-                        <div class="stat-label">Unknown Emails</div>
-                    </div>
-                </div>
-                
-                <div class="stat-card total">
-                    <div class="stat-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                            <polyline points="22,6 12,13 2,6"/>
-                        </svg>
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">{{ upload.total_emails }}</div>
-                        <div class="stat-label">Total Emails</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %} -->
-
-        <!-- Data Table Section -->
+        
         <div class="summary-section">
             <h2>File Contents</h2>
             <div class="table-container">

@@ -186,7 +186,7 @@ a:hover {
 /* Responsive adjustments */
 @media (max-width: 480px) {
     html {
-        font-size: 70%; /* 16px * 0.875 = 14px */
+        font-size: 70%; 
     }
 
     .container {

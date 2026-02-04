@@ -1,17 +1,15 @@
-# pages/schedule.py
 import os, time, json, redis, logging
 from datetime import datetime, timedelta
 from typing import Any, Dict
-import pandas as pd # Import pandas
+import pandas as pd 
 from celery import Celery, Task, shared_task, current_task, states
 from celery.schedules import crontab
-from flask import Flask # Import Flask for type hinting
+from flask import Flask
 from pages.users import get_user_id
 from pages.emailverification import perform_email_verification
 from config import Config, logger, db, providers, roles
-from pages.models import UserUpload, Summary, TempUser, User # Import User model
+from pages.models import UserUpload, Summary, TempUser, User
 from factory import celery
-# --- Import the CORRECT functions from fileupload ---
 from pages.fileupload import (
     process_file,       # Main processing function
     generate_summary,   # Summary generation function
@@ -19,55 +17,43 @@ from pages.fileupload import (
     read_excel_file,    # Helper to read excel
     detect_csv_properties # Helper to read csv
 )
-from celery.exceptions import Ignore # Import Ignore for specific error handling
-# --- End Import Correction ---
+from celery.exceptions import Ignore
 
-# Define flask_app at the module level.
-# This instance will be set by the Celery worker's startup script.
 flask_app: Flask = None
-# ------------------------------------------------------------------------------
-# Celery Context Task (Define before Celery app creation)
-# ------------------------------------------------------------------------------
+
+# Celery Context Task
 class ContextTask(Task):
     """A Celery Task base class that ensures tasks run within a Flask app context."""
     abstract = True
 
-    def __call__(self, *args: Any, **kwargs: Any) -> Any: # This method wraps the task's run method
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
         if flask_app:
             with flask_app.app_context():
                 return super().__call__(*args, **kwargs)
         else:
             logger.error(f"Task {self.name}: Flask app context (flask_app) not available.")
-            # For tasks interacting with DB, context is crucial.
             raise RuntimeError(f"Task {self.name} cannot run without Flask app context.")
 
-# ------------------------------------------------------------------------------
-# Celery Tasks (Decorated with the 'celery' instance created above)
-# ------------------------------------------------------------------------------
+# Celery Tasks
 @celery.task(bind=True, base=ContextTask)
 def delete_old_files_task(self: Task) -> None:
     """Deletes UserUploads, Summaries, and files older than 30 days."""
     logger.info("Starting the process to delete old files.")
     one_month_ago = datetime.utcnow() - timedelta(days=30)
-    # Context is handled by the base class __call__ method now
     old_files = UserUpload.query.filter(UserUpload.upload_date < one_month_ago).all()
     logger.info(f"Found {len(old_files)} files older than one month.")
     deleted_count = 0
     error_count = 0
     for upload in old_files:
         try:
-            # Attempt to delete associated summary first
-            # Use list_name for lookup if upload_id isn't reliable or consistent yet
             summary_entry = Summary.query.filter_by(list_name=upload.unique_filename, user_id=upload.user_id).first()
             if summary_entry:
                 db.session.delete(summary_entry)
                 logger.debug(f"Marked summary record for deletion: {upload.unique_filename}")
 
-            # Delete the UserUpload record
             db.session.delete(upload)
             logger.debug(f"Marked database record for deletion: {upload.unique_filename}")
 
-            # Delete the physical files (original and verified)
             original_filepath = upload.filepath
             verified_filepath = upload.verified_filepath
 
@@ -83,7 +69,6 @@ def delete_old_files_task(self: Task) -> None:
             elif verified_filepath:
                  logger.warning(f"Verified file path recorded but not found on disk: {verified_filepath}")
 
-            # Commit deletions for this upload record
             db.session.commit()
             logger.info(f"Successfully deleted records and file(s) for: {upload.unique_filename}")
             deleted_count += 1
@@ -100,7 +85,6 @@ def cleanup_expired_temp_users_task(self: Task) -> None:
     logger.info("Starting cleanup for expired temp users.")
     deleted_count = 0
     error_count = 0
-    # Context is handled by the base class __call__ method now
     try:
         expired_users = TempUser.query.filter(TempUser.created_at < expiration_time).all()
         logger.info(f"Found {len(expired_users)} expired temp user records.")
@@ -109,10 +93,8 @@ def cleanup_expired_temp_users_task(self: Task) -> None:
                 db.session.delete(user)
                 logger.info(f"Marked expired temp user for deletion: {user.email}")
             except Exception as e:
-                # Log error for this specific user but continue with others
                 logger.error(f"Error marking temp user {user.email} for deletion: {e}", exc_info=True)
                 error_count += 1
-        # Commit all deletions at once
         db.session.commit()
         deleted_count = len(expired_users) - error_count
         logger.info(f"Finished temp user cleanup. Deleted: {deleted_count}, Errors: {error_count}")
@@ -129,17 +111,15 @@ def process_uploaded_file_task(self: Task, unique_name: str, user_id: int, force
     """
     logger.info(f"Task started: Processing file {unique_name} for user {user_id} (Force: {force})")
 
-    # Context is handled by the base class __call__ method now
-    original_filepath = None # Keep track for potential deletion
+    original_filepath = None
     verified_file_saved = False
     verified_path = None
     summary_saved = False
-    final_status = "error" # Default status
+    final_status = "error"
     final_message = "Task initialization failed."
     summary_id = None
 
     try:
-        # 1. Fetch necessary records
         user = User.query.get(user_id)
         upload = UserUpload.query.filter_by(unique_filename=unique_name, user_id=user_id).first()
 
@@ -150,23 +130,20 @@ def process_uploaded_file_task(self: Task, unique_name: str, user_id: int, force
             logger.error(f"Task failed: Upload {unique_name} for user {user_id} not found.")
             return {"status": "error", "message": "Upload record not found"}
 
-        original_filepath = upload.filepath # Store original path
+        original_filepath = upload.filepath
         upload_id = upload.id
 
         if not original_filepath or not os.path.exists(original_filepath):
              logger.error(f"Task failed: Original file path '{original_filepath}' for upload {unique_name} not found on disk.")
              return {"status": "error", "message": "Uploaded file not found on server."}
 
-        # 2. Call the main processing function from fileupload
         logger.info(f"Starting email verification process for {unique_name}...")
-        # Pass the module-level flask_app instance
         results_df = process_file(original_filepath, user, force, app_instance=flask_app)
 
         if results_df is None:
              logger.error(f"Processing for {unique_name} failed and returned None.")
              return {"status": "error", "message": "File processing failed unexpectedly."}
 
-        # 3. Save Verified File (if results exist)
         if not results_df.empty:
             try:
                 logger.info(f"Reading original file data from {original_filepath} to merge results.")
@@ -174,7 +151,6 @@ def process_uploaded_file_task(self: Task, unique_name: str, user_id: int, force
                 _, ext = os.path.splitext(original_filepath)
                 if ext.lower() == '.csv':
                     encoding, delimiter = detect_csv_properties(original_filepath)
-                    # Read without chunking for merging
                     original_df = pd.read_csv(original_filepath, encoding=encoding, delimiter=delimiter, on_bad_lines='warn', low_memory=False)
                 elif ext.lower() in ['.xlsx', '.xls']:
                     original_df = read_excel_file(original_filepath)
@@ -183,7 +159,6 @@ def process_uploaded_file_task(self: Task, unique_name: str, user_id: int, force
                     logger.info(f"Attempting to save verified file for {unique_name}...")
                     verified_path = save_verified_file(original_df, results_df, original_filepath)
                     if verified_path:
-                        # Update the UserUpload record with the new path
                         upload.verified_filepath = verified_path
                         db.session.add(upload) # Add to session to mark for commit
                         verified_file_saved = True
@@ -195,11 +170,9 @@ def process_uploaded_file_task(self: Task, unique_name: str, user_id: int, force
 
             except Exception as save_err:
                 logger.exception(f"Error occurred while trying to save verified file for {unique_name}: {save_err}")
-                # Continue to summary generation, but verified_file_saved remains False
         else:
              logger.warning(f"Processing for {unique_name} yielded no results. Skipping verified file save.")
 
-        # 4. Generate and save the summary
         logger.info(f"Generating summary for {unique_name}...")
         summary = generate_summary(results_df, unique_name, user_id, upload_id)
         if summary:
@@ -209,24 +182,18 @@ def process_uploaded_file_task(self: Task, unique_name: str, user_id: int, force
         else:
             logger.error(f"Failed to generate/save summary for {unique_name}.")
 
-        # 5. Final Commit (includes potential update to upload.verified_filepath)
         try:
             db.session.commit()
             logger.info(f"Committed final DB changes for task {unique_name}.")
-            # If commit is successful AND verified file was saved, delete original
             if verified_file_saved and original_filepath and os.path.exists(original_filepath):
                  try:
                      os.remove(original_filepath)
                      logger.info(f"Successfully deleted original file: {original_filepath}")
-                     # Optionally update upload.filepath to None in DB? Maybe not necessary.
-                     # upload.filepath = None
-                     # db.session.commit() # Requires another commit
                  except OSError as del_err:
                      logger.error(f"Failed to delete original file {original_filepath} after saving verified version: {del_err}")
         except Exception as commit_err:
              db.session.rollback()
              logger.error(f"Failed final commit for task {unique_name}: {commit_err}", exc_info=True)
-             # Update status to reflect commit failure - summary/verified path might not be saved
              summary_saved = False
              verified_file_saved = False # Rollback means verified_filepath wasn't saved in DB
              final_status = "error"
@@ -234,7 +201,6 @@ def process_uploaded_file_task(self: Task, unique_name: str, user_id: int, force
              return {"status": final_status, "message": final_message} # Exit early on commit fail
 
 
-        # 6. Determine final status message
         if summary_saved:
             final_status = "success"
             final_message = "Processing complete."
@@ -252,12 +218,10 @@ def process_uploaded_file_task(self: Task, unique_name: str, user_id: int, force
         return {"status": final_status, "summary_id": summary_id, "message": final_message}
 
     except Exception as e:
-        # Catch any unexpected errors during the task execution
         db.session.rollback() # Ensure rollback on unexpected error
         logger.exception(f"Task failed unexpectedly for file {unique_name}, user {user_id}: {e}")
         return {"status": "error", "message": f"An unexpected error occurred: {e}"}
     
-# Add base=ContextTask here so this task runs within the Flask app context
 @celery.task(bind=True, base=ContextTask, soft_time_limit=90, time_limit=120)
 def email_verify_task(self, email: str, user_id: int, force_live: bool):
     """
@@ -268,14 +232,11 @@ def email_verify_task(self, email: str, user_id: int, force_live: bool):
     redis_client_instance = None # Initialize client to None
 
     try:
-        # The ContextTask base class handles the app context now
-        # verification_details is the dict from perform_email_verification
         verification_details = perform_email_verification(
             email, providers, roles, user=user_id, force_live_check=force_live, commit_immediately=True
         )
         logger.info(f"Task {task_id}: perform_email_verification completed for {email}. Result: {verification_details}")
 
-        # Data to be published to Redis (this structure is good for the client)
         sse_data_for_redis_publish = {
             "status": "completed",
             "email": email, # Original email
@@ -296,13 +257,11 @@ def email_verify_task(self, email: str, user_id: int, force_live: bool):
                 logger.warning(f"Task {task_id}: Redis publish for {email} returned 0, meaning no clients were subscribed to {task_id} at the time of publishing.")
         except redis.exceptions.RedisError as redis_err:
             logger.error(f"Task {task_id}: Redis error during SSE publish for {email}: {redis_err}", exc_info=True)
-        except json.JSONDecodeError as json_err: # Corrected from JSONDecodeError to json.JSONDecodeError
+        except json.JSONDecodeError as json_err:
             logger.error(f"Task {task_id}: JSON encoding error for SSE data for {email}: {json_err}", exc_info=True)
         except Exception as e:
             logger.error(f"Task {task_id}: Unexpected error during SSE publish phase for {email}: {e}", exc_info=True)
 
-        # Data to be returned by the Celery task (becomes task.result)
-        # This should also contain the email so the SSE endpoint can use it if it fetches the result directly.
         celery_task_result = {
             "email": email,
             "details": verification_details
@@ -314,7 +273,7 @@ def email_verify_task(self, email: str, user_id: int, force_live: bool):
         error_sse_data_for_redis_publish = {
             "status": "error",
             "email": email,
-            "message": f"Verification task failed for {email}. Please check server logs." # Generic message for client
+            "message": f"Verification task failed for {email}. Please check server logs."
         }
         try:
             if not redis_client_instance:
@@ -324,7 +283,6 @@ def email_verify_task(self, email: str, user_id: int, force_live: bool):
         except Exception as pub_err:
             logger.error(f"Task {task_id}: Failed to publish error status to SSE for {email}: {pub_err}", exc_info=True)
         
-        # Update Celery task state with metadata including the email
         self.update_state(state=states.FAILURE, meta={'exc_type': type(e).__name__, 'exc_message': str(e), 'email': email})
         raise Ignore() # Mark as failed but prevent Celery from retrying automatically
     finally:
@@ -334,11 +292,9 @@ def email_verify_task(self, email: str, user_id: int, force_live: bool):
                 logger.debug(f"Task {task_id}: Redis client closed for {email}.")
             except Exception as e:
                 logger.error(f"Task {task_id}: Error closing Redis client for {email}: {e}", exc_info=True)
-# --- End Task Logic Update ---
 
-# ------------------------------------------------------------------------------
+
 # Celery Beat Schedule (Use the 'celery' instance defined above)
-# ------------------------------------------------------------------------------
 celery.conf.beat_schedule = {
     "delete-old-files-every-day": {
         "task": "pages.schedule.delete_old_files_task",
@@ -347,9 +303,6 @@ celery.conf.beat_schedule = {
     "cleanup-expired-temp-users-every-day": {
         "task": "pages.schedule.cleanup_expired_temp_users_task",
         "schedule": crontab(hour=1, minute=0), # Run daily at 1 AM
-        # "schedule": 86400.0, # Alternative: run every 24 hours
     },
 }
 
-# Optional: Set timezone for Celery Beat if needed
-# celery.conf.timezone = 'UTC' # Or your desired timezone

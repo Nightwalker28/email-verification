@@ -17,14 +17,14 @@ body {
     background-image: url('/static/images/background.jpg');
     background-size: cover;
     background-position: center;
-    z-index: -1; /* Positioned behind the container */
+    z-index: -1; 
 }
 
 .container {
-    max-width: 375px !important; /* Increased width */
+    max-width: 375px !important; 
     width: 100%;
     padding: 30px;
-    background-color: #1c1c1c !important; /* Original background color */
+    background-color: #1c1c1c !important; 
     border-radius: 15px !important;
     border: 1px solid #66B933;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
@@ -41,14 +41,14 @@ body {
 
 h2 {
     color: #ffffff;
-    margin-bottom: 24px; /* Increased spacing */
-    font-size: 26px; /* Slightly larger font */
+    margin-bottom: 24px; 
+    font-size: 26px;
 }
 
 label {
     display: block;
-    font-size: 16px; /* Slightly larger font */
-    margin-bottom: 8px; /* Increased spacing */
+    font-size: 16px;
+    margin-bottom: 8px;
     text-align: left;
     color: #ffffff;
     margin-top: 15px;
@@ -75,15 +75,15 @@ input:focus {
 
 button {
     width: 100%;
-    padding: 10px; /* Increased padding */
+    padding: 10px; 
     background-color: #66B933;
     color: white;
     border: none;
     border-radius: 5px;
-    font-size: 1rem; /* Slightly larger font */
+    font-size: 1rem; 
     cursor: pointer;
     transition: background-color 0.3s ease-in-out;
-    margin-bottom: 25px; /* Increased spacing */
+    margin-bottom: 25px;
 }
 
 button:disabled {
@@ -99,21 +99,21 @@ button:hover:enabled {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-top: 5px; /* Increased spacing */
-    margin-bottom: 5px; /* Increased spacing */
-    padding-left: 25px; /* Increased padding */
+    margin-top: 5px; 
+    margin-bottom: 5px; 
+    padding-left: 25px; 
 }
 
 .checklist-item {
     display: flex;
     align-items: center;
-    font-size: 12px; /* Slightly larger font */
+    font-size: 12px; 
     margin: 2px 0;
     color: #ffffff;
 }
 
 .checklist-item .check-icon {
-    width: 15px; /* Slightly larger icon */
+    width: 15px; 
     height: 15px;
     margin-right: 12px;
 }
@@ -135,7 +135,7 @@ a {
     color: #66B933;
     text-decoration: none;
     transition: color 0.2s ease-in-out;
-    font-size: 16px; /* Slightly larger font */
+    font-size: 16px; 
 }
 
 a:hover {
@@ -145,7 +145,7 @@ a:hover {
 
 .requirements-message {
     color: #dc3545;
-    font-size: 15px; /* Slightly larger font */
+    font-size: 15px; 
     margin-top: 12px;
     display: none;
 }
@@ -158,7 +158,7 @@ a:hover {
     padding: 10px;
     border-radius: 5px;
     min-width: 200px;
-    display: none; /* Hide by default */
+    display: none; 
 }
 
 .back-to-login {
@@ -166,25 +166,25 @@ a:hover {
     align-items: center;
     justify-content: center;
     margin-top: 20px;
-    gap: 0; /* Space between the icon and text */
+    gap: 0; 
     font-size: 1rem;
 }
 
 .back-to-login img {
-    width: 30px; /* Adjust icon size */
+    width: 30px; 
     height: 30px;
     cursor: pointer;
-    transition: transform 0.3s ease-in-out; /* Smooth hover effect */
+    transition: transform 0.3s ease-in-out; 
 }
 
 .back-to-login a {
-    color: #ffffff; /* Match the button color */
+    color: #ffffff; 
     text-decoration: none;
     font-weight: 500;
     transition: color 0.3s ease-in-out;
 }
 
 .back-to-login a:hover {
-    color: #dfdfdf; /* Darker green on hover */
+    color: #dfdfdf; 
     text-decoration: underline;
 }

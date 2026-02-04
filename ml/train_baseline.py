@@ -31,32 +31,58 @@ def row_to_features(row: Dict[str, str]) -> Dict[str, str]:
 
 
 def load_csv(path: str) -> List[Dict[str, str]]:
-    with open(path, "r", encoding="utf-8") as handle:
-        reader = csv.DictReader(handle)
-        return list(reader)
+    with open(path, "r", encoding="utf-8", newline="") as handle:
+        reader = csv.reader(handle)
+        raw_headers = next(reader, [])
+        fieldnames = [header.strip() for header in raw_headers]
+        rows = []
+        for values in reader:
+            row = {fieldnames[i]: (values[i].strip() if i < len(values) else "") for i in range(len(fieldnames))}
+            rows.append(row)
+    return rows
 
 
-def train_classifier(rows: List[Dict[str, str]], label_field: str, output_path: str) -> None:
-    filtered: List[Tuple[Dict[str, str], str]] = []
+def train_classifier(
+    rows: List[Dict[str, str]],
+    label_field: str,
+    output_path: str,
+    min_label_count: int,
+) -> None:
+    raw_pairs: List[Tuple[Dict[str, str], str]] = []
     for row in rows:
         label = (row.get(label_field) or "").strip()
         if label:
-            filtered.append((row_to_features(row), label))
+            raw_pairs.append((row_to_features(row), label))
 
-    if not filtered:
+    if not raw_pairs:
         raise ValueError(f"No rows with label '{label_field}' found.")
+
+    label_counts: Dict[str, int] = {}
+    for _, label in raw_pairs:
+        label_counts[label] = label_counts.get(label, 0) + 1
+
+    filtered = [
+        (features, label)
+        for features, label in raw_pairs
+        if label_counts.get(label, 0) >= min_label_count
+    ]
+    if not filtered:
+        raise ValueError(
+            f"No rows with label '{label_field}' after filtering min count {min_label_count}."
+        )
 
     X = [item[0] for item in filtered]
     y = [item[1] for item in filtered]
 
+    stratify = y if min(label_counts.values()) >= 2 else None
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
+        X, y, test_size=0.2, random_state=42, stratify=stratify
     )
 
     pipeline = Pipeline(
         [
             ("vectorizer", DictVectorizer(sparse=True)),
-            ("model", LogisticRegression(max_iter=1000, n_jobs=1)),
+            ("model", LogisticRegression(max_iter=1000)),
         ]
     )
 
@@ -79,11 +105,21 @@ def main() -> None:
         default="ml/models",
         help="Output directory for trained models (default: ml/models)",
     )
+    parser.add_argument(
+        "--min-label-count",
+        type=int,
+        default=2,
+        help="Minimum samples per class to keep (default: 2).",
+    )
     args = parser.parse_args()
 
     rows = load_csv(args.input)
-    train_classifier(rows, "result", os.path.join(args.outdir, "deliverability.joblib"))
-    train_classifier(rows, "provider", os.path.join(args.outdir, "provider.joblib"))
+    train_classifier(
+        rows, "result", os.path.join(args.outdir, "deliverability.joblib"), args.min_label_count
+    )
+    train_classifier(
+        rows, "provider", os.path.join(args.outdir, "provider.joblib"), args.min_label_count
+    )
 
 
 if __name__ == "__main__":

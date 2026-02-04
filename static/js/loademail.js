@@ -23,7 +23,7 @@ function displayMessage(message, isError = false) {
       event.preventDefault();
       const emailAddress = $('#emailAddress').val();
 
-      // Show spinner and loading text
+      
       $resetBtn.prop('disabled', true);
       $resetBtn.html('<span class="spinner"></span> Sending...');
 

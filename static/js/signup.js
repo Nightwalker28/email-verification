@@ -15,22 +15,22 @@ function displayMessage(message, isError = false) {
     }, 5000);
 }
   
-  // Function to show loading state on button
+  
   function setButtonLoading(isLoading) {
     const $submitButton = $('button[type="submit"]');
     
     if (isLoading) {
-      // Store original text and disable button
+      
       $submitButton.data('original-text', $submitButton.text());
       $submitButton.prop('disabled', true);
       $submitButton.addClass('loading');
       $submitButton.html('<span class="spinner"></span>Signing Up...');
     } else {
-      // Restore original state
+      
       $submitButton.removeClass('loading');
       $submitButton.text($submitButton.data('original-text') || 'Sign Up');
       
-      // Re-enable button only if form is valid
+      
       const password = $('#password').val();
       const confirmPassword = $('#confirm_password').val();
       const lengthValid = password.length >= 8;
@@ -50,7 +50,7 @@ function displayMessage(message, isError = false) {
     const $confirmPassword = $('#confirm_password');
     const $submitButton = $('button[type="submit"]');
   
-    // Validate password requirements in real-time
+    
     function validatePassword() {
       const password = $password.val();
       const confirmPassword = $confirmPassword.val();
@@ -69,7 +69,7 @@ function displayMessage(message, isError = false) {
       const passwordsMatch = password === confirmPassword && password !== '';
       const allValid = lengthValid && uppercaseValid && lowercaseValid && numberValid && specialCharValid;
       
-      // Don't enable button if it's currently loading
+      
       if (!$submitButton.hasClass('loading')) {
         $submitButton.prop('disabled', !(allValid && passwordsMatch));
       }
@@ -78,32 +78,32 @@ function displayMessage(message, isError = false) {
     $password.on('input', validatePassword);
     $confirmPassword.on('input', validatePassword);
   
-    // Intercept form submission and send signup data via AJAX
+    
     $('#form').on('submit', function(event) {
-      event.preventDefault(); // Prevent the default form submission
+      event.preventDefault(); 
   
-      // Show loading state
+      
       setButtonLoading(true);
   
       const formData = $(this).serialize();
   
       $.ajax({
         type: 'POST',
-        url: '/signup',  // Your backend signup route
+        url: '/signup',  
         data: formData,
         success: function(response) {
-          // Hide loading state
+          
           setButtonLoading(false);
           
           if (response.status === 'success') {
             displayMessage(response.message, false);
-            // Optionally, redirect after a short delay:
+            
           } else {
             displayMessage("Unexpected response from server.", true);
           }
         },
         error: function(xhr) {
-          // Hide loading state
+          
           setButtonLoading(false);
           
           const errorMessage =

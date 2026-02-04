@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function() {
-    // Check if user is Google login
+    
     const isGoogleLogin = JSON.parse(document.querySelector('script[data-google-login]')?.dataset.googleLogin || 'false');
     
-    // Show/hide password fields based on login type
+    
     if (!isGoogleLogin) {
         const passwordFields = document.getElementById('passwordFields');
         if (passwordFields) {
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
     
-    // Tab navigation
+    
     const menuItems = document.querySelectorAll('.sidebar-menu a');
     const contentSections = document.querySelectorAll('.content-section');
     
@@ -23,16 +23,16 @@ document.addEventListener("DOMContentLoaded", function() {
         item.addEventListener('click', function(e) {
             e.preventDefault();
             
-            // Remove active class from all menu items
+            
             menuItems.forEach(item => item.classList.remove('active'));
             
-            // Add active class to clicked menu item
+            
             this.classList.add('active');
             
-            // Hide all content sections
+            
             contentSections.forEach(section => section.classList.remove('active'));
             
-            // Show selected content section
+            
             const targetId = this.getAttribute('href').substring(1);
             const targetSection = document.getElementById(targetId);
             if (targetSection) {
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
     
-    // Password validation
+    
     const passwordInput = document.getElementById('password');
     const confirmPasswordInput = document.getElementById('confirm_password');
     
@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", function() {
             special: /[@$!%*?&]/.test(password)
         };
         
-        // Update requirement indicators
+        
         for (const [req, valid] of Object.entries(requirements)) {
             const element = document.getElementById(req);
             if (element) {
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
     
-    // Message display function
+    
     function displayMessage(message, isError = false) {
         const messageContainer = document.getElementById('message-container');
         if (messageContainer) {
@@ -81,27 +81,27 @@ document.addEventListener("DOMContentLoaded", function() {
             messageContainer.textContent = message;
             messageContainer.classList.add('show');
             
-            // Hide message after 5 seconds
+            
             setTimeout(() => {
                 messageContainer.classList.remove('show');
             }, 5000);
         }
     }
     
-    // Form submission with backend connection
+    
     const profileForm = document.getElementById('profileForm');
     if (profileForm) {
         profileForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get form data
+            
             const formData = {
                 first_name: document.getElementById('first_name').value,
                 last_name: document.getElementById('last_name').value,
                 company: document.getElementById('company').value
             };
             
-            // Send to backend
+            
             fetch('/profile', {
                 method: 'POST',
                 headers: {
@@ -125,20 +125,20 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    // Security form submission with backend connection
+    
     const securityForm = document.getElementById('securityForm');
     if (securityForm) {
         securityForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Check if passwords match
+            
             if (passwordInput && confirmPasswordInput) {
                 if (passwordInput.value !== confirmPasswordInput.value) {
                     displayMessage('Passwords do not match. Please try again.', true);
                     return;
                 }
                 
-                // Check password requirements
+                
                 const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
                 if (passwordInput.value && !passwordPattern.test(passwordInput.value)) {
                     displayMessage('Password does not meet all requirements!', true);
@@ -146,13 +146,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             }
             
-            // Get form data
+            
             const formData = {
                 first_name: document.getElementById('first_name').value,
                 last_name: document.getElementById('last_name').value
             };
             
-            // Add password fields if they have values
+            
             const currentPassword = document.getElementById('current_password');
             if (currentPassword && currentPassword.value) {
                 formData.current_password = currentPassword.value;
@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 formData.password = passwordInput.value;
             }
             
-            // Send to backend
+            
             fetch('/profile', {
                 method: 'POST',
                 headers: {
@@ -178,7 +178,7 @@ document.addEventListener("DOMContentLoaded", function() {
             })
             .then(data => {
                 displayMessage(data.message || 'Password updated successfully!', false);
-                // Clear password fields on success
+                
                 if (currentPassword) currentPassword.value = '';
                 if (passwordInput) passwordInput.value = '';
                 if (confirmPasswordInput) confirmPasswordInput.value = '';
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    // Two-factor authentication toggle
+    
     const twoFactorToggle = document.getElementById('twoFactorToggle');
     const twoFactorSetup = document.getElementById('twoFactorSetup');
     
@@ -204,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
     
-    // Show/hide API keys
+    
     const showHideButtons = document.querySelectorAll('.show-hide-btn');
     showHideButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -219,7 +219,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
     
-    // Copy API keys
+    
     const copyButtons = document.querySelectorAll('.copy-btn');
     copyButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -228,17 +228,17 @@ document.addEventListener("DOMContentLoaded", function() {
             input.type = 'text';
             input.select();
             
-            // Use modern clipboard API if available, fallback to execCommand
+            
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(input.value).then(() => {
                     displayMessage('API key copied to clipboard!', false);
                 }).catch(() => {
-                    // Fallback to execCommand
+                    
                     document.execCommand('copy');
                     displayMessage('API key copied to clipboard!', false);
                 });
             } else {
-                // Fallback for older browsers
+                
                 document.execCommand('copy');
                 displayMessage('API key copied to clipboard!', false);
             }
@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
     
-    // Handle verification code input
+    
     const verificationInputs = document.querySelectorAll('.verification-input');
     verificationInputs.forEach((input, index) => {
         input.addEventListener('input', function() {

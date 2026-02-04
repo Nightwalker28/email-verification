@@ -1,7 +1,19 @@
 import argparse
 import csv
 from collections import Counter, defaultdict
-from typing import Dict
+from typing import Dict, List
+
+
+def load_rows(path: str) -> List[Dict[str, str]]:
+    with open(path, "r", encoding="utf-8", newline="") as handle:
+        reader = csv.reader(handle)
+        raw_headers = next(reader, [])
+        fieldnames = [header.strip() for header in raw_headers]
+        rows = []
+        for values in reader:
+            row = {fieldnames[i]: (values[i].strip() if i < len(values) else "") for i in range(len(fieldnames))}
+            rows.append(row)
+    return rows
 
 
 def summarize_counts(rows, field: str) -> Dict[str, int]:
@@ -23,9 +35,7 @@ def main() -> None:
     parser.add_argument("input", help="Path to ml/valid8_logs.csv")
     args = parser.parse_args()
 
-    with open(args.input, "r", encoding="utf-8") as handle:
-        reader = csv.DictReader(handle)
-        rows = list(reader)
+    rows = load_rows(args.input)
 
     print(f"rows: {len(rows)}")
 
@@ -49,7 +59,6 @@ def main() -> None:
         for key, count in top:
             print(f"  {key}: {count}")
 
-    # Domain frequency snapshot
     domain_counts = Counter()
     for row in rows:
         domain = (row.get("domain") or "").strip().lower()
@@ -59,7 +68,6 @@ def main() -> None:
     for domain, count in domain_counts.most_common(10):
         print(f"  {domain}: {count}")
 
-    # Missingness summary
     missing = defaultdict(int)
     for row in rows:
         for key, value in row.items():

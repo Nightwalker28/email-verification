@@ -79,7 +79,7 @@
                 </div>
                 
                 <form id="securityForm">
-                    <!-- Password fields, hidden if user is Google login -->
+                    
                     <div id="passwordFields" style="display: none;">
                         <div class="form-row">
                             <div class="form-group">
@@ -116,64 +116,8 @@
                     </div>
                 </form>
                 
-                <!-- <div class="section-divider"></div> -->
-                
-                <!-- <div class="two-factor-section">
-                    <h3>Two-Factor Authentication</h3>
-                    <p>Add an extra layer of security to your account</p>
-                    
-                    <div class="toggle-container">
-                        <span>Enable Two-Factor Authentication</span>
-                        <label class="switch">
-                            <input type="checkbox" id="twoFactorToggle">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    
-                    <div id="twoFactorSetup" style="display: none;">
-                        <div class="steps-container">
-                            <div class="step">
-                                <div class="step-number">1</div>
-                                <div class="step-content">
-                                    <h4>Download an authenticator app</h4>
-                                    <p>Download Google Authenticator or Authy on your mobile device</p>
-                                </div>
-                            </div>
-                            <div class="step">
-                                <div class="step-number">2</div>
-                                <div class="step-content">
-                                    <h4>Scan QR code</h4>
-                                    <p>Use your authenticator app to scan this QR code</p>
-                                    <div class="qr-placeholder">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="8" y1="12" x2="16" y2="12"></line><line x1="12" y1="16" x2="12" y2="8"></line></svg>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="step">
-                                <div class="step-number">3</div>
-                                <div class="step-content">
-                                    <h4>Verify code</h4>
-                                    <p>Enter the 6-digit code from your authenticator app</p>
-                                    <div class="verification-inputs">
-                                        <input type="text" maxlength="1" class="verification-input">
-                                        <input type="text" maxlength="1" class="verification-input">
-                                        <input type="text" maxlength="1" class="verification-input">
-                                        <input type="text" maxlength="1" class="verification-input">
-                                        <input type="text" maxlength="1" class="verification-input">
-                                        <input type="text" maxlength="1" class="verification-input">
-                                    </div>
-                                    <button class="btn secondary-btn">Verify & Enable</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Pass Google login status to JavaScript -->
+
 <script data-google-login="{{ is_google_login | tojson }}"></script>
 {% endblock %}
 

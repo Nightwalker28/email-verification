@@ -7,7 +7,6 @@ from pages.models import db, User, Summary, searched_email_user, SearchedEmail
 from pages.loginsignup import reset_password 
 from config import error_response, success_response, logger
 
-# --- Helper Functions ---
 
 def get_user_id(user: Optional[Union[User, int, str]] = None) -> Optional[str]:
     """

@@ -1,12 +1,12 @@
 $(document).ready(function() {
-    // Toggle sidebar on mobile
+    
     $('#menu-toggle').on('click', function() {
         $('#sidebar').toggleClass('active');
         $('.main-container').toggleClass('sidebar-active');
         $(this).toggleClass('active');
     });
 
-    // Close sidebar when clicking outside on mobile
+    
     $(document).on('click', function(e) {
         const windowWidth = window.innerWidth;
         if (windowWidth <= 480) {
@@ -20,7 +20,7 @@ $(document).ready(function() {
         }
     });
 
-    // Handle window resize
+    
     $(window).on('resize', function() {
         const windowWidth = window.innerWidth;
         if (windowWidth > 480) {

@@ -28,14 +28,9 @@ def list_view():
         session.clear()
         return redirect(url_for('auth.manual_signin'))
     
-    # Fetch uploads for the current user, ordered by date
-    # Consider adding .options(joinedload(UserUpload.summary)) if you frequently access summary data
-    # from sqlalchemy.orm import joinedload 
     uploads = UserUpload.query.filter_by(user_id=user_id)\
         .order_by(UserUpload.upload_date.desc()).all()
 
-    # Fetch summaries efficiently using the list of unique filenames
-    # This is good if summaries are separate, but if 1-to-1, a join might be better.
     upload_filenames = [u.unique_filename for u in uploads]
     summaries = {}
     if upload_filenames:
@@ -45,7 +40,6 @@ def list_view():
         ).all()
         summaries = {s.list_name: s for s in summaries_query}
 
-    # Prepare data for the template
     uploads_list = []
     for u in uploads:
         s = summaries.get(u.unique_filename)
@@ -82,7 +76,7 @@ def _handle_upload(user_id: str, force_flag: bool):
         logger.error(f"Error saving file for user {user_id}: {e}", exc_info=True)
         return error_response(f"Failed to save uploaded file: {e}", 500)
     except SQLAlchemyError as e:
-        db.session.rollback() # Ensure rollback on DB error during save
+        db.session.rollback()
         logger.exception(f"Database error saving file record for user {user_id}: {e}")
         return error_response("A database error occurred while saving the file record.", 500)
     except Exception as e:
@@ -182,7 +176,6 @@ def delete_file(unique_filename: str):
         current_app.logger.info(f"Successfully deleted upload '{unique_filename}' for user {user_id}")
         return success_response('File deleted successfully.', 200)
 
-    # determine whether it never existed or an internal error
     exists = UserUpload.query.filter_by(unique_filename=unique_filename, user_id=user_id).first()
     if not exists:
         current_app.logger.warning(f"File not found or access denied: {unique_filename} (user {user_id})")

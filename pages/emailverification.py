@@ -6,33 +6,30 @@ import socket
 import time
 from datetime import datetime, timedelta
 from typing import Tuple, List, Optional, Any, Union, Dict
-import uuid  # For generating unique fake emails
+import uuid 
 
 import redis
-from sqlalchemy.orm.attributes import flag_modified  # To mark changes if needed
+from sqlalchemy.orm.attributes import flag_modified 
 
 from config import logger, disposable, Config
 from pages.models import SearchedEmail, searched_email_user, db
 from pages.users import get_user_id
 
-# --- Constants ---
 DEFAULT_PROVIDER = "Unknown Provider"
 REDIS_MX_TTL = 3600       # 1 hour
 REDIS_RISKY_TTL = 86400   # 1 day
 SMTP_TIMEOUT = 30         # seconds
 RETRY_DELAY = 60          # seconds for SMTP temporary errors
-MAX_RETRIES = 1           # For context; our consolidated retry logic implies 1 retry
+MAX_RETRIES = 1         
 
-# --- Redis Client ---
 try:
     redis_client = redis.Redis.from_url(Config.REDIS_URL, decode_responses=True)
     redis_client.ping()  # Test connection on startup
     logger.info("Redis client connected successfully.")
 except redis.exceptions.ConnectionError as e:
     logger.error(f"Failed to connect to Redis: {e}", exc_info=True)
-    redis_client = None  # Will handle checks later
+    redis_client = None 
 
-# --- Helper Functions ---
 
 def is_valid_email(email: str) -> bool:
     """Validates the basic format of an email address."""
@@ -98,7 +95,7 @@ def _handle_smtp_connection(server: smtplib.SMTP, mx_record: str, smtp_config: D
     if smtp_config.get('use_tls') and 'starttls' in server.esmtp_features:
         try:
             server.starttls()
-            server.ehlo()  # Re-issue EHLO after starting TLS
+            server.ehlo() 
             logger.info(f"Re-issuing EHLO after STARTTLS. Using hostname: '{server.local_hostname}'")
             logger.info(f"Successfully initiated TLS with {mx_record}")
         except smtplib.SMTPException as tls_error:
@@ -242,33 +239,24 @@ def _update_or_create_email_record(email: str, data: dict) -> SearchedEmail:
     Updates fields on the existing record if found.
     Flushes the session to make the record (and its ID if new) available.
     """
-    # Use with_for_update() cautiously, only if you expect concurrent updates
-    # to the *same* email record and need strict locking.
     existing_email = db.session.query(SearchedEmail).filter_by(email=email).with_for_update().first()
-    # existing_email = db.session.query(SearchedEmail).filter_by(email=email).first() # Simpler alternative
 
     if existing_email:
         logger.info(f"Updating existing DB record for {email}")
         updated = False
         for key, value in data.items():
-            # Check if the attribute exists and if the value is different
             if hasattr(existing_email, key) and getattr(existing_email, key) != value:
                 setattr(existing_email, key, value)
                 updated = True
         if updated:
-            # flag_modified might be needed if you update complex types like JSON
-            # For simple types, SQLAlchemy usually detects changes automatically.
-            # flag_modified(existing_email, "result") # Keep if necessary
             logger.debug(f"Fields updated for {email}.")
-            # --- Add Flush after update ---
             try:
                 db.session.flush()
                 logger.debug(f"Flushed session after updating {email}.")
             except Exception as flush_err:
                  logger.error(f"Error flushing session after updating {email}: {flush_err}", exc_info=True)
-                 db.session.rollback() # Rollback the specific update attempt on flush error
-                 raise # Re-raise flush error to signal failure
-            # --- End Add Flush ---
+                 db.session.rollback()
+                 raise
         else:
             logger.debug(f"No changes detected for existing record {email}.")
         return existing_email
@@ -278,22 +266,19 @@ def _update_or_create_email_record(email: str, data: dict) -> SearchedEmail:
             "role_based": 0, "accept_all": 0, "full_inbox": 0, "disposable": 0,
             "provider": DEFAULT_PROVIDER, "result": "Unknown"
         }
-        # Ensure data only contains valid columns for SearchedEmail
         valid_keys = {column.key for column in SearchedEmail.__table__.columns}
         filtered_data = {k: v for k, v in data.items() if k in valid_keys}
-        final_data = {**defaults, **filtered_data} # Merge defaults with filtered data
+        final_data = {**defaults, **filtered_data}
 
         new_email_record = SearchedEmail(email=email, **final_data)
         db.session.add(new_email_record)
-        # --- Add Flush after add ---
         try:
-            db.session.flush() # Flush to get the ID and register the change
+            db.session.flush()
             logger.debug(f"Flushed session after adding {email}. ID: {new_email_record.email_id}")
         except Exception as flush_err:
              logger.error(f"Error flushing session after adding {email}: {flush_err}", exc_info=True)
-             db.session.rollback() # Rollback the add attempt on flush error
-             raise # Re-raise flush error
-        # --- End Add Flush ---
+             db.session.rollback()
+             raise
         return new_email_record
 
 
@@ -307,7 +292,6 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
     start_time = time.monotonic()
     logger.info(f"Starting verification for email: {email} (Force live: {force_live_check})")
 
-    # --- 1. Initial Validation and Setup ---
     if not is_valid_email(email):
         logger.warning(f"Invalid email format: {email}")
         return {
@@ -328,7 +312,6 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
     is_role = username in roles
     is_disposable = domain in disposable
 
-    # Prepare initial data state
     email_data = {
         "provider": DEFAULT_PROVIDER,
         "role_based": 1 if is_role else 0,
@@ -339,8 +322,6 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
     }
     final_result_source = "Unknown"
 
-    # --- 2. Cache Checks ---
-    # Check Redis risky domain cache first
     if not force_live_check and redis_client:
         try:
             risky_provider = redis_client.get(f"risky:{domain}")
@@ -355,7 +336,6 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
         except Exception as e:
             logger.error(f"Redis error checking risky cache for {domain}: {e}", exc_info=True)
 
-    # Check DB cache if not already found risky
     if not force_live_check and final_result_source == "Unknown":
         try:
             db_record = db.session.query(SearchedEmail).filter_by(email=email).first()
@@ -373,7 +353,6 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
         except Exception as e:
             logger.error(f"Database error checking cache for {email}: {e}", exc_info=True)
 
-    # --- 3. Live Verification (if needed) ---
     if final_result_source == "Unknown" or force_live_check:
         logger.info(f"Performing live verification for {email}.")
         final_result_source = "Live Check"
@@ -386,18 +365,15 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
             email_data["provider"] = extract_provider_from_mx(mx_records, providers)
             logger.debug(f"MX records found for {domain}: {mx_records}. Provider identified as: {email_data['provider']}")
             try:
-                # Define SMTP config once
                 smtp_config = {
                     'mail_from': getattr(Config, 'SMTP_MAIL'),
                     'use_tls': getattr(Config, 'SMTP_USE_TLS', False),
                     'helo_host': getattr(Config, 'SMTP_HELO', None)
                 }
-                # --- Initial Primary Email Check ---
                 logger.debug(f"Performing initial primary check for {email}")
                 primary_result, full_inbox, primary_temp = verify_email_attempt(mx_records, email, smtp_config)
                 email_data["full_inbox"] = 1 if full_inbox else 0
                 logger.info(f"Initial primary check result: {primary_result}, TempError: {primary_temp}")
-                # --- Initial Catch-All Check ---
                 needs_accept_all_check = (primary_result is True or primary_result == "Unknown")
                 catch_all_result: Union[bool, str] = False
                 catch_all_temp = False
@@ -408,7 +384,6 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                     logger.info(f"Initial catch-all check result: {catch_all_result}, TempError: {catch_all_temp}")
                 else:
                     logger.debug(f"Skipping initial catch-all check because initial primary result is {primary_result}")
-                # --- Consolidated Wait and Retry Execution ---
                 if primary_temp or catch_all_temp:
                     logger.info(f"Temporary error detected (Primary: {primary_temp}, CatchAll: {catch_all_temp}). Waiting {RETRY_DELAY}s...")
                     time.sleep(RETRY_DELAY)
@@ -432,7 +407,6 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                         else:
                             logger.info(f"Skipping catch-all retry because primary result after retry is {primary_result}")
                             catch_all_result = False
-                # --- Final Decision ---
                 accept_all = (catch_all_result is True)
                 email_data["accept_all"] = 1 if accept_all else 0
                 logger.info(f"Final accept-all determination for {domain}: {accept_all}")
@@ -456,7 +430,6 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                 logger.error(f"Unexpected error during live email verification process for {email}: {e}", exc_info=True)
                 email_data["result"] = "Verification Error"
 
-    # --- 4. Database Update and Commit ---
     email_record = None
     try:
         email_record = _update_or_create_email_record(email, email_data)
