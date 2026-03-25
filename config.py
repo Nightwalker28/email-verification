@@ -48,6 +48,7 @@ class Config:
     broker_url = os.environ.get('CELERY_BROKER_URL', 'redis://redis:6379/0')
     result_backend = os.environ.get('CELERY_RESULT_BACKEND', 'redis://redis:6379/0')
     REDIS_URL = os.environ.get('REDIS_URL', 'redis://redis:6379/1')
+    ML_ENABLED = os.environ.get('ML_ENABLED', 'true').lower() in ['true', '1', 'yes']
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_size': int(os.environ.get('DB_POOL_SIZE', 10)),
         'max_overflow': int(os.environ.get('DB_MAX_OVERFLOW', 20)),
@@ -63,6 +64,8 @@ ALLOWED_EXTENSIONS = {'csv', 'xlsx'}
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+ML_BASE_DIR = os.path.abspath(os.path.join(BASE_DIR, '..', 'ml'))
+ML_MODEL_DIR = os.environ.get('ML_MODEL_DIR', os.path.join(ML_BASE_DIR, 'models'))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 handler = logging.StreamHandler(sys.stdout)

@@ -232,8 +232,23 @@ def email_verify_task(self, email: str, user_id: int, force_live: bool):
     redis_client_instance = None # Initialize client to None
 
     try:
+        def publish_progress(payload: Dict[str, Any]) -> None:
+            nonlocal redis_client_instance
+            try:
+                if not redis_client_instance:
+                    redis_client_instance = redis.Redis.from_url(Config.REDIS_URL)
+                redis_client_instance.publish(task_id, json.dumps(payload))
+            except Exception as progress_err:
+                logger.error(f"Task {task_id}: Failed to publish progress payload for {email}: {progress_err}", exc_info=True)
+
         verification_details = perform_email_verification(
-            email, providers, roles, user=user_id, force_live_check=force_live, commit_immediately=True
+            email,
+            providers,
+            roles,
+            user=user_id,
+            force_live_check=force_live,
+            commit_immediately=True,
+            progress_callback=publish_progress,
         )
         logger.info(f"Task {task_id}: perform_email_verification completed for {email}. Result: {verification_details}")
 
@@ -305,4 +320,3 @@ celery.conf.beat_schedule = {
         "schedule": crontab(hour=1, minute=0), # Run daily at 1 AM
     },
 }
-

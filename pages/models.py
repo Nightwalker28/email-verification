@@ -34,11 +34,22 @@ class SearchedEmail(db.Model):
     email_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), nullable=False, unique=True)
     result = db.Column(db.String(50))
+    predicted_result = db.Column(db.String(50))
+    predicted_validity_score = db.Column(db.Float)
+    predicted_risky_score = db.Column(db.Float)
+    predicted_invalid_score = db.Column(db.Float)
     provider = db.Column(db.String(50))
+    provider_ml = db.Column(db.String(50))
+    provider_ml_score = db.Column(db.Float)
     role_based = db.Column(db.Boolean)
+    role_score = db.Column(db.Float)
     accept_all = db.Column(db.Boolean)
     full_inbox = db.Column(db.Boolean)
     disposable = db.Column(db.Boolean)
+    disposable_score = db.Column(db.Float)
+    spoofed_domain = db.Column(db.Boolean)
+    spoof_score = db.Column(db.Float)
+    spoof_brand = db.Column(db.String(120))
 
     def __repr__(self) -> str:
         return f'<SearchedEmail {self.email}>'

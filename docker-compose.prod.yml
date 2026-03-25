@@ -13,6 +13,7 @@ services:
       - .env
     volumes:
       - uploads_data:/app/uploads
+      - ../ml:/ml:ro
     depends_on:
       db:
         condition: service_healthy
@@ -20,6 +21,9 @@ services:
         condition: service_started
     ports:
       - "127.0.0.1:5000:5000"
+    environment:
+      ML_MODEL_DIR: /ml/models
+      PYTHONPATH: /app:/ml
     restart: unless-stopped
     networks:
       - default
@@ -32,11 +36,15 @@ services:
       - .env
     volumes:
       - uploads_data:/app/uploads
+      - ../ml:/ml:ro
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
+    environment:
+      ML_MODEL_DIR: /ml/models
+      PYTHONPATH: /app:/ml
     restart: unless-stopped
     networks:
       - default

@@ -36,4 +36,10 @@ def create_app():
     from app.files import files_bp as files_blueprint
     app.register_blueprint(files_blueprint)
 
+    try:
+        from app.ml_models import get_ml_models
+        get_ml_models().warmup()
+    except Exception:
+        app.logger.exception("ML model warmup failed during app startup. Falling back to rule-based verification.")
+
     return app

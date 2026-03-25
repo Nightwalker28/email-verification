@@ -332,6 +332,9 @@ def process_emails_concurrently(emails: pd.Series, user: User, force: bool = Fal
                 return {
                     "email": email_to_verify,
                     "result": verification_result_dict.get("result", RESULT_ERROR),
+                    "predicted_result": verification_result_dict.get("predicted_result"),
+                    "prediction_summary": verification_result_dict.get("prediction_summary"),
+                    "predicted_validity_score": verification_result_dict.get("predicted_validity_score"),
                     "provider": verification_result_dict.get("provider"),
                     "role_based": verification_result_dict.get("role_based"),
                     "accept_all": verification_result_dict.get("accept_all"),
@@ -474,13 +477,16 @@ def save_verified_file(original_df: pd.DataFrame, results_df: pd.DataFrame, orig
         temp_sanitized_col = '_sanitized_email_for_merge'
         original_df[temp_sanitized_col] = original_df[email_col].astype(str).apply(sanitize_email)
 
-        cols_to_select = ['email', 'result', 'provider', 'role_based', 'accept_all', 'full_inbox', 'disposable']
+        cols_to_select = ['email', 'result', 'predicted_result', 'prediction_summary', 'predicted_validity_score', 'provider', 'role_based', 'accept_all', 'full_inbox', 'disposable']
         existing_cols = [col for col in cols_to_select if col in results_df.columns]
         results_to_merge = results_df[existing_cols].copy()
 
         rename_map = {
             'email': 'email_lookup',
             'result': 'Verification Result',
+            'predicted_result': 'Predicted Result',
+            'prediction_summary': 'Predicted Validity',
+            'predicted_validity_score': 'Predicted Validity Score',
             'provider': 'Provider Guess',
             'role_based': 'Role-Based',
             'accept_all': 'Accept-All',

@@ -1,53 +1,48 @@
 # ---------- Build stage ----------
-FROM python:3.13-alpine AS builder
+FROM python:3.12-slim AS builder
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Install build tools and dev libs
-RUN apk update && apk add --no-cache \
-    build-base \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
     gcc \
     g++ \
     libffi-dev \
-    libpq \
-    openssl-dev \
-    mariadb-dev \
+    libssl-dev \
+    default-libmysqlclient-dev \
     git \
-    curl
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 
-# Install Python deps to a temp location
 RUN pip install --upgrade pip && \
     pip install --prefix=/install -r requirements.txt
 
 # ---------- Final stage ----------
-FROM python:3.13-alpine
+FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Copy installed packages from builder
-COPY --from=builder /install /usr/local
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy the application code
+COPY --from=builder /install /usr/local
 COPY . .
 
-# Create a non-root user (Alpine-style)
-RUN adduser -D -h /home/flaskuser flaskuser
+RUN useradd -m -d /home/flaskuser flaskuser && \
+    mkdir -p /app/uploads && \
+    chown -R flaskuser:flaskuser /app
 
-# Create upload directory and give ownership to flaskuser
-RUN mkdir -p /app/uploads && chown -R flaskuser /app
-
-# Switch to non-root user
 USER flaskuser
 
 EXPOSE 5000
 
-# Start the app with Gunicorn
 CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "factory:create_app()"]

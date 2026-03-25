@@ -5,13 +5,14 @@ import smtplib
 import socket
 import time
 from datetime import datetime, timedelta
-from typing import Tuple, List, Optional, Any, Union, Dict
+from typing import Tuple, List, Optional, Any, Union, Dict, Callable
 import uuid 
 
 import redis
 from sqlalchemy.orm.attributes import flag_modified 
 
 from config import logger, disposable, Config
+from app.ml_models import get_ml_models
 from pages.models import SearchedEmail, searched_email_user, db
 from pages.users import get_user_id
 
@@ -21,6 +22,16 @@ REDIS_RISKY_TTL = 86400   # 1 day
 SMTP_TIMEOUT = 30         # seconds
 RETRY_DELAY = 60          # seconds for SMTP temporary errors
 MAX_RETRIES = 1         
+
+PROVIDER_BRAND_MAP = {
+    "Google": "google",
+    "Microsoft": "microsoft",
+    "Mail.com": "mail",
+    "Minecast": "minecast",
+    "pphosted.com": "pphosted",
+    "gov.sg": "gov",
+    "iphmx.com": "iphmx",
+}
 
 try:
     redis_client = redis.Redis.from_url(Config.REDIS_URL, decode_responses=True)
@@ -102,56 +113,61 @@ def _handle_smtp_connection(server: smtplib.SMTP, mx_record: str, smtp_config: D
             logger.warning(f"STARTTLS failed for {mx_record}: {tls_error}. Proceeding without TLS.")
 
 
-def verify_email_attempt(mx_records: List[str], email: str, smtp_config: Dict[str, Any]) -> Tuple[Union[bool, str], bool, bool]:
+def verify_email_attempt(mx_records: List[str], email: str, smtp_config: Dict[str, Any]) -> Tuple[Union[bool, str], bool, bool, str, str]:
     """
     Performs a single attempt to verify the given email via the provided MX records.
-    Returns a tuple: (result, full_inbox, temp_error_flag)
+    Returns a tuple: (result, full_inbox, temp_error_flag, smtp_code, mx_host)
       - result: True (exists), False (doesn't exist), or "Unknown"
       - full_inbox: True if a 552 (mailbox full) response was encountered.
       - temp_error_flag: True if a temporary error was detected (e.g., 4xx/503/network issues).
     """
     full_inbox = False
     mail_from = smtp_config.get('mail_from', 'verifier@example.com')
+    last_smtp_code = ""
+    last_mx_host = ""
     for mx_record in mx_records:
         server: Optional[smtplib.SMTP] = None
         try:
+            last_mx_host = mx_record
             logger.debug(f"Attempting connection to {mx_record} for {email}")
             helo_host = smtp_config.get('helo_host')
             server = smtplib.SMTP(mx_record, timeout=SMTP_TIMEOUT, local_hostname=helo_host)
             _handle_smtp_connection(server, mx_record, smtp_config)
             code, message = server.mail(mail_from)
+            last_smtp_code = str(code)
             if code != 250:
                 logger.warning(f"MAIL FROM <{mail_from}> failed on {mx_record}: {code} {message}. Trying next MX.")
                 continue  # Try next MX record
             code, message = server.rcpt(email)
+            last_smtp_code = str(code)
             logger.debug(f"RCPT TO <{email}> on {mx_record}: Code={code}, Msg={message}")
             if code in [250, 251]:
                 logger.info(f"Email {email} confirmed exists via {mx_record}.")
-                return True, full_inbox, False
+                return True, full_inbox, False, last_smtp_code, last_mx_host
             elif code in [550, 551, 553, 554]:
                 logger.info(f"Email {email} confirmed does not exist via {mx_record} (Code: {code}).")
-                return False, full_inbox, False
+                return False, full_inbox, False, last_smtp_code, last_mx_host
             elif code == 552:
                 logger.info(f"Inbox full for {email} via {mx_record} (Code: {code}).")
                 full_inbox = True
-                return True, full_inbox, False
+                return True, full_inbox, False, last_smtp_code, last_mx_host
             elif code == 503:
                 logger.warning(f"Received 503 from {mx_record} for {email}.")
-                return "Unknown", full_inbox, True
+                return "Unknown", full_inbox, True, last_smtp_code, last_mx_host
             elif code in [421, 450, 451, 452] or "temporarily unavailable" in str(message).lower():
                 logger.warning(f"Temporary error from {mx_record} for {email} (Code: {code}): {message}")
-                return "Unknown", full_inbox, True
+                return "Unknown", full_inbox, True, last_smtp_code, last_mx_host
             else:
                 logger.error(f"Unhandled SMTP error code {code} from {mx_record} for {email}: {message}")
-                return False, full_inbox, False
+                return False, full_inbox, False, last_smtp_code, last_mx_host
         except (smtplib.SMTPServerDisconnected, smtplib.SMTPConnectError,
                 smtplib.SMTPHeloError, socket.timeout, socket.gaierror,
                 ConnectionRefusedError, OSError) as e:
             logger.error(f"Network/Connection error with MX record {mx_record} for {email}: {e}")
-            return "Unknown", full_inbox, True
+            return "Unknown", full_inbox, True, last_smtp_code, last_mx_host
         except Exception as e:
             logger.error(f"Unexpected error for {email} with MX {mx_record}: {e}", exc_info=True)
-            return "Unknown", full_inbox, False
+            return "Unknown", full_inbox, False, last_smtp_code, last_mx_host
         finally:
             if server:
                 try:
@@ -159,7 +175,7 @@ def verify_email_attempt(mx_records: List[str], email: str, smtp_config: Dict[st
                 except Exception:
                     pass
     logger.warning(f"Could not determine status for {email} after trying all MX records in single attempt.")
-    return "Unknown", full_inbox, False
+    return "Unknown", full_inbox, False, last_smtp_code, last_mx_host
 
 
 def extract_provider_from_mx(mx_records: List[str], providers: dict) -> str:
@@ -222,13 +238,68 @@ def update_searched_email_user_count(user_id: int, email_id: int, increment: boo
 
 def _format_result_dict(email_record: SearchedEmail) -> dict:
     """Formats the result dictionary from a SearchedEmail object."""
+    prediction_summary = None
+    if email_record.predicted_validity_score is not None:
+        prediction_summary = f"{round(email_record.predicted_validity_score * 100)}% valid"
     return {
         "result": email_record.result or "Unknown",
+        "predicted_result": email_record.predicted_result or "Unknown",
+        "predicted_validity_score": email_record.predicted_validity_score,
+        "predicted_risky_score": email_record.predicted_risky_score,
+        "predicted_invalid_score": email_record.predicted_invalid_score,
+        "prediction_summary": prediction_summary,
         "provider": email_record.provider or DEFAULT_PROVIDER,
+        "provider_ml": email_record.provider_ml,
+        "provider_ml_score": email_record.provider_ml_score,
         "role_based": "Yes" if email_record.role_based else "No",
+        "role_score": email_record.role_score,
         "accept_all": "Yes" if email_record.accept_all else "No",
         "full_inbox": "Yes" if email_record.full_inbox else "No",
-        "temporary_mail": "Yes" if email_record.disposable else "No"
+        "temporary_mail": "Yes" if email_record.disposable else "No",
+        "disposable_score": email_record.disposable_score,
+        "spoofed_domain": "Yes" if email_record.spoofed_domain else "No",
+        "spoof_score": email_record.spoof_score,
+        "spoof_brand": email_record.spoof_brand,
+    }
+
+
+def _provider_brand(provider: str) -> str:
+    normalized = (provider or "").strip()
+    if normalized in PROVIDER_BRAND_MAP:
+        return PROVIDER_BRAND_MAP[normalized]
+    normalized = normalized.lower()
+    if not normalized or normalized == DEFAULT_PROVIDER.lower():
+        return ""
+    return normalized.split(".", 1)[0]
+
+
+def _prediction_payload(
+    *,
+    predicted_result: str,
+    probabilities: dict[str, float],
+    role_score: Optional[float],
+    disposable_score: Optional[float],
+    provider_ml: Optional[str],
+    provider_ml_score: Optional[float],
+    spoof_score: Optional[float],
+    spoof_brand: Optional[str],
+) -> dict:
+    validity_score = float(probabilities.get("Email exists", 0.0))
+    risky_score = float(probabilities.get("Risky", 0.0))
+    invalid_score = float(probabilities.get("Invalid", 0.0))
+    return {
+        "predicted_result": predicted_result,
+        "predicted_validity_score": validity_score,
+        "predicted_risky_score": risky_score,
+        "predicted_invalid_score": invalid_score,
+        "prediction_summary": f"{round(validity_score * 100)}% valid",
+        "role_score": role_score,
+        "disposable_score": disposable_score,
+        "provider_ml": provider_ml,
+        "provider_ml_score": provider_ml_score,
+        "spoof_score": spoof_score,
+        "spoof_brand": spoof_brand,
+        "spoofed_domain": bool(spoof_score and spoof_score >= 0.5),
     }
 
 
@@ -284,7 +355,8 @@ def _update_or_create_email_record(email: str, data: dict) -> SearchedEmail:
 
 def perform_email_verification(email: str, providers: dict, roles: dict, user: Optional[Any] = None,
                                force_live_check: bool = False, increment: bool = True,
-                               commit_immediately: bool = True) -> dict:
+                               commit_immediately: bool = True,
+                               progress_callback: Optional[Callable[[dict], None]] = None) -> dict:
     """
     Performs email verification with optimized structure, caching, and database handling.
     Includes consolidated retry logic for temporary SMTP errors.
@@ -296,6 +368,9 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
         logger.warning(f"Invalid email format: {email}")
         return {
             "result": "Invalid email format", "provider": DEFAULT_PROVIDER,
+            "predicted_result": "Unknown", "predicted_validity_score": None,
+            "predicted_risky_score": None, "predicted_invalid_score": None,
+            "prediction_summary": None,
             "role_based": "No", "accept_all": "No", "full_inbox": "No",
             "temporary_mail": "No"
         }
@@ -304,21 +379,40 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
         logger.error("User not authenticated for email verification.")
         return {
             "result": "Authentication Error", "provider": DEFAULT_PROVIDER,
+            "predicted_result": "Unknown", "predicted_validity_score": None,
+            "predicted_risky_score": None, "predicted_invalid_score": None,
+            "prediction_summary": None,
             "role_based": "No", "accept_all": "No", "full_inbox": "No",
             "temporary_mail": "No"
         }
     domain = email.split('@')[-1].lower()
     username = email.split('@')[0].lower()
-    is_role = username in roles
-    is_disposable = domain in disposable
+    ml_models = get_ml_models()
+    role_prediction = ml_models.predict_role_based(username)
+    disposable_prediction = ml_models.predict_disposable(domain)
+    is_role = username in roles or bool(role_prediction and role_prediction.label)
+    is_disposable = domain in disposable or bool(disposable_prediction and disposable_prediction.label)
+    role_score = float(role_prediction.score) if role_prediction else None
+    disposable_score = float(disposable_prediction.score) if disposable_prediction else None
 
     email_data = {
         "provider": DEFAULT_PROVIDER,
+        "provider_ml": None,
+        "provider_ml_score": None,
         "role_based": 1 if is_role else 0,
+        "role_score": role_score,
         "accept_all": 0,
         "full_inbox": 0,
         "disposable": 1 if is_disposable else 0,
-        "result": "Unknown"
+        "disposable_score": disposable_score,
+        "result": "Unknown",
+        "predicted_result": "Unknown",
+        "predicted_validity_score": None,
+        "predicted_risky_score": None,
+        "predicted_invalid_score": None,
+        "spoofed_domain": 0,
+        "spoof_score": None,
+        "spoof_brand": None,
     }
     final_result_source = "Unknown"
 
@@ -343,11 +437,22 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                 logger.info(f"Found existing verification for {email} in DB. Using cached data.")
                 email_data = {
                     "result": db_record.result,
+                    "predicted_result": db_record.predicted_result,
+                    "predicted_validity_score": db_record.predicted_validity_score,
+                    "predicted_risky_score": db_record.predicted_risky_score,
+                    "predicted_invalid_score": db_record.predicted_invalid_score,
                     "provider": db_record.provider,
+                    "provider_ml": db_record.provider_ml,
+                    "provider_ml_score": db_record.provider_ml_score,
                     "role_based": db_record.role_based,
+                    "role_score": db_record.role_score,
                     "accept_all": db_record.accept_all,
                     "full_inbox": db_record.full_inbox,
-                    "disposable": db_record.disposable
+                    "disposable": db_record.disposable,
+                    "disposable_score": db_record.disposable_score,
+                    "spoofed_domain": db_record.spoofed_domain,
+                    "spoof_score": db_record.spoof_score,
+                    "spoof_brand": db_record.spoof_brand,
                 }
                 final_result_source = "DB Cache"
         except Exception as e:
@@ -365,14 +470,83 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
             email_data["provider"] = extract_provider_from_mx(mx_records, providers)
             logger.debug(f"MX records found for {domain}: {mx_records}. Provider identified as: {email_data['provider']}")
             try:
+                mx_host = mx_records[0] if mx_records else ""
+                provider_prediction = ml_models.predict_provider(
+                    email=email,
+                    domain=domain,
+                    mx_host=mx_host,
+                    smtp_code="",
+                    force_live=force_live_check,
+                    temp_error=False,
+                    source="Live Check",
+                )
+                if provider_prediction:
+                    email_data["provider_ml"] = provider_prediction.label
+                    email_data["provider_ml_score"] = provider_prediction.confidence
+                    if email_data["provider"] == DEFAULT_PROVIDER or provider_prediction.confidence >= 0.75:
+                        email_data["provider"] = provider_prediction.label
+
+                spoof_brand = _provider_brand(email_data["provider"])
+                spoof_prediction = None
+                if spoof_brand and spoof_brand != domain.split(".", 1)[0]:
+                    spoof_prediction = ml_models.predict_spoof(domain.split(".", 1)[0], spoof_brand)
+                if spoof_prediction:
+                    email_data["spoof_score"] = spoof_prediction.score
+                    email_data["spoof_brand"] = spoof_brand
+                    email_data["spoofed_domain"] = 1 if spoof_prediction.label else 0
+
+                precheck_prediction = ml_models.predict_deliverability(
+                    email=email,
+                    domain=domain,
+                    mx_host=mx_host,
+                    smtp_code="",
+                    force_live=force_live_check,
+                    temp_error=False,
+                    source="Live Check",
+                    provider=email_data["provider"],
+                    accept_all=False,
+                    duration_s=0.0,
+                )
+                if precheck_prediction and precheck_prediction.probabilities:
+                    precheck_payload = _prediction_payload(
+                        predicted_result=precheck_prediction.label,
+                        probabilities=precheck_prediction.probabilities,
+                        role_score=email_data["role_score"],
+                        disposable_score=email_data["disposable_score"],
+                        provider_ml=email_data["provider_ml"],
+                        provider_ml_score=email_data["provider_ml_score"],
+                        spoof_score=email_data["spoof_score"],
+                        spoof_brand=email_data["spoof_brand"],
+                    )
+                    email_data.update(precheck_payload)
+                    if progress_callback:
+                        progress_callback(
+                            {
+                                "status": "predicted",
+                                "email": email,
+                                "details": {
+                                    "result": "Pending live check",
+                                    "provider": email_data["provider"],
+                                    "role_based": "Yes" if email_data["role_based"] else "No",
+                                    "accept_all": "No",
+                                    "full_inbox": "No",
+                                    "temporary_mail": "Yes" if email_data["disposable"] else "No",
+                                    **precheck_payload,
+                                },
+                            }
+                        )
+
                 smtp_config = {
                     'mail_from': getattr(Config, 'SMTP_MAIL'),
                     'use_tls': getattr(Config, 'SMTP_USE_TLS', False),
                     'helo_host': getattr(Config, 'SMTP_HELO', None)
                 }
+                smtp_code = ""
+                temp_error_seen = False
                 logger.debug(f"Performing initial primary check for {email}")
-                primary_result, full_inbox, primary_temp = verify_email_attempt(mx_records, email, smtp_config)
+                primary_result, full_inbox, primary_temp, smtp_code, mx_host = verify_email_attempt(mx_records, email, smtp_config)
                 email_data["full_inbox"] = 1 if full_inbox else 0
+                temp_error_seen = temp_error_seen or primary_temp
                 logger.info(f"Initial primary check result: {primary_result}, TempError: {primary_temp}")
                 needs_accept_all_check = (primary_result is True or primary_result == "Unknown")
                 catch_all_result: Union[bool, str] = False
@@ -380,7 +554,8 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                 fake_email = f"verify-{uuid.uuid4().hex[:12]}@{domain}"
                 if needs_accept_all_check:
                     logger.debug(f"Performing initial catch-all check for {domain} using {fake_email}")
-                    catch_all_result, _, catch_all_temp = verify_email_attempt(mx_records, fake_email, smtp_config)
+                    catch_all_result, _, catch_all_temp, _, _ = verify_email_attempt(mx_records, fake_email, smtp_config)
+                    temp_error_seen = temp_error_seen or catch_all_temp
                     logger.info(f"Initial catch-all check result: {catch_all_result}, TempError: {catch_all_temp}")
                 else:
                     logger.debug(f"Skipping initial catch-all check because initial primary result is {primary_result}")
@@ -389,8 +564,9 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                     time.sleep(RETRY_DELAY)
                     if primary_temp:
                         logger.info("Retrying primary email check.")
-                        primary_result, full_inbox, primary_temp_retry = verify_email_attempt(mx_records, email, smtp_config)
+                        primary_result, full_inbox, primary_temp_retry, smtp_code, mx_host = verify_email_attempt(mx_records, email, smtp_config)
                         email_data["full_inbox"] = 1 if full_inbox else 0
+                        temp_error_seen = temp_error_seen or primary_temp_retry
                         logger.info(f"Retry primary check result: {primary_result}, TempError: {primary_temp_retry}")
                         if primary_temp_retry:
                             logger.warning("Primary check still had temporary error after retry. Treating as Unknown.")
@@ -399,7 +575,8 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                     if catch_all_temp:
                         if needs_accept_all_check_after_retry:
                             logger.info("Retrying catch-all check.")
-                            catch_all_result, _, catch_all_temp_retry = verify_email_attempt(mx_records, fake_email, smtp_config)
+                            catch_all_result, _, catch_all_temp_retry, _, _ = verify_email_attempt(mx_records, fake_email, smtp_config)
+                            temp_error_seen = temp_error_seen or catch_all_temp_retry
                             logger.info(f"Retry catch-all check result: {catch_all_result}, TempError: {catch_all_temp_retry}")
                             if catch_all_temp_retry:
                                 logger.warning("Catch-all check still had temporary error after retry. Treating as False.")
@@ -410,6 +587,51 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                 accept_all = (catch_all_result is True)
                 email_data["accept_all"] = 1 if accept_all else 0
                 logger.info(f"Final accept-all determination for {domain}: {accept_all}")
+                duration_s = time.monotonic() - start_time
+
+                provider_prediction = ml_models.predict_provider(
+                    email=email,
+                    domain=domain,
+                    mx_host=mx_host,
+                    smtp_code=smtp_code,
+                    force_live=force_live_check,
+                    temp_error=temp_error_seen,
+                    source="Live Check",
+                )
+                if provider_prediction:
+                    email_data["provider_ml"] = provider_prediction.label
+                    email_data["provider_ml_score"] = provider_prediction.confidence
+                if provider_prediction and (
+                    email_data["provider"] == DEFAULT_PROVIDER or provider_prediction.confidence >= 0.75
+                ):
+                    email_data["provider"] = provider_prediction.label
+
+                final_prediction = ml_models.predict_deliverability(
+                    email=email,
+                    domain=domain,
+                    mx_host=mx_host,
+                    smtp_code=smtp_code,
+                    force_live=force_live_check,
+                    temp_error=temp_error_seen,
+                    source="Live Check",
+                    provider=email_data["provider"],
+                    accept_all=accept_all,
+                    duration_s=duration_s,
+                )
+                if final_prediction and final_prediction.probabilities:
+                    email_data.update(
+                        _prediction_payload(
+                            predicted_result=final_prediction.label,
+                            probabilities=final_prediction.probabilities,
+                            role_score=email_data["role_score"],
+                            disposable_score=email_data["disposable_score"],
+                            provider_ml=email_data["provider_ml"],
+                            provider_ml_score=email_data["provider_ml_score"],
+                            spoof_score=email_data["spoof_score"],
+                            spoof_brand=email_data["spoof_brand"],
+                        )
+                    )
+
                 if primary_result is True:
                     if accept_all:
                         email_data["result"] = "Risky"
@@ -425,6 +647,13 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                     email_data["result"] = "Invalid"
                 else:
                     email_data["result"] = "Unknown"
+
+                if email_data["result"] in {"Unknown", "Verification Error"}:
+                    deliverability_prediction = final_prediction
+                    if deliverability_prediction and deliverability_prediction.confidence >= 0.70:
+                        email_data["result"] = deliverability_prediction.label
+                        final_result_source = "ML Fallback"
+
                 logger.info(f"Live verification final result for {email}: {email_data['result']}")
             except Exception as e:
                 logger.error(f"Unexpected error during live email verification process for {email}: {e}", exc_info=True)
@@ -455,6 +684,14 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
         logger.error(f"Database error during final update/commit for {email}: {e}", exc_info=True)
         error_result = {
             "result": "Database Error",
+            "predicted_result": email_data.get("predicted_result", "Unknown"),
+            "predicted_validity_score": email_data.get("predicted_validity_score"),
+            "predicted_risky_score": email_data.get("predicted_risky_score"),
+            "predicted_invalid_score": email_data.get("predicted_invalid_score"),
+            "prediction_summary": (
+                f"{round(email_data['predicted_validity_score'] * 100)}% valid"
+                if email_data.get("predicted_validity_score") is not None else None
+            ),
             "provider": email_data.get("provider", DEFAULT_PROVIDER),
             "role_based": "Yes" if email_data.get("role_based") else "No",
             "accept_all": "Yes" if email_data.get("accept_all") else "No",

@@ -33,6 +33,7 @@ const setButtonLoading = (button, isLoading, originalText) => {
 
 
 const updateResultsTable = (email, details) => {
+  const predictionText = details.prediction_summary || '-';
   
   const updateSpecificTable = (tableBodySelector, isHomePageTable = false) => {
     const tableBody = $(tableBodySelector);
@@ -53,17 +54,19 @@ const updateResultsTable = (email, details) => {
         .removeClass((index, className) => (className.match(/(^|\s)status-\S+/g) || []).join(' '))
         .addClass(`status-${details.result.toLowerCase().replace(/ /g, '-')}`)
         .text(details.result);
-      existingRow.children('td:nth-child(3)').text(details.provider);
-      existingRow.children('td:nth-child(4)').text(details.role_based);
-      existingRow.children('td:nth-child(5)').text(details.accept_all);
-      existingRow.children('td:nth-child(6)').text(details.full_inbox);
-      existingRow.children('td:nth-child(7)').text(details.temporary_mail);
+      existingRow.children('td:nth-child(3)').text(predictionText);
+      existingRow.children('td:nth-child(4)').text(details.provider);
+      existingRow.children('td:nth-child(5)').text(details.role_based);
+      existingRow.children('td:nth-child(6)').text(details.accept_all);
+      existingRow.children('td:nth-child(7)').text(details.full_inbox);
+      existingRow.children('td:nth-child(8)').text(details.temporary_mail);
       tableBody.prepend(existingRow);
     } else {
       
       const newRow = $('<tr>');
       newRow.append($('<td>').text(email));
       newRow.append($('<td>').addClass(`status-${details.result.toLowerCase().replace(/ /g, '-')}`).text(details.result));
+      newRow.append($('<td>').text(predictionText));
       newRow.append($('<td>').text(details.provider));
       newRow.append($('<td>').text(details.role_based));
       newRow.append($('<td>').text(details.accept_all));
@@ -78,7 +81,7 @@ const updateResultsTable = (email, details) => {
           tableBody.children('tr').last().remove();
         }
         
-        const noResultsRow = tableBody.find('td[colspan="7"]');
+        const noResultsRow = tableBody.find('td[colspan="8"]');
         if (noResultsRow.length) {
             noResultsRow.parent().remove();
         }
@@ -114,6 +117,7 @@ const updateResultsTable = (email, details) => {
 const performVerification = (url, emailAddress, buttonElement, originalButtonText) => {
     
     setButtonLoading(buttonElement, true, originalButtonText);
+    const startedAt = Date.now();
     
     $.ajax({
       url: url,
@@ -128,11 +132,26 @@ const performVerification = (url, emailAddress, buttonElement, originalButtonTex
         if (taskId) {
           displayMessage('Verification started. Waiting for results...', false);
           const eventSource = new EventSource('/status-sse/' + taskId);
+          let predictionTimer = null;
+          let finalReceived = false;
+
+          const maybeShowPrediction = (eventData) => {
+            if (finalReceived) return;
+            updateResultsTable(eventData.email, eventData.details);
+            displayMessage(`Prediction ready for ${eventData.email}: ${eventData.details.prediction_summary || 'pending'}. Live check still running...`, false);
+          };
 
           eventSource.onmessage = function(event) {
             const eventData = JSON.parse(event.data);
             console.log("Received SSE data:", eventData);
-            if (eventData.status === 'completed') {
+            if (eventData.status === 'predicted') {
+              const elapsed = Date.now() - startedAt;
+              const remaining = Math.max(0, 3000 - elapsed);
+              if (predictionTimer) clearTimeout(predictionTimer);
+              predictionTimer = setTimeout(() => maybeShowPrediction(eventData), remaining);
+            } else if (eventData.status === 'completed') {
+              finalReceived = true;
+              if (predictionTimer) clearTimeout(predictionTimer);
               updateResultsTable(eventData.email, eventData.details);
               displayMessage(`Verification for ${eventData.email} completed.`, false);
               $('#emailAddress').val('').focus(); 
@@ -140,6 +159,8 @@ const performVerification = (url, emailAddress, buttonElement, originalButtonTex
               
               setButtonLoading(buttonElement, false, originalButtonText);
             } else if (eventData.status === 'error' || eventData.status === 'failed') {
+              finalReceived = true;
+              if (predictionTimer) clearTimeout(predictionTimer);
               displayMessage(`Verification task error for ${emailAddress}: ${eventData.message || 'Unknown error'}`, true);
               eventSource.close();
               

@@ -39,6 +39,7 @@
                             <tr>
                                 <th>Email</th>
                                 <th>Result</th>
+                                <th>Prediction</th>
                                 <th>Provider</th>
                                 <th>Role Based</th>
                                 <th>Accept All</th>
@@ -52,6 +53,7 @@
                             <tr>
                                 <td>{{ email_record.email }}</td>
                                 <td class="status-{{ email_record.result|lower|replace(' ', '-') }}">{{ email_record.result|title }}</td>
+                                <td>{{ (email_record.predicted_validity_score * 100)|round|int ~ '% valid' if email_record.predicted_validity_score is not none else '-' }}</td>
                                 <td>{{ email_record.provider }}</td>
                                 <td>{{ 'Yes' if email_record.role_based else 'No' }}</td>
                                 <td>{{ 'Yes' if email_record.accept_all else 'No' }}</td>
@@ -60,7 +62,7 @@
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="7" style="text-align: center;">No recent verifications to display.</td>
+                                <td colspan="8" style="text-align: center;">No recent verifications to display.</td>
                             </tr>
                             {% endif %}
                         </tbody>

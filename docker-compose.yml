@@ -7,7 +7,8 @@ services:
       - "5000:5000"
     command: python run.py  
     volumes:
-      - .:/app 
+      - .:/app
+      - ../ml:/ml:ro
     working_dir: /app
     depends_on:
       db:
@@ -16,6 +17,9 @@ services:
         condition: service_started
     env_file:
       - .env
+    environment:
+      ML_MODEL_DIR: /ml/models
+      PYTHONPATH: /app:/ml
     restart: unless-stopped
 
   celery:
@@ -24,6 +28,7 @@ services:
     command: celery -A run_celery.celery worker --concurrency=4 --loglevel=info
     volumes:
       - .:/app
+      - ../ml:/ml:ro
     working_dir: /app
     depends_on:
       db:
@@ -32,6 +37,9 @@ services:
         condition: service_started
     env_file:
       - .env
+    environment:
+      ML_MODEL_DIR: /ml/models
+      PYTHONPATH: /app:/ml
     restart: unless-stopped
 
   redis:
