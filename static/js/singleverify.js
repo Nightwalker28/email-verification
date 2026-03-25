@@ -31,10 +31,101 @@ const setButtonLoading = (button, isLoading, originalText) => {
     }
 };
 
+const buildPredictionCell = (details) => {
+    const wrapper = $('<div>').addClass('expandable-cell');
+    const summary = $('<div>').addClass('cell-summary');
+    const predictedResult = details.predicted_result || '-';
+    summary.append($('<span>').addClass('cell-main').text(predictedResult));
+    if (details.predicted_validity_score !== null && details.predicted_validity_score !== undefined) {
+        summary.append(
+            $('<button>')
+                .attr('type', 'button')
+                .addClass('expand-toggle')
+                .attr('aria-expanded', 'false')
+                .text('...')
+        );
+        const panel = $('<div>').addClass('cell-panel hidden');
+        panel.append($('<div>').text(`Valid: ${Math.round((details.predicted_validity_score || 0) * 100)}%`));
+        panel.append($('<div>').text(`Risky: ${Math.round((details.predicted_risky_score || 0) * 100)}%`));
+        panel.append($('<div>').text(`Invalid: ${Math.round((details.predicted_invalid_score || 0) * 100)}%`));
+        wrapper.append(summary, panel);
+        return wrapper;
+    }
+    wrapper.append(summary);
+    return wrapper;
+};
+
+const buildProviderCell = (details) => {
+    const wrapper = $('<div>').addClass('expandable-cell');
+    const summary = $('<div>').addClass('cell-summary');
+    summary.append($('<span>').addClass('cell-main').text(details.provider || '-'));
+    if (details.provider_ml) {
+        summary.append(
+            $('<button>')
+                .attr('type', 'button')
+                .addClass('expand-toggle')
+                .attr('aria-expanded', 'false')
+                .text('...')
+        );
+        const panel = $('<div>').addClass('cell-panel hidden');
+        panel.append($('<div>').text(`ML: ${details.provider_ml}`));
+        if (details.provider_ml_score !== null && details.provider_ml_score !== undefined) {
+            panel.append($('<div>').text(`Confidence: ${Math.round(details.provider_ml_score * 100)}%`));
+        }
+        wrapper.append(summary, panel);
+        return wrapper;
+    }
+    wrapper.append(summary);
+    return wrapper;
+};
+
+const buildRoleCell = (details) => {
+    const wrapper = $('<div>').addClass('expandable-cell');
+    const summary = $('<div>').addClass('cell-summary');
+    summary.append($('<span>').addClass('cell-main').text(details.role_based || '-'));
+    if (details.role_ml_result || details.role_score !== null && details.role_score !== undefined) {
+        summary.append(
+            $('<button>')
+                .attr('type', 'button')
+                .addClass('expand-toggle')
+                .attr('aria-expanded', 'false')
+                .text('...')
+        );
+        const panel = $('<div>').addClass('cell-panel hidden');
+        panel.append($('<div>').text(`ML: ${details.role_ml_result || 'Unknown'}`));
+        if (details.role_score !== null && details.role_score !== undefined) {
+            panel.append($('<div>').text(`Score: ${Math.round(details.role_score * 100)}%`));
+        }
+        wrapper.append(summary, panel);
+        return wrapper;
+    }
+    wrapper.append(summary);
+    return wrapper;
+};
+
+const buildSpoofCell = (details) => {
+    const wrapper = $('<div>').addClass('expandable-cell');
+    const summary = $('<div>').addClass('cell-summary');
+    summary.append($('<span>').addClass('cell-main').text(details.spoofed_domain || '-'));
+    if (details.spoof_score !== null && details.spoof_score !== undefined) {
+        summary.append(
+            $('<button>')
+                .attr('type', 'button')
+                .addClass('expand-toggle')
+                .attr('aria-expanded', 'false')
+                .text('...')
+        );
+        const panel = $('<div>').addClass('cell-panel hidden');
+        panel.append($('<div>').text(`Brand: ${details.spoof_brand || '-'}`));
+        panel.append($('<div>').text(`Score: ${Math.round(details.spoof_score * 100)}%`));
+        wrapper.append(summary, panel);
+        return wrapper;
+    }
+    wrapper.append(summary);
+    return wrapper;
+};
 
 const updateResultsTable = (email, details) => {
-  const predictionText = details.prediction_summary || '-';
-  
   const updateSpecificTable = (tableBodySelector, isHomePageTable = false) => {
     const tableBody = $(tableBodySelector);
     if (!tableBody.length) return; 
@@ -54,21 +145,23 @@ const updateResultsTable = (email, details) => {
         .removeClass((index, className) => (className.match(/(^|\s)status-\S+/g) || []).join(' '))
         .addClass(`status-${details.result.toLowerCase().replace(/ /g, '-')}`)
         .text(details.result);
-      existingRow.children('td:nth-child(3)').text(predictionText);
-      existingRow.children('td:nth-child(4)').text(details.provider);
-      existingRow.children('td:nth-child(5)').text(details.role_based);
-      existingRow.children('td:nth-child(6)').text(details.accept_all);
-      existingRow.children('td:nth-child(7)').text(details.full_inbox);
-      existingRow.children('td:nth-child(8)').text(details.temporary_mail);
+      existingRow.children('td:nth-child(3)').empty().append(buildPredictionCell(details));
+      existingRow.children('td:nth-child(4)').empty().append(buildProviderCell(details));
+      existingRow.children('td:nth-child(5)').empty().append(buildRoleCell(details));
+      existingRow.children('td:nth-child(6)').empty().append(buildSpoofCell(details));
+      existingRow.children('td:nth-child(7)').text(details.accept_all);
+      existingRow.children('td:nth-child(8)').text(details.full_inbox);
+      existingRow.children('td:nth-child(9)').text(details.temporary_mail);
       tableBody.prepend(existingRow);
     } else {
       
       const newRow = $('<tr>');
       newRow.append($('<td>').text(email));
       newRow.append($('<td>').addClass(`status-${details.result.toLowerCase().replace(/ /g, '-')}`).text(details.result));
-      newRow.append($('<td>').text(predictionText));
-      newRow.append($('<td>').text(details.provider));
-      newRow.append($('<td>').text(details.role_based));
+      newRow.append($('<td>').append(buildPredictionCell(details)));
+      newRow.append($('<td>').append(buildProviderCell(details)));
+      newRow.append($('<td>').append(buildRoleCell(details)));
+      newRow.append($('<td>').append(buildSpoofCell(details)));
       newRow.append($('<td>').text(details.accept_all));
       newRow.append($('<td>').text(details.full_inbox));
       newRow.append($('<td>').text(details.temporary_mail));
@@ -81,7 +174,7 @@ const updateResultsTable = (email, details) => {
           tableBody.children('tr').last().remove();
         }
         
-        const noResultsRow = tableBody.find('td[colspan="8"]');
+        const noResultsRow = tableBody.find('td[colspan="9"]');
         if (noResultsRow.length) {
             noResultsRow.parent().remove();
         }
@@ -112,6 +205,14 @@ const updateResultsTable = (email, details) => {
   
   updateSpecificTable('#homeRecentResultsTableBody', true);
 };
+
+$(document).on('click', '.expand-toggle', function() {
+    const button = $(this);
+    const panel = button.closest('.expandable-cell').find('.cell-panel').first();
+    const isHidden = panel.hasClass('hidden');
+    panel.toggleClass('hidden', !isHidden);
+    button.attr('aria-expanded', String(isHidden));
+});
 
 
 const performVerification = (url, emailAddress, buttonElement, originalButtonText) => {

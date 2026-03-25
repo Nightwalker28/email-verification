@@ -136,6 +136,43 @@
   background-color: rgba(76, 175, 80, 0.05);
 }
 
+.expandable-cell {
+  min-width: 110px;
+}
+
+.cell-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cell-main {
+  font-weight: 500;
+}
+
+.expand-toggle {
+  border: 0;
+  background: transparent;
+  color: var(--secondary-color);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.cell-panel {
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 6px;
+  background: #f7f7f7;
+  color: #555;
+  font-size: 11px;
+}
+
+.cell-panel.hidden {
+  display: none;
+}
+
 .action-cards {
   display: flex;
   flex-direction: column;

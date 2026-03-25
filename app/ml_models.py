@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 import threading
@@ -23,6 +24,7 @@ PROVIDER_MODEL_PATH = os.path.join(ML_MODEL_DIR, "provider_catboost.cbm")
 PROVIDER_META_PATH = os.path.join(ML_MODEL_DIR, "provider_metadata.json")
 DELIVERABILITY_MODEL_PATH = os.path.join(ML_MODEL_DIR, "deliverability_catboost.cbm")
 DELIVERABILITY_META_PATH = os.path.join(ML_MODEL_DIR, "deliverability_metadata.json")
+TOPLIST_PATH = os.path.join(ML_BASE_DIR, "top-1m.csv")
 
 
 @dataclass
@@ -55,6 +57,7 @@ class MLModelService:
         self.provider_meta: dict[str, Any] = {}
         self.deliverability_model = None
         self.deliverability_meta: dict[str, Any] = {}
+        self.spoof_brand_candidates: list[str] = []
 
     @property
     def available(self) -> bool:
@@ -69,6 +72,23 @@ class MLModelService:
         model = CatBoostClassifier()
         model.load_model(path)
         return model
+
+    def _load_spoof_brand_candidates(self) -> list[str]:
+        brands: set[str] = set()
+
+        if os.path.exists(TOPLIST_PATH):
+            with open(TOPLIST_PATH, "r", encoding="utf-8") as handle:
+                reader = csv.reader(handle)
+                for row in reader:
+                    if len(row) < 2:
+                        continue
+                    label = self.domain_label(row[1].strip().lower())
+                    if label:
+                        brands.add(label)
+                    if len(brands) >= 5000:
+                        break
+
+        return sorted(brands)
 
     def _ensure_loaded(self) -> None:
         if self._loaded:
@@ -90,6 +110,7 @@ class MLModelService:
                 self.disposable_meta = self._read_json(DISPOSABLE_META_PATH)
                 self.spoof_model = self._load_catboost(SPOOF_MODEL_PATH)
                 self.spoof_meta = self._read_json(SPOOF_META_PATH)
+                self.spoof_brand_candidates = self._load_spoof_brand_candidates()
                 self.provider_model = self._load_catboost(PROVIDER_MODEL_PATH)
                 self.provider_meta = self._read_json(PROVIDER_META_PATH)
                 self.deliverability_model = self._load_catboost(DELIVERABILITY_MODEL_PATH)
@@ -105,6 +126,14 @@ class MLModelService:
 
     def warmup(self) -> None:
         self._ensure_loaded()
+
+    @staticmethod
+    def domain_label(domain: str) -> str:
+        normalized = (domain or "").strip().lower()
+        if not normalized:
+            return ""
+        normalized = normalized.split("://")[-1].split("/", 1)[0]
+        return normalized.split(".", 1)[0]
 
     def _predict_binary_text(self, model: Any, meta: dict[str, Any], value: str) -> Optional[BinaryPrediction]:
         self._ensure_loaded()
@@ -235,6 +264,35 @@ class MLModelService:
         score = float(self.spoof_model.predict_proba(frame)[0][1])
         threshold = float(self.spoof_meta.get("threshold", 0.5))
         return BinaryPrediction(label=score >= threshold, score=score, threshold=threshold)
+
+    def resolve_spoof_brand(self, domain: str) -> str:
+        self._ensure_loaded()
+        label = self.domain_label(domain)
+        if not label:
+            return ""
+        if label in self.spoof_brand_candidates:
+            return label
+
+        best_brand = ""
+        best_key = (-1.0, float("inf"))
+        for candidate in self.spoof_brand_candidates:
+            if not candidate:
+                continue
+            jw = jaro_winkler(label, candidate)
+            ed = levenshtein(label, candidate)
+            key = (jw, -ed)
+            if key > best_key:
+                best_key = key
+                best_brand = candidate
+
+        if not best_brand:
+            return label
+
+        best_jw = best_key[0]
+        best_ed = -best_key[1]
+        if best_jw >= 0.88 or best_ed <= 2:
+            return best_brand
+        return label
 
 
 def levenshtein(a: str, b: str) -> int:

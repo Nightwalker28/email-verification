@@ -23,16 +23,6 @@ SMTP_TIMEOUT = 30         # seconds
 RETRY_DELAY = 60          # seconds for SMTP temporary errors
 MAX_RETRIES = 1         
 
-PROVIDER_BRAND_MAP = {
-    "Google": "google",
-    "Microsoft": "microsoft",
-    "Mail.com": "mail",
-    "Minecast": "minecast",
-    "pphosted.com": "pphosted",
-    "gov.sg": "gov",
-    "iphmx.com": "iphmx",
-}
-
 try:
     redis_client = redis.Redis.from_url(Config.REDIS_URL, decode_responses=True)
     redis_client.ping()  # Test connection on startup
@@ -238,9 +228,14 @@ def update_searched_email_user_count(user_id: int, email_id: int, increment: boo
 
 def _format_result_dict(email_record: SearchedEmail) -> dict:
     """Formats the result dictionary from a SearchedEmail object."""
+    ml_models = get_ml_models()
+    role_threshold = float(ml_models.role_meta.get("threshold", 0.5)) if ml_models.available else 0.5
     prediction_summary = None
     if email_record.predicted_validity_score is not None:
         prediction_summary = f"{round(email_record.predicted_validity_score * 100)}% valid"
+    role_ml_result = "Unknown"
+    if email_record.role_score is not None:
+        role_ml_result = "Yes" if email_record.role_score >= role_threshold else "No"
     return {
         "result": email_record.result or "Unknown",
         "predicted_result": email_record.predicted_result or "Unknown",
@@ -252,6 +247,7 @@ def _format_result_dict(email_record: SearchedEmail) -> dict:
         "provider_ml": email_record.provider_ml,
         "provider_ml_score": email_record.provider_ml_score,
         "role_based": "Yes" if email_record.role_based else "No",
+        "role_ml_result": role_ml_result,
         "role_score": email_record.role_score,
         "accept_all": "Yes" if email_record.accept_all else "No",
         "full_inbox": "Yes" if email_record.full_inbox else "No",
@@ -260,23 +256,14 @@ def _format_result_dict(email_record: SearchedEmail) -> dict:
         "spoofed_domain": "Yes" if email_record.spoofed_domain else "No",
         "spoof_score": email_record.spoof_score,
         "spoof_brand": email_record.spoof_brand,
-    }
-
-
-def _provider_brand(provider: str) -> str:
-    normalized = (provider or "").strip()
-    if normalized in PROVIDER_BRAND_MAP:
-        return PROVIDER_BRAND_MAP[normalized]
-    normalized = normalized.lower()
-    if not normalized or normalized == DEFAULT_PROVIDER.lower():
-        return ""
-    return normalized.split(".", 1)[0]
+}
 
 
 def _prediction_payload(
     *,
     predicted_result: str,
     probabilities: dict[str, float],
+    role_ml_result: str,
     role_score: Optional[float],
     disposable_score: Optional[float],
     provider_ml: Optional[str],
@@ -293,6 +280,7 @@ def _prediction_payload(
         "predicted_risky_score": risky_score,
         "predicted_invalid_score": invalid_score,
         "prediction_summary": f"{round(validity_score * 100)}% valid",
+        "role_ml_result": role_ml_result,
         "role_score": role_score,
         "disposable_score": disposable_score,
         "provider_ml": provider_ml,
@@ -393,6 +381,7 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
     is_role = username in roles or bool(role_prediction and role_prediction.label)
     is_disposable = domain in disposable or bool(disposable_prediction and disposable_prediction.label)
     role_score = float(role_prediction.score) if role_prediction else None
+    role_ml_result = "Yes" if role_prediction and role_prediction.label else "No"
     disposable_score = float(disposable_prediction.score) if disposable_prediction else None
 
     email_data = {
@@ -400,6 +389,7 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
         "provider_ml": None,
         "provider_ml_score": None,
         "role_based": 1 if is_role else 0,
+        "role_ml_result": role_ml_result,
         "role_score": role_score,
         "accept_all": 0,
         "full_inbox": 0,
@@ -445,6 +435,7 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                     "provider_ml": db_record.provider_ml,
                     "provider_ml_score": db_record.provider_ml_score,
                     "role_based": db_record.role_based,
+                    "role_ml_result": "Unknown",
                     "role_score": db_record.role_score,
                     "accept_all": db_record.accept_all,
                     "full_inbox": db_record.full_inbox,
@@ -486,10 +477,11 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                     if email_data["provider"] == DEFAULT_PROVIDER or provider_prediction.confidence >= 0.75:
                         email_data["provider"] = provider_prediction.label
 
-                spoof_brand = _provider_brand(email_data["provider"])
+                spoof_brand = ml_models.resolve_spoof_brand(domain)
                 spoof_prediction = None
-                if spoof_brand and spoof_brand != domain.split(".", 1)[0]:
-                    spoof_prediction = ml_models.predict_spoof(domain.split(".", 1)[0], spoof_brand)
+                domain_label = ml_models.domain_label(domain)
+                if spoof_brand and domain_label:
+                    spoof_prediction = ml_models.predict_spoof(domain_label, spoof_brand)
                 if spoof_prediction:
                     email_data["spoof_score"] = spoof_prediction.score
                     email_data["spoof_brand"] = spoof_brand
@@ -511,6 +503,7 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                     precheck_payload = _prediction_payload(
                         predicted_result=precheck_prediction.label,
                         probabilities=precheck_prediction.probabilities,
+                        role_ml_result=email_data["role_ml_result"],
                         role_score=email_data["role_score"],
                         disposable_score=email_data["disposable_score"],
                         provider_ml=email_data["provider_ml"],
@@ -528,6 +521,7 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                                     "result": "Pending live check",
                                     "provider": email_data["provider"],
                                     "role_based": "Yes" if email_data["role_based"] else "No",
+                                    "role_ml_result": email_data["role_ml_result"],
                                     "accept_all": "No",
                                     "full_inbox": "No",
                                     "temporary_mail": "Yes" if email_data["disposable"] else "No",
@@ -623,6 +617,7 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
                         _prediction_payload(
                             predicted_result=final_prediction.label,
                             probabilities=final_prediction.probabilities,
+                            role_ml_result=email_data["role_ml_result"],
                             role_score=email_data["role_score"],
                             disposable_score=email_data["disposable_score"],
                             provider_ml=email_data["provider_ml"],
@@ -694,6 +689,7 @@ def perform_email_verification(email: str, providers: dict, roles: dict, user: O
             ),
             "provider": email_data.get("provider", DEFAULT_PROVIDER),
             "role_based": "Yes" if email_data.get("role_based") else "No",
+            "role_ml_result": email_data.get("role_ml_result", "Unknown"),
             "accept_all": "Yes" if email_data.get("accept_all") else "No",
             "full_inbox": "Yes" if email_data.get("full_inbox") else "No",
             "temporary_mail": "Yes" if email_data.get("disposable") else "No"

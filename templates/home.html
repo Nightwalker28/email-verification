@@ -42,6 +42,7 @@
                                 <th>Prediction</th>
                                 <th>Provider</th>
                                 <th>Role Based</th>
+                                <th>Spoof</th>
                                 <th>Accept All</th>
                                 <th>Full Inbox</th>
                                 <th>Temporary</th>
@@ -53,16 +54,78 @@
                             <tr>
                                 <td>{{ email_record.email }}</td>
                                 <td class="status-{{ email_record.result|lower|replace(' ', '-') }}">{{ email_record.result|title }}</td>
-                                <td>{{ (email_record.predicted_validity_score * 100)|round|int ~ '% valid' if email_record.predicted_validity_score is not none else '-' }}</td>
-                                <td>{{ email_record.provider }}</td>
-                                <td>{{ 'Yes' if email_record.role_based else 'No' }}</td>
+                                <td>
+                                    <div class="expandable-cell">
+                                        <div class="cell-summary">
+                                            <span class="cell-main">{{ email_record.predicted_result or '-' }}</span>
+                                            {% if email_record.predicted_validity_score is not none %}
+                                                <button type="button" class="expand-toggle" aria-expanded="false">...</button>
+                                            {% endif %}
+                                        </div>
+                                        {% if email_record.predicted_validity_score is not none %}
+                                            <div class="cell-panel hidden">
+                                                <div>Valid: {{ (email_record.predicted_validity_score * 100)|round|int }}%</div>
+                                                <div>Risky: {{ (email_record.predicted_risky_score * 100)|round|int if email_record.predicted_risky_score is not none else 0 }}%</div>
+                                                <div>Invalid: {{ (email_record.predicted_invalid_score * 100)|round|int if email_record.predicted_invalid_score is not none else 0 }}%</div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="expandable-cell">
+                                        <div class="cell-summary">
+                                            <span class="cell-main">{{ email_record.provider }}</span>
+                                            {% if email_record.provider_ml %}
+                                                <button type="button" class="expand-toggle" aria-expanded="false">...</button>
+                                            {% endif %}
+                                        </div>
+                                        {% if email_record.provider_ml %}
+                                            <div class="cell-panel hidden">
+                                                <div>ML: {{ email_record.provider_ml }}</div>
+                                                <div>Confidence: {{ (email_record.provider_ml_score * 100)|round|int if email_record.provider_ml_score is not none else 0 }}%</div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="expandable-cell">
+                                        <div class="cell-summary">
+                                            <span class="cell-main">{{ 'Yes' if email_record.role_based else 'No' }}</span>
+                                            {% if email_record.role_score is not none %}
+                                                <button type="button" class="expand-toggle" aria-expanded="false">...</button>
+                                            {% endif %}
+                                        </div>
+                                        {% if email_record.role_score is not none %}
+                                            <div class="cell-panel hidden">
+                                                <div>ML: {{ 'Yes' if email_record.role_score >= 0.29 else 'No' }}</div>
+                                                <div>Score: {{ (email_record.role_score * 100)|round|int }}%</div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="expandable-cell">
+                                        <div class="cell-summary">
+                                            <span class="cell-main">{{ 'Yes' if email_record.spoofed_domain else 'No' }}</span>
+                                            {% if email_record.spoof_score is not none %}
+                                                <button type="button" class="expand-toggle" aria-expanded="false">...</button>
+                                            {% endif %}
+                                        </div>
+                                        {% if email_record.spoof_score is not none %}
+                                            <div class="cell-panel hidden">
+                                                <div>Brand: {{ email_record.spoof_brand or '-' }}</div>
+                                                <div>Score: {{ (email_record.spoof_score * 100)|round|int }}%</div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
                                 <td>{{ 'Yes' if email_record.accept_all else 'No' }}</td>
                                 <td>{{ 'Yes' if email_record.full_inbox else 'No' }}</td>
                                 <td>{{ 'Yes' if email_record.disposable else 'No' }}</td>
                             </tr>
                             {% else %}
                             <tr>
-                                <td colspan="8" style="text-align: center;">No recent verifications to display.</td>
+                                <td colspan="9" style="text-align: center;">No recent verifications to display.</td>
                             </tr>
                             {% endif %}
                         </tbody>
